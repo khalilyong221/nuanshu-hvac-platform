@@ -1,0 +1,1017 @@
+<title>暖枢云控</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ============ design tokens (shared across 暖枢 NUANSHU 三端) ============ */
+  :root{
+    --surface: #eef1ec;
+    --surface-raised: #ffffff;
+    --surface-sunken: #e2e7dd;
+    --surface-inset: #d8ded1;
+    --ink: #16211c;
+    --ink-muted: #52625a;
+    --ink-faint: #8b988e;
+    --border: #d1d8c9;
+    --border-strong: #b7c1af;
+
+    --brass: #93641f;
+    --brass-ink: #6e4a17;
+    --brass-soft: #ecdcb8;
+    --brass-soft-ink: #6e4a17;
+
+    --frost: #2c748a;
+    --frost-soft: #d1e7ea;
+
+    --good: #2c7a4b;
+    --good-soft: #d7ead9;
+    --warn: #a4720a;
+    --warn-soft: #f2e0b3;
+    --critical: #a63a24;
+    --critical-soft: #f4d9cd;
+
+    /* fixed categorical order for multi-series charts — never cycled, never reused as status */
+    --cat1: #93641f; /* brass   */
+    --cat2: #2c748a; /* frost   */
+    --cat3: #7a4778; /* plum    */
+    --cat4: #5c7530; /* moss    */
+    --cat5: #3d4f8f; /* slate   */
+
+    --shadow-soft: 0 1px 2px rgba(20,30,22,0.06), 0 6px 18px -8px rgba(20,30,22,0.18);
+    --shadow-raised: 0 4px 10px rgba(20,30,22,0.10), 0 16px 40px -12px rgba(20,30,22,0.28);
+
+    --font-display: 'Oswald', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    --font-body: 'IBM Plex Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+
+    --radius-s: 8px;
+    --radius-m: 14px;
+    --radius-l: 22px;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --surface: #0f1c17; --surface-raised: #16261f; --surface-sunken: #0a1511; --surface-inset: #0a1511;
+      --ink: #eef2ec; --ink-muted: #a3b3a8; --ink-faint: #6c7d72;
+      --border: #253630; --border-strong: #34473f;
+      --brass: #d6a95f; --brass-ink: #f0d9ab; --brass-soft: #3a2e17; --brass-soft-ink: #e8c98a;
+      --frost: #7fc2d6; --frost-soft: #163137;
+      --good: #5cc48c; --good-soft: #163728; --warn: #e3b544; --warn-soft: #3a2e10;
+      --critical: #e57a5c; --critical-soft: #3a1f16;
+      --cat1: #d6a95f; --cat2: #7fc2d6; --cat3: #c58fc2; --cat4: #9bc76a; --cat5: #93a6e8;
+      --shadow-soft: 0 1px 2px rgba(0,0,0,0.3), 0 6px 18px -8px rgba(0,0,0,0.5);
+      --shadow-raised: 0 4px 10px rgba(0,0,0,0.35), 0 20px 48px -14px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --surface: #0f1c17; --surface-raised: #16261f; --surface-sunken: #0a1511; --surface-inset: #0a1511;
+    --ink: #eef2ec; --ink-muted: #a3b3a8; --ink-faint: #6c7d72;
+    --border: #253630; --border-strong: #34473f;
+    --brass: #d6a95f; --brass-ink: #f0d9ab; --brass-soft: #3a2e17; --brass-soft-ink: #e8c98a;
+    --frost: #7fc2d6; --frost-soft: #163137;
+    --good: #5cc48c; --good-soft: #163728; --warn: #e3b544; --warn-soft: #3a2e10;
+    --critical: #e57a5c; --critical-soft: #3a1f16;
+    --cat1: #d6a95f; --cat2: #7fc2d6; --cat3: #c58fc2; --cat4: #9bc76a; --cat5: #93a6e8;
+    --shadow-soft: 0 1px 2px rgba(0,0,0,0.3), 0 6px 18px -8px rgba(0,0,0,0.5);
+    --shadow-raised: 0 4px 10px rgba(0,0,0,0.35), 0 20px 48px -14px rgba(0,0,0,0.6);
+  }
+
+  *{ box-sizing: border-box; }
+  body{ background: var(--surface); color: var(--ink); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+  h1,h2,h3{ font-family: var(--font-display); text-wrap: balance; }
+  .mono{ font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  button{ font-family: inherit; }
+  ::selection{ background: var(--brass-soft); color: var(--brass-ink); }
+  a{ color: var(--frost); }
+  :focus-visible{ outline: 2px solid var(--frost); outline-offset: 2px; }
+  [hidden]{ display:none !important; }
+  @media (prefers-reduced-motion: reduce){ *{ animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; } }
+
+  .shell{ max-width: 1280px; margin: 0 auto; padding: 20px 16px 64px; }
+
+  .nameplate{
+    display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap: wrap;
+    background: linear-gradient(155deg, var(--surface-raised), var(--surface-sunken));
+    border: 1px solid var(--border); border-radius: var(--radius-l); padding: 18px 24px;
+    box-shadow: var(--shadow-soft); position: relative; overflow: hidden;
+  }
+  .nameplate::before{
+    content:""; position:absolute; inset:0;
+    background: repeating-linear-gradient(115deg, rgba(147,100,31,0.05) 0 2px, transparent 2px 26px);
+    pointer-events:none;
+  }
+  .brandmark{ display:flex; align-items:center; gap:14px; position:relative; }
+  .brand-badge{
+    width:46px; height:46px; border-radius:12px;
+    background: conic-gradient(from 220deg, var(--frost), var(--brass), var(--frost));
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: inset 0 0 0 3px var(--surface-raised), var(--shadow-soft); flex: none;
+  }
+  .brand-badge svg{ width:24px; height:24px; }
+  .brand-text .name{ font-size: 22px; font-weight:600; letter-spacing:0.5px; line-height:1.1; }
+  .brand-text .sub{ font-size:12.5px; color: var(--ink-muted); letter-spacing:0.4px; margin-top:3px; }
+  .nameplate-right{ display:flex; align-items:center; gap:10px; position:relative; flex-wrap:wrap; }
+  .status-chip{ display:flex; align-items:center; gap:7px; background: var(--surface-raised); border:1px solid var(--border); padding: 7px 12px; border-radius: 999px; font-size:12.5px; color:var(--ink-muted); box-shadow: var(--shadow-soft); }
+  .dot{ width:7px; height:7px; border-radius:50%; background:var(--good); flex:none; }
+  .dot.pulse{ animation: pulse 2.2s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.35; } }
+  .theme-toggle{ display:flex; align-items:center; gap:6px; background: var(--surface-raised); border:1px solid var(--border); border-radius:999px; padding:5px; box-shadow: var(--shadow-soft); }
+  .theme-toggle button{ border:none; background:transparent; color:var(--ink-muted); width:30px; height:30px; border-radius:999px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px; }
+  .theme-toggle button.active{ background: var(--brass-soft); color: var(--brass-ink); }
+
+  .arch-nav{ margin: 18px 0 18px; display:flex; align-items:stretch; gap:10px; flex-wrap: wrap; background: var(--surface-inset); border:1px solid var(--border); border-radius: var(--radius-l); padding:10px; box-shadow: inset 0 1px 4px rgba(0,0,0,0.08); }
+  .arch-node{ flex:1 1 190px; min-width:170px; border:1px solid transparent; border-radius: var(--radius-m); padding:12px 14px; display:flex; align-items:center; gap:11px; text-decoration:none; color: var(--ink-muted); }
+  .arch-node .idx{ font-family: var(--font-mono); font-size:11px; color: var(--ink-faint); width:24px; height:24px; border-radius:50%; border:1px solid var(--border-strong); display:flex; align-items:center; justify-content:center; flex:none; }
+  .arch-node .txt{ display:flex; flex-direction:column; gap:2px; }
+  .arch-node .t1{ font-weight:600; font-size:13.5px; color:var(--ink); }
+  .arch-node .t2{ font-size:11px; color:var(--ink-faint); }
+  .arch-node.current{ background: var(--surface-raised); box-shadow: var(--shadow-raised); }
+  .arch-node.current .idx{ background: var(--brass); border-color: var(--brass); color: var(--surface-raised); }
+  .arch-node.link{ cursor:pointer; }
+  .arch-node.link:hover{ background: var(--surface-raised); }
+  .arch-node.link:hover .t1{ color: var(--frost); }
+  .arch-flow{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding: 4px 4px; flex: 0 0 auto; color: var(--ink-faint); min-width:64px; }
+  .arch-flow .arrow{ font-size:15px; }
+  .arch-flow small{ font-size:9.5px; text-align:center; line-height:1.25; }
+
+  /* section tabs (internal navigation within this one product) */
+  .section-tabs{ display:flex; gap:8px; margin: 4px 0 20px; flex-wrap:wrap; border-bottom:1px solid var(--border); padding-bottom:0; }
+  .section-tab{
+    border:none; background:transparent; color:var(--ink-faint); font-size:13.5px; font-weight:500;
+    padding:10px 4px; cursor:pointer; position:relative; display:flex; align-items:center; gap:7px; margin-right:18px;
+  }
+  .section-tab .n{ font-family: var(--font-mono); font-size:10.5px; color:var(--ink-faint); border:1px solid var(--border-strong); border-radius:5px; padding:1px 5px; }
+  .section-tab[aria-selected="true"]{ color: var(--ink); }
+  .section-tab[aria-selected="true"] .n{ background: var(--brass); border-color: var(--brass); color: var(--surface-raised); }
+  .section-tab::after{ content:""; position:absolute; left:0; right:0; bottom:-1px; height:2px; background:transparent; border-radius:2px; }
+  .section-tab[aria-selected="true"]::after{ background: var(--brass); }
+  .section-tab .badge{ background: var(--critical-soft); color: var(--critical); font-size:10.5px; font-weight:600; border-radius:999px; padding:1px 6px; }
+
+  .panel{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-l); box-shadow: var(--shadow-soft); }
+  .panel-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding: 16px 18px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .panel-head h2{ font-size:15.5px; font-weight:600; margin:0; letter-spacing:0.2px; }
+  .panel-head .desc{ font-size:12px; color:var(--ink-faint); margin-top:2px; font-family: var(--font-body); }
+  .pill{ display:inline-flex; align-items:center; gap:6px; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:500; white-space:nowrap; }
+  .pill.good{ background:var(--good-soft); color:var(--good); }
+  .pill.warn{ background:var(--warn-soft); color:var(--warn); }
+  .pill.critical{ background:var(--critical-soft); color:var(--critical); }
+  .pill.neutral{ background:var(--surface-sunken); color:var(--ink-muted); }
+  .pill .pdot{ width:6px; height:6px; border-radius:50%; background:currentColor; }
+
+  .btn{ border:1px solid var(--border-strong); background: var(--surface-raised); color: var(--ink); padding:8px 14px; border-radius: var(--radius-s); font-size:13px; font-weight:500; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+  .btn:hover{ border-color: var(--brass); }
+  .btn.primary{ background: var(--brass); border-color: var(--brass); color: var(--surface-raised); }
+  .btn.primary:hover{ filter: brightness(1.05); }
+  .btn.ghost{ background: transparent; border-color: transparent; color: var(--ink-muted); }
+  .btn.ghost:hover{ background: var(--surface-sunken); color: var(--ink); }
+  .btn.sm{ padding:6px 10px; font-size:12px; }
+  .btn[disabled]{ opacity:0.45; cursor:not-allowed; }
+
+  input[type="text"], input[type="search"]{ background: var(--surface-sunken); border:1px solid var(--border); border-radius: var(--radius-s); padding: 8px 12px; font-size:13px; color: var(--ink); font-family: var(--font-body); }
+  input[type="text"]:focus, input[type="search"]:focus{ background: var(--surface-raised); }
+
+  .kpi-row{ display:grid; grid-template-columns: repeat(4,1fr); gap:12px; margin-bottom:16px; }
+  @media (max-width:900px){ .kpi-row{ grid-template-columns: repeat(2,1fr); } }
+  .kpi-card{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:14px 15px 12px; box-shadow: var(--shadow-soft); position:relative; overflow:hidden; }
+  .kpi-card .label{ font-size:11.5px; color: var(--ink-faint); display:flex; justify-content:space-between; align-items:center; }
+  .kpi-card .value{ font-family: var(--font-display); font-size:25px; font-weight:600; margin-top:5px; line-height:1; }
+  .kpi-card .value small{ font-size:13px; color: var(--ink-faint); font-weight:400; margin-left:3px; }
+  .kpi-card .delta{ font-size:11px; margin-top:7px; display:flex; align-items:center; gap:4px; }
+  .kpi-card .delta.up{ color: var(--good); }
+  .kpi-card .delta.down{ color: var(--critical); }
+  .kpi-card .delta.flat{ color: var(--ink-faint); }
+
+  .breadcrumb{ display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-faint); padding:12px 18px 0; flex-wrap:wrap; }
+  .breadcrumb .cur{ color:var(--ink); font-weight:600; }
+  .breadcrumb button{ border:none; background:none; color:var(--frost); cursor:pointer; font-size:12px; padding:0; }
+
+  .grid-2{ display:grid; grid-template-columns: 0.85fr 1.15fr; gap:16px; align-items:start; }
+  @media (max-width: 980px){ .grid-2{ grid-template-columns: 1fr; } }
+
+  .dealer-list{ max-height: 560px; overflow-y:auto; }
+  .dealer-row{
+    display:grid; grid-template-columns: 1.4fr 0.6fr 0.6fr 0.7fr; gap:8px; align-items:center;
+    padding:12px 18px; border-bottom:1px solid var(--border); cursor:pointer; font-size:12.5px;
+  }
+  .dealer-row:hover{ background: var(--surface-sunken); }
+  .dealer-row.selected{ background: var(--brass-soft); }
+  .dealer-row .dn{ font-weight:600; font-size:13px; }
+  .dealer-row .dr{ color:var(--ink-faint); font-size:11px; margin-top:1px; }
+  .dealer-row .dval{ font-family: var(--font-mono); text-align:right; color:var(--ink-muted); }
+  .dealer-row .dval .l{ display:block; font-family:var(--font-body); font-size:10px; color:var(--ink-faint); text-align:right; }
+  .dealer-list-head{
+    display:grid; grid-template-columns: 1.4fr 0.6fr 0.6fr 0.7fr; gap:8px;
+    padding: 8px 18px; font-size:10.5px; color: var(--ink-faint); border-bottom:1px solid var(--border);
+    text-transform:uppercase; letter-spacing:0.4px;
+  }
+  .dealer-list-head span:not(:first-child){ text-align:right; }
+
+  .project-row{
+    display:grid; grid-template-columns: 1.6fr 0.9fr 0.6fr 0.7fr 22px; gap:8px; align-items:center;
+    padding:12px 18px; border-bottom:1px solid var(--border); cursor:pointer; font-size:12.5px;
+  }
+  .project-row:hover{ background: var(--surface-sunken); }
+  .project-row .pn{ font-weight:600; display:flex; align-items:center; gap:6px; }
+  .project-row .pn .star{ color:var(--brass); font-size:11px; }
+  .project-row .psub{ color:var(--ink-faint); font-size:11px; margin-top:1px; }
+  .project-row .dval{ font-family: var(--font-mono); color:var(--ink-muted); text-align:right; }
+  .project-row .chev{ color: var(--ink-faint); text-align:right; }
+  .project-list-head{
+    display:grid; grid-template-columns: 1.6fr 0.9fr 0.6fr 0.7fr 22px; gap:8px;
+    padding: 8px 18px; font-size:10.5px; color: var(--ink-faint); border-bottom:1px solid var(--border);
+    text-transform:uppercase; letter-spacing:0.4px;
+  }
+  .project-list{ max-height:560px; overflow-y:auto; }
+
+  .info-grid{ display:grid; grid-template-columns: repeat(3,1fr); gap:10px; padding: 14px 18px; }
+  @media (max-width:640px){ .info-grid{ grid-template-columns: repeat(2,1fr); } }
+  .info-cell .l{ font-size:10.5px; color:var(--ink-faint); }
+  .info-cell .v{ font-size:12.5px; margin-top:3px; color:var(--ink); font-family: var(--font-mono); }
+
+  .device-mini{ border-top:1px solid var(--border); }
+  .device-mini-row{ display:grid; grid-template-columns: 24px 1.5fr 0.9fr 0.7fr 70px; gap:8px; align-items:center; padding:10px 18px; border-bottom:1px solid var(--border); font-size:12px; }
+  .device-mini-row .statusdot{ width:8px; height:8px; border-radius:50%; }
+  .device-mini-row .statusdot.online{ background: var(--good); }
+  .device-mini-row .statusdot.warn{ background: var(--warn); }
+  .device-mini-row .statusdot.offline{ background: var(--ink-faint); }
+
+  .filter-row{ display:flex; gap:8px; padding: 12px 18px; flex-wrap:wrap; align-items:center; border-bottom:1px solid var(--border); }
+  .chip{ border:1px solid var(--border); background: var(--surface-sunken); color: var(--ink-muted); padding:6px 12px; border-radius:999px; font-size:12.5px; cursor:pointer; }
+  .chip[aria-pressed="true"]{ background: var(--brass); border-color: var(--brass); color: var(--surface-raised); }
+  .filter-row input{ margin-left:auto; width: 180px; }
+
+  .device-list{ max-height: 480px; overflow-y:auto; }
+  .device-row{ display:grid; grid-template-columns: 30px 1.6fr 1fr 0.9fr 0.9fr 24px; gap:10px; align-items:center; padding:12px 18px; border-bottom:1px solid var(--border); cursor:pointer; font-size:13px; }
+  .device-row:hover{ background: var(--surface-sunken); }
+  .device-row.selected{ background: var(--brass-soft); }
+  .device-row .statusdot{ width:9px; height:9px; border-radius:50%; }
+  .device-row .statusdot.online{ background: var(--good); }
+  .device-row .statusdot.warn{ background: var(--warn); }
+  .device-row .statusdot.offline{ background: var(--ink-faint); }
+  .device-row .dname{ font-weight:500; }
+  .device-row .dsite{ color: var(--ink-faint); font-size:11.5px; margin-top:1px; }
+  .device-row .dval{ font-family: var(--font-mono); color: var(--ink-muted); }
+  .device-row .chev{ color: var(--ink-faint); text-align:right; }
+  .device-list-head{ display:grid; grid-template-columns: 30px 1.6fr 1fr 0.9fr 0.9fr 24px; gap:10px; padding: 8px 18px; font-size:11px; color: var(--ink-faint); border-bottom:1px solid var(--border); text-transform:uppercase; letter-spacing:0.4px; }
+
+  .side-col{ display:flex; flex-direction:column; gap:16px; }
+  .chart-wrap{ padding: 14px 18px 18px; }
+  .chart-legend{ display:flex; gap:12px; font-size:11.5px; color:var(--ink-muted); margin-bottom:8px; align-items:center; flex-wrap:wrap; }
+  .chart-legend .swatch{ width:10px; height:10px; border-radius:3px; display:inline-block; margin-right:5px; vertical-align:-1px; }
+  .series-toggles{ display:flex; flex-wrap:wrap; gap:6px; padding: 12px 18px 0; }
+  .series-check{ display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-muted); border:1px solid var(--border); border-radius:999px; padding:5px 10px 5px 8px; cursor:pointer; user-select:none; }
+  .series-check input{ accent-color: var(--brass); }
+  .series-check .sw{ width:9px; height:9px; border-radius:3px; }
+
+  .alert-feed{ max-height: 230px; overflow-y:auto; }
+  .alert-item{ display:flex; gap:10px; padding:12px 18px; border-bottom:1px solid var(--border); font-size:12.5px; }
+  .alert-item .aicon{ width:26px; height:26px; border-radius:8px; flex:none; display:flex; align-items:center; justify-content:center; font-size:13px; }
+  .alert-item.critical .aicon{ background: var(--critical-soft); color: var(--critical); }
+  .alert-item.warn .aicon{ background: var(--warn-soft); color: var(--warn); }
+  .alert-item .atxt .a1{ color: var(--ink); font-weight:500; }
+  .alert-item .atxt .a2{ color: var(--ink-faint); margin-top:2px; font-size:11.5px; }
+
+  .drawer{ padding: 16px 18px 18px; display:flex; flex-direction:column; gap:14px; }
+  .drawer-empty{ padding: 34px 18px; text-align:center; color: var(--ink-faint); font-size:13px; }
+  .drawer-stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .drawer-stat{ background: var(--surface-sunken); border-radius: var(--radius-s); padding:10px; text-align:center; }
+  .drawer-stat .v{ font-family: var(--font-mono); font-size:17px; font-weight:600; }
+  .drawer-stat .l{ font-size:10.5px; color: var(--ink-faint); margin-top:3px; }
+  .drawer-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+
+  .toast{ position: fixed; left:50%; bottom: 22px; transform: translateX(-50%) translateY(140%); background: var(--ink); color: var(--surface); padding:11px 18px; border-radius:999px; font-size:13px; box-shadow: var(--shadow-raised); transition: transform 0.25s ease; z-index:50; max-width: 90vw; text-align:center; }
+  .toast.show{ transform: translateX(-50%) translateY(0); }
+
+  /* fault trend */
+  .trend-row{ display:grid; grid-template-columns: repeat(4,1fr); gap:10px; padding: 14px 18px 4px; }
+  @media (max-width:700px){ .trend-row{ grid-template-columns: repeat(2,1fr); } }
+  .trend-cell{ background:var(--surface-sunken); border-radius: var(--radius-s); padding:10px 12px; }
+  .trend-cell .v{ font-family: var(--font-mono); font-size:19px; font-weight:600; }
+  .trend-cell .l{ font-size:10.5px; color:var(--ink-faint); margin-top:2px; }
+
+  .fault-row{ display:grid; grid-template-columns: 26px 1.3fr 1fr 1.6fr 0.8fr 0.9fr; gap:8px; align-items:center; padding:12px 18px; border-bottom:1px solid var(--border); font-size:12.5px; }
+  .fault-list-head{ display:grid; grid-template-columns: 26px 1.3fr 1fr 1.6fr 0.8fr 0.9fr; gap:8px; padding:8px 18px; font-size:10.5px; color:var(--ink-faint); border-bottom:1px solid var(--border); text-transform:uppercase; letter-spacing:0.4px; }
+  .fault-row .sev{ font-size:13px; }
+  .fault-row .sev.critical{ color: var(--critical); }
+  .fault-row .sev.warn{ color: var(--warn); }
+  .fault-row .ftxt{ color:var(--ink-faint); font-size:11.5px; }
+
+  /* work orders */
+  .order-row{ display:grid; grid-template-columns: 1fr 1.2fr 1fr 0.8fr 0.9fr 1fr; gap:8px; align-items:center; padding:12px 18px; border-bottom:1px solid var(--border); font-size:12.5px; cursor:pointer; }
+  .order-row:hover{ background: var(--surface-sunken); }
+  .order-list-head{ display:grid; grid-template-columns: 1fr 1.2fr 1fr 0.8fr 0.9fr 1fr; gap:8px; padding:8px 18px; font-size:10.5px; color:var(--ink-faint); border-bottom:1px solid var(--border); text-transform:uppercase; letter-spacing:0.4px; }
+  .order-id{ font-family: var(--font-mono); }
+
+  .stepper{ display:flex; align-items:center; gap:0; padding: 6px 4px; }
+  .step{ display:flex; flex-direction:column; align-items:center; gap:6px; flex:1; position:relative; }
+  .step .sc{ width:22px; height:22px; border-radius:50%; background: var(--surface-sunken); border:1px solid var(--border-strong); display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--ink-faint); z-index:1; }
+  .step.done .sc{ background: var(--good); border-color: var(--good); color: var(--surface-raised); }
+  .step.active .sc{ background: var(--brass); border-color: var(--brass); color: var(--surface-raised); }
+  .step .sl{ font-size:10.5px; color:var(--ink-faint); text-align:center; }
+  .step.done .sl, .step.active .sl{ color: var(--ink); }
+  .step::after{ content:""; position:absolute; top:11px; left:50%; width:100%; height:1px; background: var(--border-strong); z-index:0; }
+  .step:last-child::after{ display:none; }
+  .step.done::after{ background: var(--good); }
+
+  .footer-note{ text-align:center; color: var(--ink-faint); font-size:11.5px; margin-top: 30px; }
+</style>
+
+<div class="shell">
+
+  <div class="nameplate">
+    <div class="brandmark">
+      <div class="brand-badge">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 3c2 3-1 4-1 6.5A3 3 0 0 0 14 12.5 5 5 0 1 1 8 8" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="brand-text">
+        <div class="name">暖枢云控 <span class="mono" style="font-size:13px;color:var(--ink-faint);font-weight:400;">NUANSHU CONSOLE</span></div>
+        <div class="sub">服务商中控台 · 大型经销商级 SaaS 运维平台</div>
+      </div>
+    </div>
+    <div class="nameplate-right">
+      <div class="status-chip"><span class="dot pulse"></span> <span id="onlineChip">— 台设备在线中</span></div>
+      <div class="theme-toggle" role="group" aria-label="主题切换">
+        <button type="button" data-theme-btn="light" aria-label="浅色主题">☀</button>
+        <button type="button" data-theme-btn="dark" aria-label="深色主题">☾</button>
+        <button type="button" data-theme-btn="system" aria-label="跟随系统" class="active">◐</button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="arch-nav" aria-label="暖枢三端架构">
+    <div class="arch-node current" aria-current="page">
+      <span class="idx">01</span>
+      <span class="txt"><span class="t1">服务商中控台</span><span class="t2">当前页面 · 独立部署</span></span>
+    </div>
+    <div class="arch-flow"><span class="arrow">⇄</span><small>指令下发<br>状态上报</small></div>
+    <a class="arch-node link" href="https://claude.ai/artifact/E7RfhychJMvkm7Dft8ZzYo" target="_blank" rel="noopener">
+      <span class="idx">02</span>
+      <span class="txt"><span class="t1">业主端小程序</span><span class="t2">独立页面 · 新窗口打开</span></span>
+    </a>
+    <div class="arch-flow"><span class="arrow">⇄</span><small>场景联动<br>数据同步</small></div>
+    <a class="arch-node link" href="https://claude.ai/artifact/U4rvU9DnkjvHN4RZVeE93W" target="_blank" rel="noopener">
+      <span class="idx">03</span>
+      <span class="txt"><span class="t1">硬件中控面板</span><span class="t2">独立页面 · 新窗口打开</span></span>
+    </a>
+  </nav>
+
+  <div class="section-tabs" role="tablist" aria-label="控制台分区">
+    <button class="section-tab" role="tab" data-section="overview" aria-selected="true"><span class="n">01</span>项目总览</button>
+    <button class="section-tab" role="tab" data-section="monitor" aria-selected="false"><span class="n">02</span>运行监测</button>
+    <button class="section-tab" role="tab" data-section="faults" aria-selected="false"><span class="n">03</span>故障预警</button>
+    <button class="section-tab" role="tab" data-section="orders" aria-selected="false"><span class="n">04</span>服务工单 <span class="badge" id="orderBadge" hidden></span></button>
+  </div>
+
+  <!-- ============ 01 项目总览 ============ -->
+  <section id="sec-overview">
+    <div class="kpi-row" id="kpiRow"></div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-head">
+          <div><h2>经销商网络</h2><div class="desc">6 大区运营中心 · 点击筛选右侧项目</div></div>
+          <span class="pill neutral" id="dealerCountPill"></span>
+        </div>
+        <div class="dealer-list-head"><span>网点</span><span>项目</span><span>设备</span><span>在线率</span></div>
+        <div class="dealer-list" id="dealerList"></div>
+      </div>
+
+      <div class="panel">
+        <div class="breadcrumb" id="projectBreadcrumb"></div>
+        <div id="projectPanelBody"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 运行监测 ============ -->
+  <section id="sec-monitor" hidden>
+    <div class="grid-2" style="grid-template-columns: 1.5fr 1fr;">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>设备台账</h2>
+            <div class="desc">示例网点设备 · 完整列表见各网点详情</div>
+          </div>
+          <span class="pill neutral" id="deviceCountPill">共 9 台</span>
+        </div>
+        <div class="filter-row">
+          <button class="chip" data-filter="all" aria-pressed="true">全部</button>
+          <button class="chip" data-filter="online" aria-pressed="false">在线</button>
+          <button class="chip" data-filter="warn" aria-pressed="false">异常</button>
+          <button class="chip" data-filter="offline" aria-pressed="false">离线</button>
+          <input type="search" id="deviceSearch" placeholder="搜索设备 / 项目…">
+        </div>
+        <div class="device-list-head">
+          <span></span><span>设备</span><span>类型</span><span>温度</span><span>功率</span><span></span>
+        </div>
+        <div class="device-list" id="deviceList"></div>
+      </div>
+
+      <div class="side-col">
+        <div class="panel">
+          <div class="panel-head">
+            <div><h2>能耗趋势</h2><div class="desc">近 24 小时 · 全网合计</div></div>
+            <span class="pill good"><span class="pdot"></span>较昨日 −6.2%</span>
+          </div>
+          <div class="chart-wrap">
+            <div class="chart-legend"><span><span class="swatch" style="background:var(--brass)"></span>用电量 (kWh)</span></div>
+            <svg id="energyChart" viewBox="0 0 560 170" style="width:100%;height:auto;overflow:visible;" role="img" aria-label="近24小时能耗趋势图"></svg>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h2>运行详情 · 设备详情</h2></div>
+          <div id="deviceDrawer"><div class="drawer-empty">在左侧列表选择一台设备查看详情</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 故障预警 ============ -->
+  <section id="sec-faults" hidden>
+    <div class="grid-2" style="grid-template-columns: 1.4fr 1fr;">
+      <div class="panel">
+        <div class="panel-head">
+          <div><h2>故障动态</h2><div class="desc">全网故障事件 · 可一键发起服务工单</div></div>
+        </div>
+        <div class="trend-row">
+          <div class="trend-cell"><div class="v" id="tCellToday">16</div><div class="l">今日新增</div></div>
+          <div class="trend-cell"><div class="v" id="tCellYd">9</div><div class="l">昨日新增</div></div>
+          <div class="trend-cell"><div class="v" id="tCellWk">32</div><div class="l">上周新增</div></div>
+          <div class="trend-cell"><div class="v" id="tCellMo">58</div><div class="l">上月新增</div></div>
+        </div>
+        <div class="chart-wrap" style="padding-top:6px;">
+          <svg id="faultTrendChart" viewBox="0 0 560 90" style="width:100%;height:auto;" role="img" aria-label="近12个月故障新增趋势"></svg>
+        </div>
+        <div class="fault-list-head"><span></span><span>项目</span><span>设备</span><span>故障描述</span><span>发生时间</span><span>操作</span></div>
+        <div id="faultList"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div><h2>预警动态</h2><div class="desc">非紧急 · 持续观察项</div></div></div>
+        <div class="alert-feed" id="alertFeed" style="max-height:640px;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 服务工单 ============ -->
+  <section id="sec-orders" hidden>
+    <div class="panel" style="margin-bottom:16px;">
+      <div class="panel-head">
+        <div><h2>服务工单队列</h2><div class="desc">来自故障预警自动创建 · 也可人工建单</div></div>
+        <span class="pill neutral" id="orderCountPill"></span>
+      </div>
+      <div class="filter-row">
+        <button class="chip" data-ofilter="all" aria-pressed="true">全部</button>
+        <button class="chip" data-ofilter="pending" aria-pressed="false">待接单</button>
+        <button class="chip" data-ofilter="progress" aria-pressed="false">处理中</button>
+        <button class="chip" data-ofilter="done" aria-pressed="false">已完成</button>
+      </div>
+      <div class="order-list-head"><span>工单号</span><span>项目</span><span>设备</span><span>类型</span><span>负责人</span><span>状态</span></div>
+      <div id="orderList"></div>
+    </div>
+
+    <div class="panel" id="orderDetailPanel" hidden>
+      <div class="panel-head"><div><h2 id="orderDetailTitle">工单详情</h2><div class="desc" id="orderDetailSub"></div></div>
+        <button class="btn ghost sm" id="orderDetailClose">关闭 ✕</button>
+      </div>
+      <div style="padding:18px;">
+        <div class="stepper" id="orderStepper"></div>
+        <div class="info-grid" id="orderInfoGrid" style="padding-left:0;padding-right:0;"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer-note">暖枢云控 NUANSHU CONSOLE — 三端中的服务商端，与「业主端小程序」「硬件中控面板」通过云端数据独立同步</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- theme ---------- */
+  var root = document.documentElement;
+  var themeBtns = document.querySelectorAll('[data-theme-btn]');
+  function setTheme(mode){
+    if(mode === 'system'){ root.removeAttribute('data-theme'); }
+    else{ root.setAttribute('data-theme', mode); }
+    themeBtns.forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-theme-btn') === mode); });
+    try{ localStorage.setItem('nuanshu-theme', mode); }catch(e){}
+  }
+  themeBtns.forEach(function(b){ b.addEventListener('click', function(){ setTheme(b.getAttribute('data-theme-btn')); }); });
+  try{ var saved = localStorage.getItem('nuanshu-theme'); if(saved) setTheme(saved); }catch(e){}
+
+  /* ---------- toast ---------- */
+  var toastEl = document.getElementById('toast');
+  var toastTimer = null;
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, 2600);
+  }
+  function pad(n){ return n < 10 ? '0'+n : ''+n; }
+
+  /* ============================================================ */
+  /* DATA MODEL                                                     */
+  /* ============================================================ */
+  var dealers = [
+    { id:'dl-hd', name:'华东运营中心', region:'华东', manager:'陈海', projects:18, devices:642, onlineRate:0.93 },
+    { id:'dl-hn', name:'华南运营中心', region:'华南', manager:'林芳', projects:14, devices:487, onlineRate:0.92 },
+    { id:'dl-hb', name:'华北运营中心', region:'华北', manager:'王强', projects:11, devices:365, onlineRate:0.90 },
+    { id:'dl-hz', name:'华中运营中心', region:'华中', manager:'赵敏', projects:9,  devices:298, onlineRate:0.94 },
+    { id:'dl-xn', name:'西南运营中心', region:'西南', manager:'刘洋', projects:7,  devices:221, onlineRate:0.93 },
+    { id:'dl-db', name:'东北运营中心', region:'东北', manager:'孙磊', projects:5,  devices:156, onlineRate:0.88 }
+  ];
+
+  var devices = [
+    { id:'d1', name:'户式空调主机 A-01', type:'空调主机', status:'online', temp:24.5, power:1.8,
+      series:{ indoor:[23,23.4,23.9,24.1,24.5,24.6,24.5,24.3,24.5,24.7,24.5,24.4], outdoor:[9,8,7,9,11,13,15,16,15,13,11,9], target:[24,24,24,24,24,24,24,24,24,24,24,24], discharge:[41,42,43,44,45,46,47,46,45,44,43,42], condense:[36,36,37,38,39,40,41,40,39,38,37,36] } },
+    { id:'d2', name:'新风机组 F-02', type:'新风机组', status:'online', temp:22.1, power:0.6,
+      series:{ indoor:[21,21.3,21.6,21.9,22.1,22.2,22.1,22.0,21.9,22.0,22.1,22.0], outdoor:[9,8,7,9,11,13,15,16,15,13,11,9], target:[22,22,22,22,22,22,22,22,22,22,22,22], discharge:[24,24,25,25,26,26,26,25,25,24,24,24], condense:[20,20,21,21,22,22,22,21,21,20,20,20] } },
+    { id:'d3', name:'地暖分集水器 R-03', type:'地暖水器', status:'warn', temp:31.2, power:2.4,
+      series:{ indoor:[27,28,29,29.5,30,30.5,31,31.2,31.1,31.0,31.2,31.2], outdoor:[9,8,7,9,11,13,15,16,15,13,11,9], target:[28,28,28,28,28,28,28,28,28,28,28,28], discharge:[52,53,54,55,56,57,58,58,57,57,58,58], condense:[45,46,47,48,49,50,51,51,50,50,51,51] } },
+    { id:'d4', name:'VRF室内机 3F-东', type:'VRF末端', status:'online', temp:23.8, power:1.1,
+      series:{ indoor:[23,23.2,23.5,23.7,23.8,23.9,23.8,23.7,23.8,23.9,23.8,23.8], outdoor:[12,11,10,12,14,16,18,19,18,16,14,12], target:[24,24,24,24,24,24,24,24,24,24,24,24], discharge:[38,39,40,40,41,42,41,41,40,40,41,41], condense:[33,34,35,35,36,37,36,36,35,35,36,36] } },
+    { id:'d5', name:'VRF室内机 3F-西', type:'VRF末端', status:'online', temp:24.0, power:1.0,
+      series:{ indoor:[23,23.3,23.6,23.8,24.0,24.1,24.0,23.9,24.0,24.1,24.0,24.0], outdoor:[12,11,10,12,14,16,18,19,18,16,14,12], target:[24,24,24,24,24,24,24,24,24,24,24,24], discharge:[37,38,39,39,40,41,40,40,39,39,40,40], condense:[32,33,34,34,35,36,35,35,34,34,35,35] } },
+    { id:'d6', name:'除湿机组 B1-01', type:'除湿机组', status:'offline', temp:0, power:0,
+      series:{ indoor:[26,26,26,26,26,26,26,26,26,26,26,26], outdoor:[12,11,10,12,14,16,18,19,18,16,14,12], target:[26,26,26,26,26,26,26,26,26,26,26,26], discharge:[0,0,0,0,0,0,0,0,0,0,0,0], condense:[0,0,0,0,0,0,0,0,0,0,0,0] } },
+    { id:'d7', name:'户式空调主机 A-07', type:'空调主机', status:'online', temp:25.1, power:2.0,
+      series:{ indoor:[24,24.3,24.6,24.8,25.0,25.2,25.1,25.0,25.1,25.2,25.1,25.1], outdoor:[10,9,8,10,12,14,16,17,16,14,12,10], target:[25,25,25,25,25,25,25,25,25,25,25,25], discharge:[43,44,45,45,46,47,46,46,45,45,46,46], condense:[37,38,39,39,40,41,40,40,39,39,40,40] } },
+    { id:'d8', name:'新风机组 F-08', type:'新风机组', status:'warn', temp:19.4, power:0.9,
+      series:{ indoor:[21,20.7,20.3,20.0,19.7,19.5,19.4,19.4,19.5,19.4,19.4,19.4], outdoor:[10,9,8,10,12,14,16,17,16,14,12,10], target:[22,22,22,22,22,22,22,22,22,22,22,22], discharge:[23,23,22,22,21,21,20,20,20,20,20,20], condense:[19,19,18,18,17,17,17,17,16,16,16,16] } },
+    { id:'d9', name:'VRF室内机 5F-会议室', type:'VRF末端', status:'online', temp:23.5, power:0.8,
+      series:{ indoor:[22,22.4,22.8,23.1,23.3,23.5,23.5,23.4,23.5,23.6,23.5,23.5], outdoor:[10,9,8,10,12,14,16,17,16,14,12,10], target:[23,23,23,23,23,23,23,23,23,23,23,23], discharge:[36,37,38,38,39,40,39,39,38,38,39,39], condense:[31,32,33,33,34,35,34,34,33,33,34,34] } }
+  ];
+  var deviceById = {}; devices.forEach(function(d){ deviceById[d.id] = d; });
+
+  var projects = [
+    { id:'p1', name:'星海国际公寓', dealer:'dl-hd', star:true, customer:'星海物业管理有限公司', code:'PRJ-20230114-07',
+      installDate:'2023-01-14', commissionDate:'2023-01-20', warrantyDate:'2027-01-14', contact:'张经理', phone:'138****2210',
+      area:12800, heatArea:9200, coolArea:9200, deviceIds:['d1','d2','d3'] },
+    { id:'p2', name:'云港商业广场', dealer:'dl-hn', star:false, customer:'云港商业管理股份有限公司', code:'PRJ-20220608-22',
+      installDate:'2022-06-08', commissionDate:'2022-06-25', warrantyDate:'2026-06-08', contact:'黄总', phone:'139****7761',
+      area:34500, heatArea:0, coolArea:34500, deviceIds:['d4','d5','d6'] },
+    { id:'p3', name:'悦景办公园区', dealer:'dl-hb', star:true, customer:'悦景资产运营中心', code:'PRJ-20210922-05',
+      installDate:'2021-09-22', commissionDate:'2021-10-02', warrantyDate:'2025-09-22', contact:'刘经理', phone:'186****0043',
+      area:21600, heatArea:21600, coolArea:21600, deviceIds:['d7','d8','d9'] }
+  ];
+
+  var faults = [
+    { id:'f1', projectId:'p1', deviceId:'d3', sev:'critical', text:'供水温度超上限 (31.2℃ > 30℃)', time:'3 分钟前', hasOrder:false },
+    { id:'f2', projectId:'p3', deviceId:'d8', sev:'warn', text:'滤网压差偏高，建议检修', time:'22 分钟前', hasOrder:false },
+    { id:'f3', projectId:'p2', deviceId:'d6', sev:'critical', text:'设备离线，最后心跳 47 分钟前', time:'47 分钟前', hasOrder:true },
+    { id:'f4', projectId:'p2', deviceId:'d4', sev:'warn', text:'夜间能耗环比上升 18%', time:'1 小时前', hasOrder:false },
+    { id:'f5', projectId:'p1', deviceId:'d1', sev:'warn', text:'压缩机启停频繁，请留意', time:'2 小时前', hasOrder:false }
+  ];
+  var watchAlerts = [
+    { dev:'VRF室内机 5F-会议室', text:'CO₂ 浓度短时超标，已自动加大新风', time:'40 分钟前' },
+    { dev:'户式空调主机 A-07', text:'滤网使用已满 90 天，建议更换', time:'3 小时前' },
+    { dev:'新风机组 F-02', text:'通讯延迟波动，暂未影响运行', time:'5 小时前' },
+    { dev:'地暖分集水器 R-03', text:'已连续 3 天高负荷运行', time:'昨天' }
+  ];
+
+  var techs = ['王师傅','李师傅','赵师傅','孙师傅'];
+  var orders = [
+    { id:'WO-2231', projectId:'p2', deviceId:'d6', type:'故障维修', tech:'王师傅', status:'progress', createdAt:'今天 09:12', faultText:'设备离线，最后心跳 47 分钟前' },
+    { id:'WO-2214', projectId:'p1', deviceId:'d1', type:'定期保养', tech:'李师傅', status:'done', createdAt:'昨天 14:20', faultText:'季度保养巡检' },
+    { id:'WO-2209', projectId:'p3', deviceId:'d9', type:'安装调试', tech:'赵师傅', status:'done', createdAt:'3 天前', faultText:'新增设备联网调试' },
+    { id:'WO-2233', projectId:'p1', deviceId:'d3', type:'故障维修', tech:'—', status:'pending', createdAt:'刚刚', faultText:'供水温度超上限' }
+  ];
+  var orderSeq = 2234;
+
+  /* ============================================================ */
+  /* KPI                                                            */
+  /* ============================================================ */
+  function renderKpis(){
+    var totalProjects = dealers.reduce(function(s,d){ return s+d.projects; }, 0);
+    var totalDevices = dealers.reduce(function(s,d){ return s+d.devices; }, 0);
+    var totalOnline = Math.round(dealers.reduce(function(s,d){ return s+d.devices*d.onlineRate; }, 0));
+    document.getElementById('onlineChip').textContent = totalOnline.toLocaleString() + ' / ' + totalDevices.toLocaleString() + ' 台设备在线中';
+
+    var kpis = [
+      { label:'接入项目', value: totalProjects, delta:'较上月 +6', up:true },
+      { label:'接入设备', value: totalDevices.toLocaleString(), delta:'较上月 +214', up:true },
+      { label:'总建筑面积', value:'18.4<small>万m²</small>', delta:'较上月 +0.6万', up:true },
+      { label:'总供暖/冷面积', value:'15.9<small>万m²</small>', delta:'较上月 +0.4万', up:true },
+      { label:'本月总耗电', value:'42.6<small>万kWh</small>', delta:'较上月 −4.1%', up:true },
+      { label:'本月总耗气', value:'8.1<small>万m³</small>', delta:'较上月 −2.0%', up:true },
+      { label:'CO₂ 减排量', value:'186.4<small>t</small>', delta:'较上月 +9.3%', up:true },
+      { label:'平均在线率', value:'92.1<small>%</small>', delta:'较上月 +0.4pt', up:true }
+    ];
+    document.getElementById('kpiRow').innerHTML = kpis.map(function(k){
+      return '<div class="kpi-card"><div class="label">'+k.label+'</div>'
+        + '<div class="value">'+k.value+'</div>'
+        + '<div class="delta '+(k.up?'up':'down')+'">'+(k.up?'▲':'▼')+' '+k.delta+'</div></div>';
+    }).join('');
+  }
+
+  /* ============================================================ */
+  /* SECTION TABS                                                   */
+  /* ============================================================ */
+  var sectionTabs = document.querySelectorAll('.section-tab');
+  sectionTabs.forEach(function(tab){
+    tab.addEventListener('click', function(){ activateSection(tab.getAttribute('data-section')); });
+  });
+  function activateSection(key){
+    sectionTabs.forEach(function(t){ t.setAttribute('aria-selected', t.getAttribute('data-section')===key ? 'true':'false'); });
+    ['overview','monitor','faults','orders'].forEach(function(k){
+      document.getElementById('sec-'+k).hidden = (k !== key);
+    });
+  }
+
+  /* ============================================================ */
+  /* 01 项目总览：经销商 → 项目 → 项目详情                              */
+  /* ============================================================ */
+  var selectedDealer = null; // null = 全部
+  var selectedProject = null;
+
+  function renderDealerList(){
+    document.getElementById('dealerCountPill').textContent = dealers.length + ' 个网点';
+    document.getElementById('dealerList').innerHTML = dealers.map(function(d){
+      return '<div class="dealer-row'+(d.id===selectedDealer?' selected':'')+'" data-id="'+d.id+'" tabindex="0" role="button">'
+        + '<span><span class="dn">'+d.name+'</span><div class="dr">'+d.region+' · 负责人 '+d.manager+'</div></span>'
+        + '<span class="dval">'+d.projects+'<span class="l">项目</span></span>'
+        + '<span class="dval">'+d.devices+'<span class="l">设备</span></span>'
+        + '<span class="dval">'+Math.round(d.onlineRate*100)+'%<span class="l">在线率</span></span>'
+        + '</div>';
+    }).join('');
+    document.querySelectorAll('.dealer-row').forEach(function(row){
+      row.addEventListener('click', function(){
+        var id = row.getAttribute('data-id');
+        selectedDealer = (selectedDealer === id) ? null : id;
+        selectedProject = null;
+        renderDealerList(); renderProjectPanel();
+      });
+    });
+  }
+
+  function projectsForSelection(){
+    return selectedDealer ? projects.filter(function(p){ return p.dealer === selectedDealer; }) : projects;
+  }
+
+  function renderProjectPanel(){
+    var crumb = document.getElementById('projectBreadcrumb');
+    var body = document.getElementById('projectPanelBody');
+
+    if(selectedProject){
+      var p = projects.filter(function(x){ return x.id===selectedProject; })[0];
+      var dealer = dealers.filter(function(x){ return x.id===p.dealer; })[0];
+      crumb.innerHTML = '<button id="crumbBack">‹ 返回项目列表</button><span>/</span><span class="cur">'+p.name+'</span>';
+      document.getElementById('crumbBack').addEventListener('click', function(){ selectedProject = null; renderProjectPanel(); });
+
+      var infoCells = [
+        ['所属网点', dealer ? dealer.name : '—'], ['客户单位', p.customer], ['项目编号', p.code],
+        ['安装时间', p.installDate], ['调试时间', p.commissionDate], ['质保至', p.warrantyDate],
+        ['联系人', p.contact], ['联系电话', p.phone],
+        ['建筑面积', p.area.toLocaleString()+' m²'],
+        ['供暖面积', (p.heatArea? p.heatArea.toLocaleString():'—')+' m²'],
+        ['供冷面积', (p.coolArea? p.coolArea.toLocaleString():'—')+' m²']
+      ];
+      var devRows = p.deviceIds.map(function(id){
+        var d = deviceById[id];
+        var sm = { online:{label:'在线',cls:'online'}, warn:{label:'异常',cls:'warn'}, offline:{label:'离线',cls:'offline'} }[d.status];
+        return '<div class="device-mini-row">'
+          + '<span class="statusdot '+sm.cls+'"></span>'
+          + '<span>'+d.name+'</span>'
+          + '<span class="mono" style="color:var(--ink-muted);">'+d.type+'</span>'
+          + '<span class="mono" style="color:var(--ink-muted);">'+(d.status==='offline'?'—':d.temp.toFixed(1)+'℃')+'</span>'
+          + '<button class="btn ghost sm" data-goto-device="'+d.id+'">查看监测 →</button>'
+          + '</div>';
+      }).join('');
+
+      body.innerHTML = '<div class="panel-head"><div><h2>'+p.name+(p.star?' <span style="color:var(--brass);font-size:12px;">★ 星标客户</span>':'')+'</h2><div class="desc">'+p.deviceIds.length+' 台设备 · 隶属 '+(dealer?dealer.name:'—')+'</div></div></div>'
+        + '<div class="info-grid">'+infoCells.map(function(c){ return '<div class="info-cell"><div class="l">'+c[0]+'</div><div class="v">'+c[1]+'</div></div>'; }).join('')+'</div>'
+        + '<div class="device-mini">'+devRows+'</div>';
+
+      body.querySelectorAll('[data-goto-device]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          activateSection('monitor');
+          sectionTabs.forEach(function(t){ t.setAttribute('aria-selected', t.getAttribute('data-section')==='monitor'?'true':'false'); });
+          selectDevice(btn.getAttribute('data-goto-device'));
+        });
+      });
+      return;
+    }
+
+    crumb.innerHTML = '<span class="cur">'+(selectedDealer ? dealers.filter(function(x){return x.id===selectedDealer;})[0].name : '全部网点')+' · 项目列表</span>';
+    var list = projectsForSelection();
+    body.innerHTML = '<div class="project-list-head"><span>项目</span><span>客户</span><span>面积</span><span>设备</span><span></span></div>'
+      + '<div class="project-list">' + list.map(function(p){
+        return '<div class="project-row" data-id="'+p.id+'">'
+          + '<span class="pn">'+(p.star?'<span class="star">★</span>':'')+p.name+'<div class="psub" style="font-weight:400;">'+p.code+'</div></span>'
+          + '<span class="psub">'+p.customer+'</span>'
+          + '<span class="dval">'+p.area.toLocaleString()+'m²</span>'
+          + '<span class="dval">'+p.deviceIds.length+' 台</span>'
+          + '<span class="chev">›</span></div>';
+      }).join('') + '</div>';
+    body.querySelectorAll('.project-row').forEach(function(row){
+      row.addEventListener('click', function(){ selectedProject = row.getAttribute('data-id'); renderProjectPanel(); });
+    });
+  }
+
+  /* ============================================================ */
+  /* 02 运行监测                                                     */
+  /* ============================================================ */
+  var statusMeta = { online:{label:'在线',cls:'online'}, warn:{label:'异常',cls:'warn'}, offline:{label:'离线',cls:'offline'} };
+  var activeFilter='all', searchTerm='', selectedDeviceId=null;
+  var seriesDefs = [
+    { key:'indoor', label:'室内温度', color:'var(--cat1)' },
+    { key:'outdoor', label:'室外温度', color:'var(--cat2)' },
+    { key:'target', label:'设定温度', color:'var(--cat3)' },
+    { key:'discharge', label:'排气温度', color:'var(--cat4)' },
+    { key:'condense', label:'冷凝温度', color:'var(--cat5)' }
+  ];
+  var activeSeries = { indoor:true, target:true, outdoor:false, discharge:false, condense:false };
+
+  function renderDeviceList(){
+    var list = devices.filter(function(d){
+      if(activeFilter!=='all' && d.status!==activeFilter) return false;
+      if(searchTerm){ var hay=(d.name+d.type).toLowerCase(); if(hay.indexOf(searchTerm.toLowerCase())===-1) return false; }
+      return true;
+    });
+    document.getElementById('deviceCountPill').textContent = '共 ' + list.length + ' 台';
+    var el = document.getElementById('deviceList');
+    if(list.length===0){ el.innerHTML='<div class="drawer-empty">没有匹配的设备</div>'; return; }
+    el.innerHTML = list.map(function(d){
+      var sm = statusMeta[d.status];
+      var tempTxt = d.status==='offline' ? '—' : d.temp.toFixed(1)+'℃';
+      var powerTxt = d.status==='offline' ? '—' : d.power.toFixed(1)+'kW';
+      return '<div class="device-row'+(d.id===selectedDeviceId?' selected':'')+'" data-id="'+d.id+'" tabindex="0" role="button">'
+        + '<span class="statusdot '+sm.cls+'"></span>'
+        + '<span><span class="dname">'+d.name+'</span></span>'
+        + '<span class="dval">'+d.type+'</span><span class="dval">'+tempTxt+'</span><span class="dval">'+powerTxt+'</span>'
+        + '<span class="chev">›</span></div>';
+    }).join('');
+    el.querySelectorAll('.device-row').forEach(function(row){
+      row.addEventListener('click', function(){ selectDevice(row.getAttribute('data-id')); });
+      row.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); selectDevice(row.getAttribute('data-id')); } });
+    });
+  }
+
+  function selectDevice(id){
+    selectedDeviceId = id; renderDeviceList();
+    var d = deviceById[id];
+    var sm = statusMeta[d.status];
+    var proj = projects.filter(function(p){ return p.deviceIds.indexOf(id) !== -1; })[0];
+    var drawer = document.getElementById('deviceDrawer');
+    drawer.innerHTML = ''
+      + '<div class="drawer"><div style="display:flex;justify-content:space-between;align-items:flex-start;">'
+      + '<div><div style="font-weight:600;font-size:14.5px;">'+d.name+'</div>'
+      + '<div style="font-size:12px;color:var(--ink-faint);margin-top:2px;">'+(proj?proj.name:'')+' · '+d.type+'</div></div>'
+      + '<span class="pill '+(d.status==='online'?'good':d.status==='warn'?'warn':'neutral')+'"><span class="pdot"></span>'+sm.label+'</span></div>'
+      + '<div class="drawer-stats">'
+      + '<div class="drawer-stat"><div class="v">'+(d.status==='offline'?'—':d.temp.toFixed(1)+'℃')+'</div><div class="l">当前温度</div></div>'
+      + '<div class="drawer-stat"><div class="v">'+(d.status==='offline'?'—':d.power.toFixed(1)+'kW')+'</div><div class="l">实时功率</div></div>'
+      + '<div class="drawer-stat"><div class="v">'+(d.status==='offline'?'47min':'2s')+'</div><div class="l">心跳延迟</div></div>'
+      + '</div><div class="drawer-actions">'
+      + '<button class="btn primary sm" data-act="dispatch">远程下发指令</button>'
+      + '<button class="btn sm" data-act="ticket">生成运维工单</button>'
+      + '</div></div>';
+    drawer.querySelectorAll('[data-act]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var act = b.getAttribute('data-act');
+        if(act==='ticket'){ createOrder(d, proj, '主动运维', '设备巡检工单（手动创建）'); return; }
+        toast('指令已下发至「'+d.name+'」');
+      });
+    });
+    renderTelemetryPanel(d);
+  }
+
+  function renderTelemetryPanel(d){
+    var wrap = document.getElementById('telemetryWrap');
+    if(!wrap){
+      wrap = document.createElement('div');
+      wrap.id = 'telemetryWrap';
+      document.getElementById('deviceDrawer').appendChild(wrap);
+    }
+    wrap.innerHTML = '<div class="series-toggles" id="seriesToggles"></div>'
+      + '<div class="chart-wrap"><svg id="telemetryChart" viewBox="0 0 520 150" style="width:100%;height:auto;overflow:visible;" role="img" aria-label="设备近12小时运行参数"></svg></div>';
+    var togglesEl = document.getElementById('seriesToggles');
+    togglesEl.innerHTML = seriesDefs.map(function(s){
+      return '<label class="series-check"><input type="checkbox" data-series="'+s.key+'" '+(activeSeries[s.key]?'checked':'')+'><span class="sw" style="background:'+s.color+'"></span>'+s.label+'</label>';
+    }).join('');
+    togglesEl.querySelectorAll('input[type=checkbox]').forEach(function(cb){
+      cb.addEventListener('change', function(){ activeSeries[cb.getAttribute('data-series')] = cb.checked; drawTelemetryChart(d); });
+    });
+    drawTelemetryChart(d);
+  }
+
+  function drawTelemetryChart(d){
+    var svg = document.getElementById('telemetryChart');
+    if(!svg) return;
+    var W=520,H=150,padL=28,padR=8,padT=10,padB=20,innerW=W-padL-padR,innerH=H-padT-padB;
+    var shown = seriesDefs.filter(function(s){ return activeSeries[s.key]; });
+    if(shown.length===0){ svg.innerHTML = '<text x="'+(W/2)+'" y="'+(H/2)+'" font-size="11" fill="var(--ink-faint)" text-anchor="middle">未选择任何参数</text>'; return; }
+    var all = [];
+    shown.forEach(function(s){ all = all.concat(d.series[s.key]); });
+    var max = Math.ceil(Math.max.apply(null, all)/5)*5, min = Math.floor(Math.min.apply(null, all)/5)*5;
+    if(max===min){ max += 5; }
+    var n = d.series.indoor.length;
+    var stepX = innerW/(n-1);
+    function yOf(v){ return padT + innerH - ((v-min)/(max-min))*innerH; }
+    var gridLines = '';
+    for(var g=0; g<=3; g++){
+      var gy = padT + (g/3)*innerH;
+      var gv = Math.round(max - (g/3)*(max-min));
+      gridLines += '<line x1="'+padL+'" y1="'+gy+'" x2="'+(padL+innerW)+'" y2="'+gy+'" stroke="var(--border)" stroke-width="1" />'
+        + '<text x="'+(padL-6)+'" y="'+(gy+3)+'" font-size="8.5" fill="var(--ink-faint)" text-anchor="end" font-family="var(--font-mono)">'+gv+'</text>';
+    }
+    var lines = shown.map(function(s){
+      var pts = d.series[s.key].map(function(v,i){ return (padL+i*stepX).toFixed(1)+','+yOf(v).toFixed(1); }).join(' ');
+      return '<polyline points="'+pts+'" fill="none" stroke="'+s.color+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />';
+    }).join('');
+    svg.innerHTML = gridLines + lines;
+  }
+
+  document.querySelectorAll('.chip[data-filter]').forEach(function(chip){
+    chip.addEventListener('click', function(){
+      activeFilter = chip.getAttribute('data-filter');
+      document.querySelectorAll('.chip[data-filter]').forEach(function(c){ c.setAttribute('aria-pressed', c===chip?'true':'false'); });
+      renderDeviceList();
+    });
+  });
+  document.getElementById('deviceSearch').addEventListener('input', function(e){ searchTerm = e.target.value; renderDeviceList(); });
+
+  function renderEnergyChart(){
+    var data = [4.2,3.8,3.5,3.3,3.6,4.5,6.8,8.9,9.6,9.1,8.7,9.3,9.8,9.2,8.8,9.0,9.6,10.4,11.2,10.6,9.1,7.4,5.9,4.8];
+    var svg = document.getElementById('energyChart');
+    var W=560,H=170,padL=8,padR=8,padT=10,padB=24,innerW=W-padL-padR,innerH=H-padT-padB;
+    var max=Math.max.apply(null,data), min=0, stepX=innerW/(data.length-1);
+    function xy(i){ return [padL+i*stepX, padT+innerH-((data[i]-min)/(max-min))*innerH]; }
+    var linePts = data.map(function(_,i){ return xy(i).join(','); }).join(' ');
+    var areaPts = linePts+' '+(padL+innerW)+','+(padT+innerH)+' '+padL+','+(padT+innerH);
+    var gridLines = '';
+    for(var g=0; g<=2; g++){
+      var gy = padT+innerH-(g/2)*innerH;
+      gridLines += '<line x1="'+padL+'" y1="'+gy+'" x2="'+(padL+innerW)+'" y2="'+gy+'" stroke="var(--border)" stroke-width="1" />';
+    }
+    var labelSvg = [0,6,12,18,23].map(function(h){
+      var x = xy(h)[0];
+      return '<text x="'+x+'" y="'+(H-6)+'" font-size="9" fill="var(--ink-faint)" text-anchor="middle" font-family="var(--font-mono)">'+pad(h)+':00</text>';
+    }).join('');
+    svg.innerHTML = '<defs><linearGradient id="egrad" x1="0" y1="0" x2="0" y2="1">'
+      + '<stop offset="0%" stop-color="var(--brass)" stop-opacity="0.35"/><stop offset="100%" stop-color="var(--brass)" stop-opacity="0"/></linearGradient></defs>'
+      + gridLines + '<polygon points="'+areaPts+'" fill="url(#egrad)" />'
+      + '<polyline points="'+linePts+'" fill="none" stroke="var(--brass)" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" />'
+      + labelSvg + '<g id="hoverLayer"></g>'
+      + '<rect id="hoverCapture" x="'+padL+'" y="0" width="'+innerW+'" height="'+H+'" fill="transparent" />';
+    var hoverLayer = svg.querySelector('#hoverLayer');
+    var capture = svg.querySelector('#hoverCapture');
+    capture.addEventListener('mousemove', function(e){
+      var rect = svg.getBoundingClientRect(); var scaleX = W/rect.width;
+      var mx = (e.clientX-rect.left)*scaleX;
+      var i = Math.round((mx-padL)/stepX); i = Math.max(0, Math.min(data.length-1, i));
+      var p = xy(i);
+      hoverLayer.innerHTML = '<line x1="'+p[0]+'" y1="'+padT+'" x2="'+p[0]+'" y2="'+(padT+innerH)+'" stroke="var(--frost)" stroke-width="1" stroke-dasharray="3,3" />'
+        + '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="4" fill="var(--surface-raised)" stroke="var(--brass)" stroke-width="2" />'
+        + '<g transform="translate('+Math.min(Math.max(p[0]-34,padL),padL+innerW-68)+','+Math.max(p[1]-30,0)+')">'
+        + '<rect width="68" height="24" rx="6" fill="var(--ink)" />'
+        + '<text x="34" y="16" font-size="10.5" fill="var(--surface)" text-anchor="middle" font-family="var(--font-mono)">'+pad(i)+':00 · '+data[i].toFixed(1)+'kWh</text></g>';
+    });
+    capture.addEventListener('mouseleave', function(){ hoverLayer.innerHTML = ''; });
+  }
+
+  /* ============================================================ */
+  /* 03 故障预警                                                     */
+  /* ============================================================ */
+  function renderFaultTrend(){
+    var months = ['2025-10','2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05','2026-06','2026-07','2026-08','2026-09'];
+    var vals = [22,28,41,36,25,19,21,27,33,29,32,58];
+    var svg = document.getElementById('faultTrendChart');
+    var W=560,H=90,padL=6,padR=6,padT=8,padB=16,innerW=W-padL-padR,innerH=H-padT-padB;
+    var max = Math.max.apply(null, vals);
+    var bw = innerW/vals.length*0.62, gap = innerW/vals.length;
+    var bars = vals.map(function(v,i){
+      var h = (v/max)*innerH; var x = padL + i*gap + (gap-bw)/2; var y = padT+innerH-h;
+      var isLast = i===vals.length-1;
+      return '<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="2" fill="'+(isLast?'var(--critical)':'var(--brass)')+'" opacity="'+(isLast?'1':'0.75')+'"/>';
+    }).join('');
+    var labels = months.map(function(m,i){
+      if(i%3!==0 && i!==months.length-1) return '';
+      var x = padL + i*gap + gap/2;
+      return '<text x="'+x.toFixed(1)+'" y="'+(H-3)+'" font-size="8" fill="var(--ink-faint)" text-anchor="middle" font-family="var(--font-mono)">'+m.slice(2)+'</text>';
+    }).join('');
+    svg.innerHTML = bars + labels;
+  }
+
+  function projName(id){ var p = projects.filter(function(x){return x.id===id;})[0]; return p?p.name:'—'; }
+
+  function renderFaultList(){
+    var el = document.getElementById('faultList');
+    el.innerHTML = faults.map(function(f){
+      var d = deviceById[f.deviceId];
+      return '<div class="fault-row">'
+        + '<span class="sev '+f.sev+'">'+(f.sev==='critical'?'⚠':'●')+'</span>'
+        + '<span>'+projName(f.projectId)+'</span>'
+        + '<span>'+d.name+'</span>'
+        + '<span class="ftxt">'+f.text+'</span>'
+        + '<span class="ftxt">'+f.time+'</span>'
+        + '<button class="btn '+(f.hasOrder?'ghost':'primary')+' sm" data-fault="'+f.id+'" '+(f.hasOrder?'disabled':'')+'>'+(f.hasOrder?'已建单':'发起服务')+'</button>'
+        + '</div>';
+    }).join('');
+    el.querySelectorAll('[data-fault]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var f = faults.filter(function(x){ return x.id===btn.getAttribute('data-fault'); })[0];
+        if(f.hasOrder) return;
+        var d = deviceById[f.deviceId];
+        var proj = projects.filter(function(x){ return x.id===f.projectId; })[0];
+        f.hasOrder = true;
+        createOrder(d, proj, '故障维修', f.text);
+        renderFaultList();
+      });
+    });
+  }
+
+  function renderWatchAlerts(){
+    document.getElementById('alertFeed').innerHTML = watchAlerts.map(function(a){
+      return '<div class="alert-item warn"><span class="aicon">●</span>'
+        + '<span class="atxt"><span class="a1">'+a.dev+'</span><div class="a2">'+a.text+' · '+a.time+'</div></span></div>';
+    }).join('');
+  }
+
+  /* ============================================================ */
+  /* 04 服务工单                                                     */
+  /* ============================================================ */
+  var orderFilter = 'all';
+  var statusLabel = { pending:'待接单', progress:'处理中', done:'已完成' };
+  var statusPillClass = { pending:'warn', progress:'neutral', done:'good' };
+
+  function updateOrderBadge(){
+    var pendingCount = orders.filter(function(o){ return o.status==='pending'; }).length;
+    var badge = document.getElementById('orderBadge');
+    if(pendingCount>0){ badge.hidden=false; badge.textContent=pendingCount; } else { badge.hidden = true; }
+  }
+
+  function createOrder(device, proj, type, faultText){
+    var tech = techs[Math.floor(Math.random()*techs.length)];
+    var id = 'WO-'+(orderSeq++);
+    orders.unshift({ id:id, projectId: proj?proj.id:'p1', deviceId: device.id, type:type, tech: tech, status:'pending', createdAt:'刚刚', faultText: faultText });
+    toast('已生成工单 '+id+'，待分配技师接单');
+    updateOrderBadge();
+    renderOrderList();
+  }
+
+  function renderOrderList(){
+    var list = orders.filter(function(o){ return orderFilter==='all' || o.status===orderFilter; });
+    document.getElementById('orderCountPill').textContent = '共 '+orders.length+' 单，待接单 '+orders.filter(function(o){return o.status==='pending';}).length;
+    var el = document.getElementById('orderList');
+    if(list.length===0){ el.innerHTML = '<div class="drawer-empty">没有匹配的工单</div>'; return; }
+    el.innerHTML = list.map(function(o){
+      var d = deviceById[o.deviceId];
+      return '<div class="order-row" data-id="'+o.id+'">'
+        + '<span class="order-id">'+o.id+'</span>'
+        + '<span>'+projName(o.projectId)+'</span>'
+        + '<span>'+d.name+'</span>'
+        + '<span>'+o.type+'</span>'
+        + '<span>'+o.tech+'</span>'
+        + '<span class="pill '+statusPillClass[o.status]+'"><span class="pdot"></span>'+statusLabel[o.status]+'</span>'
+        + '</div>';
+    }).join('');
+    el.querySelectorAll('.order-row').forEach(function(row){
+      row.addEventListener('click', function(){ showOrderDetail(row.getAttribute('data-id')); });
+    });
+    updateOrderBadge();
+  }
+
+  document.querySelectorAll('.chip[data-ofilter]').forEach(function(chip){
+    chip.addEventListener('click', function(){
+      orderFilter = chip.getAttribute('data-ofilter');
+      document.querySelectorAll('.chip[data-ofilter]').forEach(function(c){ c.setAttribute('aria-pressed', c===chip?'true':'false'); });
+      renderOrderList();
+    });
+  });
+
+  function showOrderDetail(id){
+    var o = orders.filter(function(x){ return x.id===id; })[0];
+    var d = deviceById[o.deviceId];
+    var steps = ['创建','已接单','上门中','已完成'];
+    var stageIndex = { pending:0, progress:2, done:3 }[o.status];
+    document.getElementById('orderDetailPanel').hidden = false;
+    document.getElementById('orderDetailTitle').textContent = o.id + ' · ' + o.type;
+    document.getElementById('orderDetailSub').textContent = projName(o.projectId) + ' · ' + d.name;
+    document.getElementById('orderStepper').innerHTML = steps.map(function(s,i){
+      var cls = i < stageIndex ? 'done' : (i===stageIndex ? 'active' : '');
+      return '<div class="step '+cls+'"><div class="sc">'+(i<stageIndex?'✓':(i+1))+'</div><div class="sl">'+s+'</div></div>';
+    }).join('');
+    document.getElementById('orderInfoGrid').innerHTML = [
+      ['工单类型', o.type], ['负责技师', o.tech], ['创建时间', o.createdAt], ['当前状态', statusLabel[o.status]],
+      ['关联设备', d.name], ['问题描述', o.faultText]
+    ].map(function(c){ return '<div class="info-cell"><div class="l">'+c[0]+'</div><div class="v">'+c[1]+'</div></div>'; }).join('');
+    document.getElementById('orderDetailPanel').scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+  document.getElementById('orderDetailClose').addEventListener('click', function(){ document.getElementById('orderDetailPanel').hidden = true; });
+
+  /* ============================================================ */
+  /* INIT                                                           */
+  /* ============================================================ */
+  renderKpis();
+  renderDealerList(); renderProjectPanel();
+  renderDeviceList(); renderEnergyChart();
+  renderFaultTrend(); renderFaultList(); renderWatchAlerts();
+  renderOrderList();
+})();
+</script>

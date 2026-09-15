@@ -1,0 +1,296 @@
+<title>暖枢 NUANSHU</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --surface: #eef1ec; --surface-raised: #ffffff; --surface-sunken: #e2e7dd; --surface-inset: #d8ded1;
+    --ink: #16211c; --ink-muted: #52625a; --ink-faint: #8b988e;
+    --border: #d1d8c9; --border-strong: #b7c1af;
+    --brass: #93641f; --brass-ink: #6e4a17; --brass-soft: #ecdcb8; --brass-soft-ink: #6e4a17;
+    --frost: #2c748a; --frost-soft: #d1e7ea;
+    --good: #2c7a4b; --good-soft: #d7ead9;
+    --shadow-soft: 0 1px 2px rgba(20,30,22,0.06), 0 6px 18px -8px rgba(20,30,22,0.18);
+    --shadow-raised: 0 4px 10px rgba(20,30,22,0.10), 0 20px 48px -14px rgba(20,30,22,0.28);
+    --font-display: 'Oswald', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    --font-body: 'IBM Plex Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+    --radius-s: 10px; --radius-m: 16px; --radius-l: 26px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --surface: #0f1c17; --surface-raised: #16261f; --surface-sunken: #0a1511; --surface-inset: #0a1511;
+      --ink: #eef2ec; --ink-muted: #a3b3a8; --ink-faint: #6c7d72;
+      --border: #253630; --border-strong: #34473f;
+      --brass: #d6a95f; --brass-ink: #f0d9ab; --brass-soft: #3a2e17; --brass-soft-ink: #e8c98a;
+      --frost: #7fc2d6; --frost-soft: #163137;
+      --good: #5cc48c; --good-soft: #163728;
+      --shadow-soft: 0 1px 2px rgba(0,0,0,0.3), 0 6px 18px -8px rgba(0,0,0,0.5);
+      --shadow-raised: 0 4px 10px rgba(0,0,0,0.35), 0 24px 56px -16px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --surface: #0f1c17; --surface-raised: #16261f; --surface-sunken: #0a1511; --surface-inset: #0a1511;
+    --ink: #eef2ec; --ink-muted: #a3b3a8; --ink-faint: #6c7d72;
+    --border: #253630; --border-strong: #34473f;
+    --brass: #d6a95f; --brass-ink: #f0d9ab; --brass-soft: #3a2e17; --brass-soft-ink: #e8c98a;
+    --frost: #7fc2d6; --frost-soft: #163137;
+    --good: #5cc48c; --good-soft: #163728;
+    --shadow-soft: 0 1px 2px rgba(0,0,0,0.3), 0 6px 18px -8px rgba(0,0,0,0.5);
+    --shadow-raised: 0 4px 10px rgba(0,0,0,0.35), 0 24px 56px -16px rgba(0,0,0,0.6);
+  }
+
+  *{ box-sizing: border-box; }
+  body{ margin:0; background: var(--surface); color: var(--ink); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+  h1,h2,h3{ font-family: var(--font-display); text-wrap: balance; margin:0; }
+  p{ margin:0; }
+  .mono{ font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  a{ color: inherit; text-decoration: none; }
+  img{ max-width:100%; display:block; }
+  ::selection{ background: var(--brass-soft); color: var(--brass-ink); }
+  :focus-visible{ outline: 2px solid var(--frost); outline-offset: 3px; }
+  @media (prefers-reduced-motion: reduce){ *{ animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; } }
+
+  .wrap{ max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+
+  /* ---------------- top bar ---------------- */
+  .topbar{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding: 20px 0; }
+  .brandmark{ display:flex; align-items:center; gap:12px; }
+  .brand-badge{
+    width:38px; height:38px; border-radius:11px; flex:none;
+    background: conic-gradient(from 220deg, var(--frost), var(--brass), var(--frost));
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: inset 0 0 0 3px var(--surface-raised), var(--shadow-soft);
+  }
+  .brand-badge svg{ width:20px; height:20px; }
+  .brand-word{ font-size:16px; font-weight:600; letter-spacing:0.3px; }
+  .theme-toggle{ display:flex; align-items:center; gap:4px; background: var(--surface-raised); border:1px solid var(--border); border-radius:999px; padding:4px; box-shadow: var(--shadow-soft); }
+  .theme-toggle button{ border:none; background:transparent; color:var(--ink-muted); width:28px; height:28px; border-radius:999px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:13px; font-family:inherit; }
+  .theme-toggle button.active{ background: var(--brass-soft); color: var(--brass-ink); }
+
+  /* ---------------- hero ---------------- */
+  .hero{ padding: 40px 0 34px; border-bottom:1px solid var(--border); }
+  .hero-eyebrow{ display:inline-flex; align-items:center; gap:7px; font-size:11.5px; letter-spacing:0.6px; color: var(--brass-ink); background: var(--brass-soft); border-radius:999px; padding:5px 12px 5px 10px; font-weight:600; }
+  .hero-eyebrow .dt{ width:6px; height:6px; border-radius:50%; background: var(--good); }
+  .hero h1{ font-size: clamp(34px, 6vw, 56px); font-weight:700; letter-spacing:0.5px; margin: 18px 0 6px; line-height:1.05;
+    opacity:0; transform: translateY(10px); animation: rise 0.6s 0.05s ease forwards; }
+  .hero .tagline{ font-size: clamp(15px, 2.4vw, 19px); color: var(--ink-muted); margin-bottom:22px;
+    opacity:0; transform: translateY(10px); animation: rise 0.6s 0.15s ease forwards; }
+  .hero .lede{ max-width: 66ch; font-size:14.5px; line-height:1.85; color: var(--ink); }
+  .hero .lede + .lede{ margin-top:12px; }
+  .hero-meta{ display:flex; flex-wrap:wrap; gap:10px 26px; margin-top:24px; }
+  .hero-meta .hm{ display:flex; flex-direction:column; gap:3px; }
+  .hero-meta .hl{ font-size:10.5px; color:var(--ink-faint); letter-spacing:0.4px; }
+  .hero-meta .hv{ font-size:13px; font-weight:600; }
+
+  @keyframes rise{ to{ opacity:1; transform:translateY(0); } }
+
+  /* ---------------- architecture strip ---------------- */
+  .arch-section{ padding: 40px 0 8px; }
+  .section-kicker{ display:flex; align-items:baseline; gap:10px; margin-bottom:16px; }
+  .section-kicker .num{ font-family: var(--font-mono); font-size:11px; color: var(--ink-faint); }
+  .section-kicker h2{ font-size:19px; font-weight:600; }
+  .arch-strip{ display:flex; align-items:stretch; gap:8px; flex-wrap:wrap; background: var(--surface-inset); border:1px solid var(--border); border-radius: var(--radius-l); padding:10px; box-shadow: inset 0 1px 4px rgba(0,0,0,0.06); }
+  .arch-card{ flex:1 1 220px; min-width:210px; background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:18px 18px 16px; display:flex; flex-direction:column; gap:10px; box-shadow: var(--shadow-soft); transition: transform 0.15s ease, box-shadow 0.15s ease; }
+  .arch-card:hover{ transform: translateY(-2px); box-shadow: var(--shadow-raised); }
+  .arch-card .idx{ width:30px; height:30px; border-radius:50%; background: var(--brass); color: var(--surface-raised); font-family: var(--font-mono); font-size:12px; display:flex; align-items:center; justify-content:center; font-weight:600; }
+  .arch-card h3{ font-size:16px; font-weight:600; }
+  .arch-card .desc{ font-size:12px; color: var(--ink-muted); line-height:1.55; flex:1; }
+  .arch-card .go{ font-size:12px; font-weight:600; color: var(--frost); display:flex; align-items:center; gap:4px; }
+  .arch-flow{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding: 6px 6px; flex: 0 0 auto; color: var(--ink-faint); min-width:72px; }
+  .arch-flow .arrow{ font-size:16px; }
+  .arch-flow small{ font-size:9.5px; text-align:center; line-height:1.3; }
+  @media (max-width:760px){ .arch-flow{ flex-direction:row; min-width:0; width:100%; justify-content:flex-start; padding-left:14px; } }
+
+  /* ---------------- showcase ---------------- */
+  .showcase{ padding: 56px 0; border-top:1px solid var(--border); display:grid; grid-template-columns: 1.05fr 0.95fr; gap:46px; align-items:center; }
+  .showcase.rev{ grid-template-columns: 0.95fr 1.05fr; }
+  .showcase.rev .sc-media{ order:2; }
+  .showcase.rev .sc-text{ order:1; }
+  @media (max-width:860px){ .showcase, .showcase.rev{ grid-template-columns: 1fr; gap:26px; }
+    .showcase.rev .sc-media{ order:1; } .showcase.rev .sc-text{ order:2; } }
+  .sc-tag{ font-size:11px; font-weight:600; letter-spacing:0.5px; color: var(--brass-ink); text-transform:uppercase; }
+  .sc-text h3{ font-size: clamp(22px,3vw,28px); font-weight:700; margin: 8px 0 12px; }
+  .sc-text .sc-desc{ font-size:13.5px; line-height:1.8; color: var(--ink-muted); max-width:52ch; }
+  .sc-feats{ margin: 18px 0 0; display:flex; flex-direction:column; gap:10px; }
+  .sc-feat{ display:flex; gap:10px; align-items:flex-start; font-size:13px; line-height:1.6; }
+  .sc-feat .fi{ width:20px; height:20px; border-radius:6px; background: var(--frost-soft); color: var(--frost); flex:none; display:flex; align-items:center; justify-content:center; font-size:11px; margin-top:1px; }
+  .sc-cta{ display:inline-flex; align-items:center; gap:8px; margin-top:24px; background: var(--brass); color: var(--surface-raised); font-weight:600; font-size:13.5px; padding:12px 20px; border-radius:999px; box-shadow: var(--shadow-soft); }
+  .sc-cta:hover{ background: var(--brass-ink); }
+  .sc-cta .arr{ transition: transform 0.15s ease; }
+  .sc-cta:hover .arr{ transform: translate(2px,-2px); }
+  .sc-media{ background: linear-gradient(155deg, var(--surface-sunken), var(--surface-inset)); border:1px solid var(--border); border-radius: var(--radius-l); padding: 20px; box-shadow: var(--shadow-raised); display:flex; align-items:center; justify-content:center; }
+  .sc-media img{ border-radius: var(--radius-s); width:100%; height:auto; box-shadow: 0 8px 24px -10px rgba(20,30,22,0.35); }
+  .sc-media.tall{ padding: 26px 40px; }
+  .sc-media.wide img{ box-shadow: 0 10px 30px -12px rgba(20,30,22,0.4); }
+
+  /* ---------------- design system ---------------- */
+  .dsys{ padding: 48px 0; border-top:1px solid var(--border); }
+  .dsys-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top:20px; }
+  @media (max-width:760px){ .dsys-grid{ grid-template-columns:1fr; } }
+  .swatch-row{ display:flex; gap:10px; flex-wrap:wrap; }
+  .swatch{ display:flex; flex-direction:column; gap:6px; }
+  .sw-chip{ width:56px; height:56px; border-radius:12px; box-shadow: var(--shadow-soft); border:1px solid rgba(0,0,0,0.06); }
+  .sw-name{ font-size:10px; color:var(--ink-muted); font-family: var(--font-mono); }
+  .type-sample{ display:flex; flex-direction:column; gap:14px; }
+  .type-row{ display:flex; align-items:baseline; gap:14px; border-bottom:1px solid var(--border); padding-bottom:12px; }
+  .type-row .tl{ font-size:10px; color:var(--ink-faint); width:76px; flex:none; font-family: var(--font-mono); }
+  .type-row .tv{ font-size:20px; }
+  .type-row.disp .tv{ font-family: var(--font-display); font-weight:600; font-size:24px; }
+  .type-row.mono .tv{ font-family: var(--font-mono); font-size:15px; }
+
+  /* ---------------- stack + footer ---------------- */
+  .stackbar{ padding: 30px 0; border-top:1px solid var(--border); display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{ font-size:11.5px; color: var(--ink-muted); background: var(--surface-raised); border:1px solid var(--border); padding:6px 12px; border-radius:999px; }
+
+  .foot{ padding: 26px 0 46px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap; }
+  .foot .fl{ font-size:12px; color: var(--ink-faint); line-height:1.7; }
+  .foot .fl a{ color: var(--frost); font-weight:600; }
+  .foot .byline{ font-size:12px; color: var(--ink-muted); text-align:right; }
+</style>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="brandmark">
+      <div class="brand-badge"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3c2 3-1 4-1 6.5A3 3 0 0 0 14 12.5 5 5 0 1 1 8 8" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="brand-word">暖枢 <span class="mono" style="font-weight:400;color:var(--ink-faint);font-size:12px;">NUANSHU</span></span>
+    </div>
+    <div class="theme-toggle" role="group" aria-label="主题切换">
+      <button type="button" data-theme-btn="light" aria-label="浅色主题">☀</button>
+      <button type="button" data-theme-btn="dark" aria-label="深色主题">☾</button>
+      <button type="button" data-theme-btn="system" aria-label="跟随系统" class="active">◐</button>
+    </div>
+  </div>
+
+  <div class="hero">
+    <span class="hero-eyebrow"><span class="dt"></span>作品集 · 独立项目案例</span>
+    <h1>三端物联网暖通运维平台</h1>
+    <div class="tagline">服务商中控台 · 业主端小程序 · 硬件中控面板</div>
+    <p class="lede">暖枢是一套面向暖通（HVAC）行业的物联网运维产品体系。项目以一份行业参考方案的三层架构为起点——面向经销商的管理后台、面向业主的小程序、安装在家中的硬件中控面板——在此基础上重新设计了一套完整的视觉与交互系统，并将三端实现为三个各自独立部署、仅通过云端数据同步互联的产品，而非共用一套界面的多标签页面。</p>
+    <p class="lede">从信息架构、数据可视化规范到深浅色双主题的设计令牌体系，均为独立设计与开发；界面为纯 HTML / CSS / JavaScript 编写，零第三方框架依赖。</p>
+    <div class="hero-meta">
+      <div class="hm"><span class="hl">角色</span><span class="hv">产品设计 &amp; 前端开发（独立完成）</span></div>
+      <div class="hm"><span class="hl">形式</span><span class="hv">3 个可交互 Demo · 各自独立部署</span></div>
+      <div class="hm"><span class="hl">技术</span><span class="hv">HTML · CSS · JavaScript（零依赖）</span></div>
+    </div>
+  </div>
+
+  <div class="arch-section">
+    <div class="section-kicker"><span class="num">00</span><h2>架构总览</h2></div>
+    <div class="arch-strip">
+      <a class="arch-card" href="https://claude.ai/artifact/9r1ShCviBKxXmbtHVZn1VC" target="_blank" rel="noopener">
+        <span class="idx">01</span><h3>服务商中控台</h3>
+        <span class="desc">大型经销商级 SaaS 管理后台：经销商网络、项目档案、设备监测、故障预警与服务工单闭环。</span>
+        <span class="go">查看演示 ↗</span>
+      </a>
+      <div class="arch-flow"><span class="arrow">⇄</span><small>指令下发<br>状态上报</small></div>
+      <a class="arch-card" href="https://claude.ai/artifact/E7RfhychJMvkm7Dft8ZzYo" target="_blank" rel="noopener">
+        <span class="idx">02</span><h3>业主端小程序</h3>
+        <span class="desc">面向家庭用户的移动端应用：房间温控、场景联动、历史数据、用电分析与一键求助。</span>
+        <span class="go">查看演示 ↗</span>
+      </a>
+      <div class="arch-flow"><span class="arrow">⇄</span><small>场景联动<br>数据同步</small></div>
+      <a class="arch-card" href="https://claude.ai/artifact/U4rvU9DnkjvHN4RZVeE93W" target="_blank" rel="noopener">
+        <span class="idx">03</span><h3>硬件中控面板</h3>
+        <span class="desc">墙面触控终端：与小程序共享同一住宅的实时数据，独立的横屏交互与固定深色屏幕设计。</span>
+        <span class="go">查看演示 ↗</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="showcase">
+    <div class="sc-text">
+      <span class="sc-tag">01 · 服务商中控台</span>
+      <h3>为经销商规模设计的运维后台</h3>
+      <p class="sc-desc">面向大型经销商而非单一门店：经销商网络覆盖 6 大区、64 个项目、2,169 台设备，可逐层下钻至具体项目与设备。故障预警可一键发起服务工单，并与工单列表实时联动。</p>
+      <div class="sc-feats">
+        <div class="sc-feat"><span class="fi">◆</span>经销商网络 → 项目档案 → 设备监测三级下钻</div>
+        <div class="sc-feat"><span class="fi">◆</span>多指标遥测曲线（室内 / 室外 / 设定 / 排气 / 冷凝温度）</div>
+        <div class="sc-feat"><span class="fi">◆</span>故障预警一键建单，工单状态实时跟踪</div>
+      </div>
+      <a class="sc-cta" href="https://claude.ai/artifact/9r1ShCviBKxXmbtHVZn1VC" target="_blank" rel="noopener">查看实时演示<span class="arr">↗</span></a>
+    </div>
+    <div class="sc-media wide"><img src="images/console.png" alt="服务商中控台界面截图" loading="lazy"></div>
+  </div>
+
+  <div class="showcase rev">
+    <div class="sc-text">
+      <span class="sc-tag">02 · 业主端小程序</span>
+      <h3>面向家庭日常使用的控制中心</h3>
+      <p class="sc-desc">五个底部标签覆盖首页温控、场景、历史数据、服务与账户设置；场景可自定义保存，用电分析细化到分时电价与峰谷用电对比，服务求助会实时写入消息记录。</p>
+      <div class="sc-feats">
+        <div class="sc-feat"><span class="fi">◆</span>房间温控、模式切换与可视化圆环表盘</div>
+        <div class="sc-feat"><span class="fi">◆</span>自定义场景（保存后即刻出现在首页快捷入口）</div>
+        <div class="sc-feat"><span class="fi">◆</span>电表读数、分时电价与峰谷用电曲线</div>
+      </div>
+      <a class="sc-cta" href="https://claude.ai/artifact/E7RfhychJMvkm7Dft8ZzYo" target="_blank" rel="noopener">查看实时演示<span class="arr">↗</span></a>
+    </div>
+    <div class="sc-media tall"><img src="images/app.png" alt="业主端小程序界面截图" loading="lazy"></div>
+  </div>
+
+  <div class="showcase">
+    <div class="sc-text">
+      <span class="sc-tag">03 · 硬件中控面板</span>
+      <h3>墙面触控终端的物理设备语言</h3>
+      <p class="sc-desc">横屏触控面板，与业主端共享同一套住宅数据。屏幕本身采用固定深色配色，模拟真实设备显示屏不随页面主题切换的物理特性；房间详情还原了刻度式设温、风速滑块与常见故障自助排查流程。</p>
+      <div class="sc-feats">
+        <div class="sc-feat"><span class="fi">◆</span>楼层 / 房间快捷温控矩阵与季节场景栏</div>
+        <div class="sc-feat"><span class="fi">◆</span>常见问题自助排查 → 人工上门预约完整链路</div>
+        <div class="sc-feat"><span class="fi">◆</span>设备侧用电分析与运维记录</div>
+      </div>
+      <a class="sc-cta" href="https://claude.ai/artifact/U4rvU9DnkjvHN4RZVeE93W" target="_blank" rel="noopener">查看实时演示<span class="arr">↗</span></a>
+    </div>
+    <div class="sc-media wide"><img src="images/panel.png" alt="硬件中控面板界面截图" loading="lazy"></div>
+  </div>
+
+  <div class="dsys">
+    <div class="section-kicker"><span class="num">04</span><h2>设计系统</h2></div>
+    <p class="sc-desc" style="max-width:70ch;">三端共享同一套设计令牌：深松石绿与黄铜色构成的工业质感配色，搭配 Oswald 数字与 IBM Plex 字族；深浅色主题均为独立定义的完整令牌集，而非简单反色。</p>
+    <div class="dsys-grid">
+      <div class="swatch-row">
+        <div class="swatch"><div class="sw-chip" style="background:#16211c"></div><span class="sw-name">ink</span></div>
+        <div class="swatch"><div class="sw-chip" style="background:#93641f"></div><span class="sw-name">brass</span></div>
+        <div class="swatch"><div class="sw-chip" style="background:#2c748a"></div><span class="sw-name">frost</span></div>
+        <div class="swatch"><div class="sw-chip" style="background:#2c7a4b"></div><span class="sw-name">good</span></div>
+        <div class="swatch"><div class="sw-chip" style="background:#a4720a"></div><span class="sw-name">warn</span></div>
+        <div class="swatch"><div class="sw-chip" style="background:#a63a24"></div><span class="sw-name">critical</span></div>
+        <div class="swatch"><div class="sw-chip" style="background:#eef1ec;border:1px solid var(--border)"></div><span class="sw-name">surface</span></div>
+      </div>
+      <div class="type-sample">
+        <div class="type-row disp"><span class="tl">display</span><span class="tv">Oswald 暖枢</span></div>
+        <div class="type-row"><span class="tl">body</span><span class="tv" style="font-size:15px;">IBM Plex Sans 正文文本</span></div>
+        <div class="type-row mono"><span class="tl">mono</span><span class="tv">12,456.8 kWh</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stackbar">
+    <span class="chip">纯 HTML / CSS / JS</span>
+    <span class="chip">零第三方框架</span>
+    <span class="chip">响应式布局</span>
+    <span class="chip">深浅色双主题</span>
+    <span class="chip">SVG 数据可视化</span>
+    <span class="chip">三端独立部署</span>
+  </div>
+
+  <div class="foot">
+    <div class="fl">三个 Demo 均为可交互原型，建议在桌面浏览器打开体验完整交互。<br>早期合一版原型（单页三标签）：<a href="https://claude.ai/artifact/JLeJbLGxuzpHzkSKw1rbmu" target="_blank" rel="noopener">查看 →</a></div>
+    <div class="byline">暖枢 NUANSHU · 独立设计与开发项目<br>作品集案例页面</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var root = document.documentElement;
+  var themeBtns = document.querySelectorAll('[data-theme-btn]');
+  function setTheme(mode){
+    if(mode === 'system'){ root.removeAttribute('data-theme'); }
+    else{ root.setAttribute('data-theme', mode); }
+    themeBtns.forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-theme-btn') === mode); });
+    try{ localStorage.setItem('nuanshu-theme', mode); }catch(e){}
+  }
+  themeBtns.forEach(function(b){ b.addEventListener('click', function(){ setTheme(b.getAttribute('data-theme-btn')); }); });
+  try{ var saved = localStorage.getItem('nuanshu-theme'); if(saved) setTheme(saved); }catch(e){}
+})();
+</script>

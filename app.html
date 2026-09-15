@@ -1,0 +1,785 @@
+<title>暖枢管家</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --surface: #eef1ec; --surface-raised: #ffffff; --surface-sunken: #e2e7dd; --surface-inset: #d8ded1;
+    --ink: #16211c; --ink-muted: #52625a; --ink-faint: #8b988e;
+    --border: #d1d8c9; --border-strong: #b7c1af;
+    --brass: #93641f; --brass-ink: #6e4a17; --brass-soft: #ecdcb8; --brass-soft-ink: #6e4a17;
+    --frost: #2c748a; --frost-soft: #d1e7ea;
+    --good: #2c7a4b; --good-soft: #d7ead9; --warn: #a4720a; --warn-soft: #f2e0b3;
+    --critical: #a63a24; --critical-soft: #f4d9cd;
+    --cat1: #93641f; --cat2: #2c748a; --cat3: #7a4778;
+    --shadow-soft: 0 1px 2px rgba(20,30,22,0.06), 0 6px 18px -8px rgba(20,30,22,0.18);
+    --shadow-raised: 0 4px 10px rgba(20,30,22,0.10), 0 16px 40px -12px rgba(20,30,22,0.28);
+    --font-display: 'Oswald', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    --font-body: 'IBM Plex Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+    --radius-s: 8px; --radius-m: 14px; --radius-l: 22px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --surface: #0f1c17; --surface-raised: #16261f; --surface-sunken: #0a1511; --surface-inset: #0a1511;
+      --ink: #eef2ec; --ink-muted: #a3b3a8; --ink-faint: #6c7d72;
+      --border: #253630; --border-strong: #34473f;
+      --brass: #d6a95f; --brass-ink: #f0d9ab; --brass-soft: #3a2e17; --brass-soft-ink: #e8c98a;
+      --frost: #7fc2d6; --frost-soft: #163137;
+      --good: #5cc48c; --good-soft: #163728; --warn: #e3b544; --warn-soft: #3a2e10;
+      --critical: #e57a5c; --critical-soft: #3a1f16;
+      --cat1: #d6a95f; --cat2: #7fc2d6; --cat3: #c58fc2;
+      --shadow-soft: 0 1px 2px rgba(0,0,0,0.3), 0 6px 18px -8px rgba(0,0,0,0.5);
+      --shadow-raised: 0 4px 10px rgba(0,0,0,0.35), 0 20px 48px -14px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --surface: #0f1c17; --surface-raised: #16261f; --surface-sunken: #0a1511; --surface-inset: #0a1511;
+    --ink: #eef2ec; --ink-muted: #a3b3a8; --ink-faint: #6c7d72;
+    --border: #253630; --border-strong: #34473f;
+    --brass: #d6a95f; --brass-ink: #f0d9ab; --brass-soft: #3a2e17; --brass-soft-ink: #e8c98a;
+    --frost: #7fc2d6; --frost-soft: #163137;
+    --good: #5cc48c; --good-soft: #163728; --warn: #e3b544; --warn-soft: #3a2e10;
+    --critical: #e57a5c; --critical-soft: #3a1f16;
+    --cat1: #d6a95f; --cat2: #7fc2d6; --cat3: #c58fc2;
+    --shadow-soft: 0 1px 2px rgba(0,0,0,0.3), 0 6px 18px -8px rgba(0,0,0,0.5);
+    --shadow-raised: 0 4px 10px rgba(0,0,0,0.35), 0 20px 48px -14px rgba(0,0,0,0.6);
+  }
+
+  *{ box-sizing: border-box; }
+  body{ background: var(--surface); color: var(--ink); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+  h1,h2,h3{ font-family: var(--font-display); text-wrap: balance; }
+  .mono{ font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  button{ font-family: inherit; }
+  select{ font-family: inherit; }
+  ::selection{ background: var(--brass-soft); color: var(--brass-ink); }
+  a{ color: var(--frost); }
+  :focus-visible{ outline: 2px solid var(--frost); outline-offset: 2px; }
+  [hidden]{ display:none !important; }
+  @media (prefers-reduced-motion: reduce){ *{ animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; } }
+
+  .shell{ max-width: 1180px; margin: 0 auto; padding: 20px 16px 64px; }
+
+  .nameplate{
+    display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap: wrap;
+    background: linear-gradient(155deg, var(--surface-raised), var(--surface-sunken));
+    border: 1px solid var(--border); border-radius: var(--radius-l); padding: 18px 24px;
+    box-shadow: var(--shadow-soft); position: relative; overflow: hidden;
+  }
+  .nameplate::before{
+    content:""; position:absolute; inset:0;
+    background: repeating-linear-gradient(115deg, rgba(147,100,31,0.05) 0 2px, transparent 2px 26px);
+    pointer-events:none;
+  }
+  .brandmark{ display:flex; align-items:center; gap:14px; position:relative; }
+  .brand-badge{
+    width:46px; height:46px; border-radius:12px;
+    background: conic-gradient(from 220deg, var(--frost), var(--brass), var(--frost));
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: inset 0 0 0 3px var(--surface-raised), var(--shadow-soft); flex: none;
+  }
+  .brand-badge svg{ width:24px; height:24px; }
+  .brand-text .name{ font-size: 22px; font-weight:600; letter-spacing:0.5px; line-height:1.1; }
+  .brand-text .sub{ font-size:12.5px; color: var(--ink-muted); letter-spacing:0.4px; margin-top:3px; }
+  .nameplate-right{ display:flex; align-items:center; gap:10px; position:relative; flex-wrap:wrap; }
+  .status-chip{ display:flex; align-items:center; gap:7px; background: var(--surface-raised); border:1px solid var(--border); padding: 7px 12px; border-radius: 999px; font-size:12.5px; color:var(--ink-muted); box-shadow: var(--shadow-soft); }
+  .dot{ width:7px; height:7px; border-radius:50%; background:var(--good); flex:none; }
+  .dot.pulse{ animation: pulse 2.2s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.35; } }
+  .theme-toggle{ display:flex; align-items:center; gap:6px; background: var(--surface-raised); border:1px solid var(--border); border-radius:999px; padding:5px; box-shadow: var(--shadow-soft); }
+  .theme-toggle button{ border:none; background:transparent; color:var(--ink-muted); width:30px; height:30px; border-radius:999px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px; }
+  .theme-toggle button.active{ background: var(--brass-soft); color: var(--brass-ink); }
+
+  .arch-nav{ margin: 18px 0 26px; display:flex; align-items:stretch; gap:10px; flex-wrap: wrap; background: var(--surface-inset); border:1px solid var(--border); border-radius: var(--radius-l); padding:10px; box-shadow: inset 0 1px 4px rgba(0,0,0,0.08); }
+  .arch-node{ flex:1 1 190px; min-width:170px; border:1px solid transparent; border-radius: var(--radius-m); padding:12px 14px; display:flex; align-items:center; gap:11px; text-decoration:none; color: var(--ink-muted); }
+  .arch-node .idx{ font-family: var(--font-mono); font-size:11px; color: var(--ink-faint); width:24px; height:24px; border-radius:50%; border:1px solid var(--border-strong); display:flex; align-items:center; justify-content:center; flex:none; }
+  .arch-node .txt{ display:flex; flex-direction:column; gap:2px; }
+  .arch-node .t1{ font-weight:600; font-size:13.5px; color:var(--ink); }
+  .arch-node .t2{ font-size:11px; color:var(--ink-faint); }
+  .arch-node.current{ background: var(--surface-raised); box-shadow: var(--shadow-raised); }
+  .arch-node.current .idx{ background: var(--brass); border-color: var(--brass); color: var(--surface-raised); }
+  .arch-node.link{ cursor:pointer; }
+  .arch-node.link:hover{ background: var(--surface-raised); }
+  .arch-node.link:hover .t1{ color: var(--frost); }
+  .arch-flow{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding: 4px 4px; flex: 0 0 auto; color: var(--ink-faint); min-width:64px; }
+  .arch-flow .arrow{ font-size:15px; }
+  .arch-flow small{ font-size:9.5px; text-align:center; line-height:1.25; }
+
+  .toast{ position: fixed; left:50%; bottom: 22px; transform: translateX(-50%) translateY(140%); background: var(--ink); color: var(--surface); padding:11px 18px; border-radius:999px; font-size:13px; box-shadow: var(--shadow-raised); transition: transform 0.25s ease; z-index:80; max-width: 90vw; text-align:center; }
+  .toast.show{ transform: translateX(-50%) translateY(0); }
+
+  .phone-stage{ display:flex; justify-content:center; padding: 10px 0 30px; }
+  .phone{ width: 100%; max-width: 390px; background: var(--surface-raised); border-radius: 42px; border:1px solid var(--border); box-shadow: var(--shadow-raised); padding: 14px 14px 14px; position:relative; }
+  .phone-notch{ width:110px; height:22px; background: var(--surface-inset); border-radius:0 0 16px 16px; margin: 0 auto 6px; }
+  .phone-status{ display:flex; justify-content:space-between; font-size:11px; color:var(--ink-faint); padding:0 8px 8px; font-family: var(--font-mono); }
+  .phone-screen{ background: var(--surface-sunken); border-radius: 26px; min-height: 620px; display:flex; flex-direction:column; overflow:hidden; }
+  .screen-body{ flex:1; padding: 14px 14px 10px; overflow-y:auto; }
+
+  .proj-switch{ display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-muted); margin-bottom:10px; }
+  .proj-switch select{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-s); padding:5px 8px; font-size:12px; color:var(--ink); }
+
+  .weather-card{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:12px 14px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:11.5px; }
+  .weather-card .wloc{ color:var(--ink-faint); display:flex; align-items:center; gap:4px; margin-bottom:3px; }
+  .weather-card .wvals{ display:flex; gap:10px; align-items:baseline; }
+  .weather-card .wvals b{ font-family:var(--font-display); font-size:16px; font-weight:600; }
+  .tag{ font-size:10px; padding:2px 6px; border-radius:999px; font-weight:500; }
+  .tag.good{ background:var(--good-soft); color:var(--good); }
+  .tag.warn{ background:var(--warn-soft); color:var(--warn); }
+
+  .home-hero{ background: radial-gradient(120% 140% at 20% 0%, var(--brass-soft), transparent 60%), var(--surface-raised); border-radius: var(--radius-l); padding: 18px; border:1px solid var(--border); margin-bottom:14px; }
+  .home-hero .roomnow{ font-size:14px; font-weight:600; }
+  .gauge-wrap{ display:flex; align-items:center; gap:16px; margin-top:12px; }
+  .gauge-num{ font-family: var(--font-display); font-size:46px; font-weight:600; line-height:1; }
+  .gauge-num small{ font-size:16px; font-weight:400; color: var(--ink-faint); }
+  .gauge-controls{ display:flex; flex-direction:column; gap:8px; }
+  .roundbtn{ width:34px; height:34px; border-radius:50%; border:1px solid var(--border-strong); background: var(--surface-raised); font-size:16px; cursor:pointer; color: var(--ink); display:flex; align-items:center; justify-content:center; }
+  .roundbtn:hover{ border-color: var(--brass); }
+  .mode-row{ display:flex; gap:7px; margin-top:14px; flex-wrap:wrap; }
+  .mode-chip{ flex:1 1 auto; border:1px solid var(--border); background: var(--surface-sunken); color: var(--ink-muted); padding:8px 6px; border-radius: var(--radius-s); font-size:12px; text-align:center; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px; }
+  .mode-chip[aria-pressed="true"]{ background: var(--frost); border-color: var(--frost); color: var(--surface-raised); }
+  .mode-chip .mi{ font-size:15px; }
+
+  .section-label{ font-size:12px; font-weight:600; color: var(--ink-muted); margin: 16px 4px 8px; display:flex; justify-content:space-between; align-items:center; }
+  .scene-grid{ display:grid; grid-template-columns: repeat(3,1fr); gap:9px; }
+  .scene-btn{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:12px 6px; text-align:center; cursor:pointer; font-size:11.5px; color: var(--ink-muted); }
+  .scene-btn .si{ font-size:19px; display:block; margin-bottom:5px; }
+  .scene-btn[aria-pressed="true"]{ background: var(--brass-soft); border-color: var(--brass); color: var(--brass-ink); }
+
+  .room-list{ display:flex; flex-direction:column; gap:8px; }
+  .room-card{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding: 10px 12px; display:flex; align-items:center; gap:12px; cursor:pointer; }
+  .room-card .ri{ font-size:18px; width:30px; text-align:center; flex:none; }
+  .room-card .rt{ flex:1; }
+  .room-card .rn{ font-size:12.5px; font-weight:500; }
+  .room-card .rv{ font-size:11px; color: var(--ink-faint); margin-top:1px; font-family: var(--font-mono); }
+  .switch{ width:38px; height:22px; border-radius:999px; background: var(--surface-inset); position:relative; cursor:pointer; border:1px solid var(--border-strong); flex:none; }
+  .switch::after{ content:""; position:absolute; top:1px; left:1px; width:18px; height:18px; border-radius:50%; background: var(--surface-raised); box-shadow: var(--shadow-soft); transition: left 0.15s; }
+  .switch[aria-checked="true"]{ background: var(--good); border-color: var(--good); }
+  .switch[aria-checked="true"]::after{ left:17px; }
+  .room-card.off .rn, .room-card.off .ri{ opacity:0.45; }
+  .room-card .chev{ color:var(--ink-faint); }
+
+  .energy-mini{ display:flex; align-items:flex-end; gap:4px; height:52px; margin-top:6px; }
+  .energy-mini .bar{ flex:1; background: linear-gradient(180deg, var(--brass), var(--brass-soft)); border-radius: 3px 3px 0 0; min-height:4px; }
+
+  /* bottom nav */
+  .bottom-nav{ display:flex; border-top:1px solid var(--border); background: var(--surface-raised); }
+  .nav-btn{ flex:1; border:none; background:transparent; color:var(--ink-faint); padding:9px 4px 10px; font-size:10px; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; }
+  .nav-btn .ni{ font-size:17px; }
+  .nav-btn[aria-selected="true"]{ color: var(--brass-ink); }
+
+  /* room detail */
+  .rd-head{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .backbtn{ border:1px solid var(--border-strong); background:var(--surface-raised); width:30px; height:30px; border-radius:50%; cursor:pointer; font-size:14px; color:var(--ink); display:flex; align-items:center; justify-content:center; flex:none; }
+  .rd-title{ font-size:16px; font-weight:600; }
+  .rd-stats{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+  .rd-stat{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:14px; text-align:center; }
+  .rd-stat .v{ font-family: var(--font-display); font-size:26px; font-weight:600; }
+  .rd-stat .l{ font-size:10.5px; color:var(--ink-faint); margin-top:2px; }
+  .rd-card{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-l); padding:16px; }
+  .rd-target{ text-align:center; margin:10px 0; }
+  .rd-target .v{ font-family:var(--font-display); font-size:38px; font-weight:600; }
+  .rd-power{ width:100%; margin-top:14px; padding:10px; border-radius: var(--radius-s); border:1px solid var(--border-strong); background:var(--surface-sunken); color:var(--ink); font-size:13px; font-weight:500; cursor:pointer; }
+  .rd-power[data-on="true"]{ background: var(--good-soft); color: var(--good); border-color:var(--good); }
+  .rd-select{ width:100%; margin-top:10px; padding:8px 10px; border-radius: var(--radius-s); border:1px solid var(--border); background:var(--surface-sunken); color:var(--ink); font-size:13px; }
+
+  /* scenes tab / builder */
+  .scene-list-item{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:12px 14px; display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .scene-list-item .si{ font-size:18px; }
+  .scene-list-item .sn{ flex:1; font-size:13px; font-weight:500; }
+  .scene-list-item .ssub{ font-size:10.5px; color:var(--ink-faint); }
+  .addscene-btn{ width:100%; border:1px dashed var(--border-strong); background:transparent; border-radius: var(--radius-m); padding:12px; font-size:12.5px; color:var(--ink-muted); cursor:pointer; margin-top:4px; }
+  .builder{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:14px; margin-top:10px; display:flex; flex-direction:column; gap:10px; }
+  .builder input[type="text"]{ width:100%; padding:8px 10px; border-radius: var(--radius-s); border:1px solid var(--border); background:var(--surface-sunken); color:var(--ink); font-size:13px; }
+  .builder-room{ display:flex; align-items:center; gap:8px; font-size:12px; }
+  .builder-room input[type="number"]{ width:56px; padding:4px 6px; border-radius:6px; border:1px solid var(--border); background:var(--surface-sunken); color:var(--ink); font-family:var(--font-mono); }
+  .builder-actions{ display:flex; gap:8px; justify-content:flex-end; }
+
+  /* history tab */
+  .metric-tabs{ display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
+  .metric-tab{ border:1px solid var(--border); background:var(--surface-sunken); color:var(--ink-muted); padding:6px 12px; border-radius:999px; font-size:11.5px; cursor:pointer; }
+  .metric-tab[aria-pressed="true"]{ background:var(--brass); border-color:var(--brass); color:var(--surface-raised); }
+  .hist-selects{ display:flex; gap:6px; margin-bottom:10px; }
+  .hist-selects select{ flex:1; padding:6px 8px; border-radius: var(--radius-s); border:1px solid var(--border); background:var(--surface-sunken); color:var(--ink); font-size:11.5px; }
+  .hist-card{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:12px 10px 8px; }
+  .hist-legend{ display:flex; gap:10px; font-size:10.5px; color:var(--ink-muted); margin-bottom:6px; flex-wrap:wrap; }
+  .hist-legend .sw{ width:8px; height:8px; border-radius:2px; display:inline-block; margin-right:4px; }
+
+  /* electricity meter */
+  .meter-card{ background: linear-gradient(155deg, var(--surface-raised), var(--surface-sunken)); border:1px solid var(--border); border-radius: var(--radius-m); padding:14px 16px; margin-bottom:10px; display:grid; grid-template-columns:repeat(2,1fr); gap:13px 10px; }
+  .meter-cell .mv{ font-family: var(--font-mono); font-size:17px; font-weight:600; color:var(--ink); }
+  .meter-cell .ml{ font-size:10px; color:var(--ink-faint); margin-top:3px; }
+  .erange-btns{ display:flex; gap:6px; margin-bottom:10px; }
+  .erange-btn{ flex:1; border:1px solid var(--border); background:var(--surface-sunken); color:var(--ink-muted); padding:6px 0; border-radius:999px; font-size:11.5px; cursor:pointer; text-align:center; }
+  .erange-btn[aria-pressed="true"]{ background:var(--brass); border-color:var(--brass); color:var(--surface-raised); }
+  .tariff-card{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:6px 14px; margin-top:10px; }
+  .tariff-title{ font-size:11px; font-weight:600; color:var(--ink-muted); margin:10px 0 2px; display:flex; justify-content:space-between; align-items:center; }
+  .tariff-row{ display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); font-size:11.5px; }
+  .tariff-row:last-child{ border-bottom:none; }
+  .tariff-row .tp{ display:flex; align-items:center; gap:7px; color:var(--ink); font-weight:600; }
+  .tariff-row .tp .dot2{ width:7px; height:7px; border-radius:50%; flex:none; }
+  .tariff-row .tt{ color:var(--ink-faint); font-size:10px; margin-top:2px; }
+  .tariff-row .tr{ font-family:var(--font-mono); font-weight:600; color:var(--ink); font-size:12px; }
+  .tariff-row.now{ background: var(--brass-soft); margin:0 -14px; padding:8px 14px; border-radius:8px; border-bottom-color:transparent; }
+  .tariff-row.now .tp,.tariff-row.now .tr{ color: var(--brass-soft-ink); }
+  .tariff-note{ font-size:10px; color:var(--ink-faint); padding:8px 0 10px; line-height:1.5; }
+
+  /* service tab */
+  .svc-tabs{ display:flex; gap:6px; margin-bottom:10px; }
+  .svc-tab{ border:1px solid var(--border); background:var(--surface-sunken); color:var(--ink-muted); padding:6px 14px; border-radius:999px; font-size:12px; cursor:pointer; }
+  .svc-tab[aria-pressed="true"]{ background:var(--brass); border-color:var(--brass); color:var(--surface-raised); }
+  .tip-card{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:12px 14px; margin-bottom:8px; }
+  .tip-card .t1{ font-size:11px; color:var(--brass-ink); font-weight:600; display:flex; justify-content:space-between; }
+  .tip-card .t2{ font-size:12px; color:var(--ink); margin-top:5px; line-height:1.5; }
+  .msg-card{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:12px 14px; margin-bottom:8px; display:flex; gap:10px; }
+  .msg-card .avatar{ width:32px; height:32px; border-radius:50%; background:var(--brass-soft); color:var(--brass-ink); display:flex; align-items:center; justify-content:center; font-size:14px; flex:none; }
+  .msg-card .m1{ font-size:12px; line-height:1.5; }
+  .msg-card .m2{ font-size:10px; color:var(--ink-faint); margin-top:4px; }
+  .help-fab{ position:absolute; right:18px; bottom:72px; background: var(--brass); color:var(--surface-raised); border:none; border-radius:999px; padding:10px 16px; font-size:12px; font-weight:600; box-shadow: var(--shadow-raised); cursor:pointer; display:flex; align-items:center; gap:6px; z-index:5; }
+
+  /* me tab */
+  .profile-card{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-l); padding:18px; display:flex; align-items:center; gap:14px; margin-bottom:14px; }
+  .profile-avatar{ width:52px; height:52px; border-radius:50%; background: conic-gradient(from 220deg, var(--frost), var(--brass)); flex:none; }
+  .profile-name{ font-size:15px; font-weight:600; }
+  .profile-sub{ font-size:11.5px; color:var(--ink-faint); margin-top:2px; }
+  .settings-row{ display:flex; align-items:center; justify-content:space-between; background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:13px 14px; margin-bottom:8px; font-size:12.5px; }
+  .settings-row .rl{ color: var(--ink-faint); }
+
+  .footer-note{ text-align:center; color: var(--ink-faint); font-size:11.5px; margin-top: 30px; }
+</style>
+
+<div class="shell">
+
+  <div class="nameplate">
+    <div class="brandmark">
+      <div class="brand-badge">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 3c2 3-1 4-1 6.5A3 3 0 0 0 14 12.5 5 5 0 1 1 8 8" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="brand-text">
+        <div class="name">暖枢管家 <span class="mono" style="font-size:13px;color:var(--ink-faint);font-weight:400;">NUANSHU APP</span></div>
+        <div class="sub">业主端小程序 · C 端家庭控制</div>
+      </div>
+    </div>
+    <div class="nameplate-right">
+      <div class="status-chip"><span class="dot pulse"></span> Wi-Fi 已连接</div>
+      <div class="theme-toggle" role="group" aria-label="主题切换">
+        <button type="button" data-theme-btn="light" aria-label="浅色主题">☀</button>
+        <button type="button" data-theme-btn="dark" aria-label="深色主题">☾</button>
+        <button type="button" data-theme-btn="system" aria-label="跟随系统" class="active">◐</button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="arch-nav" aria-label="暖枢三端架构">
+    <a class="arch-node link" href="https://claude.ai/artifact/9r1ShCviBKxXmbtHVZn1VC" target="_blank" rel="noopener">
+      <span class="idx">01</span>
+      <span class="txt"><span class="t1">服务商中控台</span><span class="t2">独立页面 · 新窗口打开</span></span>
+    </a>
+    <div class="arch-flow"><span class="arrow">⇄</span><small>指令下发<br>状态上报</small></div>
+    <div class="arch-node current" aria-current="page">
+      <span class="idx">02</span>
+      <span class="txt"><span class="t1">业主端小程序</span><span class="t2">当前页面 · 独立部署</span></span>
+    </div>
+    <div class="arch-flow"><span class="arrow">⇄</span><small>场景联动<br>数据同步</small></div>
+    <a class="arch-node link" href="https://claude.ai/artifact/U4rvU9DnkjvHN4RZVeE93W" target="_blank" rel="noopener">
+      <span class="idx">03</span>
+      <span class="txt"><span class="t1">硬件中控面板</span><span class="t2">独立页面 · 新窗口打开</span></span>
+    </a>
+  </nav>
+
+  <div class="phone-stage">
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-status"><span id="clockTxt">09:41</span><span>暖枢管家 · Wi-Fi 已连接</span></div>
+      <div class="phone-screen" style="position:relative;">
+
+        <div class="screen-body" id="screenBody"></div>
+
+        <button class="help-fab" id="helpFab">🆘 一键求助</button>
+
+        <nav class="bottom-nav" role="tablist" aria-label="底部导航">
+          <button class="nav-btn" role="tab" data-tab="home" aria-selected="true"><span class="ni">🏠</span>首页</button>
+          <button class="nav-btn" role="tab" data-tab="scenes" aria-selected="false"><span class="ni">▦</span>场景</button>
+          <button class="nav-btn" role="tab" data-tab="history" aria-selected="false"><span class="ni">📈</span>历史数据</button>
+          <button class="nav-btn" role="tab" data-tab="service" aria-selected="false"><span class="ni">♡</span>服务</button>
+          <button class="nav-btn" role="tab" data-tab="me" aria-selected="false"><span class="ni">☺</span>我的</button>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">暖枢管家 NUANSHU APP — 三端中的业主小程序端，与「服务商中控台」「硬件中控面板」通过云端数据独立同步</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- theme ---------- */
+  var root = document.documentElement;
+  var themeBtns = document.querySelectorAll('[data-theme-btn]');
+  function setTheme(mode){
+    if(mode === 'system'){ root.removeAttribute('data-theme'); }
+    else{ root.setAttribute('data-theme', mode); }
+    themeBtns.forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-theme-btn') === mode); });
+    try{ localStorage.setItem('nuanshu-theme', mode); }catch(e){}
+  }
+  themeBtns.forEach(function(b){ b.addEventListener('click', function(){ setTheme(b.getAttribute('data-theme-btn')); }); });
+  try{ var saved = localStorage.getItem('nuanshu-theme'); if(saved) setTheme(saved); }catch(e){}
+
+  var toastEl = document.getElementById('toast');
+  var toastTimer = null;
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, 2500);
+  }
+  function pad(n){ return n < 10 ? '0'+n : ''+n; }
+  function tickClock(){
+    var d = new Date();
+    var c1 = document.getElementById('clockTxt'); if(c1) c1.textContent = pad(d.getHours())+':'+pad(d.getMinutes());
+  }
+  tickClock(); setInterval(tickClock, 15000);
+
+  /* ============================================================ */
+  /* DATA                                                           */
+  /* ============================================================ */
+  var projectsList = ['星海国际公寓 · 3栋 2703', '云港商业广场 · 写字楼A座', '悦景办公园区 · 1号楼'];
+  var currentProject = 0;
+
+  var rooms = [
+    { key:'living', name:'客厅', icon:'🛋', on:true, temp:26.4, humidity:52 },
+    { key:'master', name:'主卧', icon:'🛏', on:true, temp:24.8, humidity:55 },
+    { key:'kids',   name:'儿童房', icon:'🧸', on:false, temp:25.2, humidity:50 },
+    { key:'study',  name:'书房', icon:'📚', on:true, temp:25.0, humidity:53 }
+  ];
+  var roomTarget = { living:26, master:24, kids:25, study:25 };
+  var roomMode = { living:'cool', master:'cool', kids:'cool', study:'cool' };
+
+  var modes = [
+    { key:'cool', label:'制冷', icon:'❄' },
+    { key:'heat', label:'制热', icon:'☀' },
+    { key:'fan',  label:'送风', icon:'≋' },
+    { key:'dry',  label:'除湿', icon:'⬦' }
+  ];
+
+  var scenes = [
+    { key:'home',  label:'回家', icon:'🏠', built:true,  rooms:[['living',26],['master',24]] },
+    { key:'away',  label:'离家', icon:'🚪', built:true,  rooms:[] },
+    { key:'sleep', label:'睡眠', icon:'🌙', built:true,  rooms:[['master',23]] },
+    { key:'eco',   label:'节能', icon:'🍃', built:true,  rooms:[['living',27],['master',26]] },
+    { key:'movie', label:'观影', icon:'🎬', built:true,  rooms:[['living',25]] },
+    { key:'cook',  label:'烹饪', icon:'🍳', built:true,  rooms:[['living',26]] }
+  ];
+  var activeScene = null;
+
+  var messages = [
+    { who:'服务商', text:'亲爱的客户，我们的工作人员王师傅已经完成地暖检修服务，请您对他的服务进行评价。', time:'昨天 15:05' },
+    { who:'服务商', text:'亲爱的客户，我们的工作人员王师傅，工号 89672345，即将上门为您检修地暖。', time:'昨天 08:30' },
+    { who:'服务商', text:'亲爱的客户，您的地暖检修服务已经预约成功，工作人员将于明天上午 9:00 上门为您服务。', time:'前天 10:36' }
+  ];
+  var tips = [
+    { title:'温馨提示 · 防冻预警', text:'即将进入冬季极寒天气，请注意地暖防冻，家中短期无人可设置低温运行，长期无人请排空管道内的水，咨询您的专属客服可获取专业防冻建议。', time:'2 天前' },
+    { title:'温馨提示 · 滤芯提醒', text:'您的新风系统滤芯已使用满 90 天，建议预约更换，保障室内空气质量。', time:'5 天前' },
+    { title:'温馨提示 · 空气质量', text:'近日室外空气轻度污染，如需开新风系统，建议避开早晚交通高峰、风力较大的时段。', time:'1 周前' }
+  ];
+
+  /* ============================================================ */
+  /* NAV STATE                                                      */
+  /* ============================================================ */
+  var currentTab = 'home';
+  var homeView = 'list'; // 'list' | roomKey
+  var svcTab = 'tips';
+  var histMetric = 'temp';
+  var histAqi = 'pm25';
+  var energyRange = 'day'; // 'day' | 'week' | 'month'
+  var builderOpen = false;
+
+  /* ---- electricity meter (single whole-home meter, shared narrative with 硬件中控面板) ---- */
+  var meterReading = 12456.8;   // kWh 累计读数
+  var currentPower = 2.8;       // kW 实时功率
+  var monthUsage = 286;         // kWh 本月已用
+  var monthCost = 214.5;        // ¥ 本月预估电费
+  var tariffPeriods = [
+    { key:'peak',   label:'峰段', time:'08:00–11:00, 18:00–21:00', rate:1.20, hours:[8,9,10,18,19,20] },
+    { key:'flat',   label:'平段', time:'11:00–18:00, 21:00–23:00', rate:0.68, hours:[11,12,13,14,15,16,17,21,22] },
+    { key:'valley', label:'谷段', time:'23:00–08:00',              rate:0.35, hours:[23,0,1,2,3,4,5,6,7] }
+  ];
+  function currentTariffPeriod(){
+    var h = new Date().getHours();
+    for(var i=0;i<tariffPeriods.length;i++){ if(tariffPeriods[i].hours.indexOf(h)!==-1) return tariffPeriods[i]; }
+    return tariffPeriods[1];
+  }
+  function genEnergySeries(range){
+    if(range==='day'){
+      var vals=[0.4,0.35,0.3,0.3,0.35,0.5,0.9,1.6,1.9,1.7,1.3,0.9,0.85,0.8,0.85,0.95,1.1,1.6,2.1,2.3,1.9,1.2,0.7,0.5];
+      var labels=['0','','','','','','6','','','','','','12','','','','','','18','','','','',''];
+      return { vals:vals, labels:labels, unit:'kWh', peak:vals.map(function(_,i){ return tariffPeriods[0].hours.indexOf(i)!==-1; }), total: vals.reduce(function(a,b){return a+b;},0) };
+    } else if(range==='week'){
+      var vals=[22.4,19.8,24.1,26.5,21.0,18.2,23.6];
+      var labels=['周一','周二','周三','周四','周五','周六','周日'];
+      return { vals:vals, labels:labels, unit:'kWh', peak:vals.map(function(){return false;}), total: vals.reduce(function(a,b){return a+b;},0) };
+    } else {
+      var vals=[]; for(var i=0;i<30;i++){ vals.push(Math.round((20+Math.sin(i/30*Math.PI*2)*4+(i%7<2?4:0))*10)/10); }
+      var labels=vals.map(function(_,i){ return ((i+1)%5===0) ? String(i+1) : ''; });
+      return { vals:vals, labels:labels, unit:'kWh', peak:vals.map(function(){return false;}), total: vals.reduce(function(a,b){return a+b;},0) };
+    }
+  }
+
+  var navBtns = document.querySelectorAll('.nav-btn');
+  navBtns.forEach(function(b){
+    b.addEventListener('click', function(){
+      currentTab = b.getAttribute('data-tab');
+      homeView = 'list';
+      navBtns.forEach(function(x){ x.setAttribute('aria-selected', x===b ? 'true':'false'); });
+      document.getElementById('helpFab').hidden = (currentTab !== 'service');
+      render();
+    });
+  });
+  document.getElementById('helpFab').hidden = true;
+
+  document.getElementById('helpFab').addEventListener('click', function(){
+    messages.unshift({ who:'系统', text:'已收到您的求助请求，客服将在 10 分钟内与您联系，工单已同步至服务商中控台。', time:'刚刚' });
+    svcTab = 'msgs'; currentTab='service'; homeView='list';
+    navBtns.forEach(function(x){ x.setAttribute('aria-selected', x.getAttribute('data-tab')==='service'?'true':'false'); });
+    render();
+    toast('已提交求助，客服将尽快联系您');
+  });
+
+  function render(){
+    var body = document.getElementById('screenBody');
+    if(currentTab==='home'){ body.innerHTML = homeView==='list' ? homeListHtml() : roomDetailHtml(homeView); bindHome(); }
+    else if(currentTab==='scenes'){ body.innerHTML = scenesHtml(); bindScenes(); }
+    else if(currentTab==='history'){ body.innerHTML = historyHtml(); bindHistory(); }
+    else if(currentTab==='service'){ body.innerHTML = serviceHtml(); bindService(); }
+    else if(currentTab==='me'){ body.innerHTML = meHtml(); bindMe(); }
+  }
+
+  /* ============================================================ */
+  /* HOME                                                           */
+  /* ============================================================ */
+  function homeListHtml(){
+    var proj = projectsList[currentProject];
+    var loc = proj.split(' · ')[0];
+    var room = rooms[0];
+    return '<div class="proj-switch">📍 <select id="projSelect">'+projectsList.map(function(p,i){ return '<option value="'+i+'" '+(i===currentProject?'selected':'')+'>'+p+'</option>'; }).join('')+'</select></div>'
+      + '<div class="weather-card"><div><div class="wloc">室外气象 · '+loc+'</div>'
+      + '<div class="wvals"><span><b>12</b>℃</span><span>湿度 79%</span><span class="tag warn">PM2.5 142 中度污染</span></div></div></div>'
+      + '<div class="home-hero">'
+      + '<div class="roomnow" id="roomNowTxt">客厅 · 当前 '+room.temp.toFixed(1)+'℃ · 湿度 '+room.humidity+'%</div>'
+      + '<div class="gauge-wrap">'
+      + '<svg width="88" height="88" viewBox="0 0 88 88" style="flex:none;">'
+      + '<circle cx="44" cy="44" r="38" fill="none" stroke="var(--surface-sunken)" stroke-width="8"/>'
+      + '<circle id="gaugeArc" cx="44" cy="44" r="38" fill="none" stroke="var(--frost)" stroke-width="8" stroke-linecap="round" transform="rotate(-90 44 44)"/>'
+      + '</svg>'
+      + '<div class="gauge-num" id="targetTempNum">'+roomTarget.living+'<small>℃</small></div>'
+      + '<div class="gauge-controls"><button class="roundbtn" id="tempUp">+</button><button class="roundbtn" id="tempDown">−</button></div>'
+      + '</div>'
+      + '<div class="mode-row" id="modeRow"></div>'
+      + '</div>'
+      + '<div class="section-label">一键场景</div>'
+      + '<div class="scene-grid" id="sceneGridHome"></div>'
+      + '<div class="section-label">房间设备 <span class="mono" style="font-weight:400;color:var(--ink-faint);">'+rooms.filter(function(r){return r.on;}).length+' / '+rooms.length+' 间运行中</span></div>'
+      + '<div class="room-list" id="roomList"></div>'
+      + '<div class="section-label" id="energyJump" style="cursor:pointer;">今日用电 <span class="mono" style="font-weight:400;color:var(--ink-faint);">7.8 kWh · 查看电表 ›</span></div>'
+      + '<div class="energy-mini" id="energyMini"></div>';
+  }
+
+  function bindHome(){
+    var sel = document.getElementById('projSelect');
+    if(sel) sel.addEventListener('change', function(e){ currentProject = +e.target.value; render(); toast('已切换至 '+projectsList[currentProject]); });
+
+    var modeRowEl = document.getElementById('modeRow');
+    if(modeRowEl){
+      modeRowEl.innerHTML = modes.map(function(m){
+        return '<button type="button" class="mode-chip" data-mode="'+m.key+'" aria-pressed="'+(m.key===roomMode.living)+'"><span class="mi">'+m.icon+'</span>'+m.label+'</button>';
+      }).join('');
+      modeRowEl.querySelectorAll('.mode-chip').forEach(function(btn){
+        btn.addEventListener('click', function(){ roomMode.living = btn.getAttribute('data-mode'); bindHome(); toast('客厅已切换至「'+modes.filter(function(m){return m.key===roomMode.living;})[0].label+'」模式'); });
+      });
+      updateGauge();
+      document.getElementById('tempUp').addEventListener('click', function(){ roomTarget.living = Math.min(30, roomTarget.living+0.5); updateGauge(); });
+      document.getElementById('tempDown').addEventListener('click', function(){ roomTarget.living = Math.max(16, roomTarget.living-0.5); updateGauge(); });
+    }
+
+    var sg = document.getElementById('sceneGridHome');
+    if(sg){
+      sg.innerHTML = scenes.map(function(s){
+        return '<button type="button" class="scene-btn" data-scene="'+s.key+'" aria-pressed="'+(s.key===activeScene)+'"><span class="si">'+s.icon+'</span>'+s.label+'</button>';
+      }).join('');
+      sg.querySelectorAll('.scene-btn').forEach(function(btn){ btn.addEventListener('click', function(){ runScene(btn.getAttribute('data-scene')); }); });
+    }
+
+    var rl = document.getElementById('roomList');
+    if(rl){
+      rl.innerHTML = rooms.map(function(r){
+        return '<div class="room-card'+(r.on?'':' off')+'" data-room="'+r.key+'">'
+          + '<span class="ri">'+r.icon+'</span>'
+          + '<span class="rt"><span class="rn">'+r.name+'</span><div class="rv">'+(r.on ? r.temp.toFixed(1)+'℃ · 运行中' : '已关闭')+'</div></span>'
+          + '<span class="switch" role="switch" aria-checked="'+r.on+'" data-swkey="'+r.key+'" tabindex="0"></span>'
+          + '<span class="chev">›</span></div>';
+      }).join('');
+      rl.querySelectorAll('.room-card').forEach(function(card){
+        card.addEventListener('click', function(e){
+          if(e.target.classList.contains('switch')) return;
+          homeView = card.getAttribute('data-room'); render();
+        });
+      });
+      rl.querySelectorAll('.switch').forEach(function(sw){
+        function toggle(e){ e.stopPropagation(); var key=sw.getAttribute('data-swkey'); var r=rooms.filter(function(x){return x.key===key;})[0]; r.on=!r.on; toast(r.name+(r.on?' 已开启':' 已关闭')); bindHome(); document.getElementById('roomList').outerHTML = document.getElementById('roomList').outerHTML; render(); }
+        sw.addEventListener('click', toggle);
+      });
+    }
+    var em = document.getElementById('energyMini');
+    if(em){
+      var vals = [3,4,3.5,5,6,7,6.5,5.5,4,4.5,5,7.8];
+      var max = Math.max.apply(null, vals);
+      em.innerHTML = vals.map(function(v){ return '<div class="bar" style="height:'+Math.max(6,(v/max)*100)+'%"></div>'; }).join('');
+    }
+    var ej = document.getElementById('energyJump');
+    if(ej) ej.addEventListener('click', function(){
+      currentTab='history'; histMetric='energy'; energyRange='day'; homeView='list';
+      navBtns.forEach(function(x){ x.setAttribute('aria-selected', x.getAttribute('data-tab')==='history'?'true':'false'); });
+      render();
+    });
+  }
+  function updateGauge(){
+    var numEl = document.getElementById('targetTempNum'); if(!numEl) return;
+    numEl.innerHTML = roomTarget.living + '<small>℃</small>';
+    var circumference = 2*Math.PI*38;
+    var pct = Math.max(0, Math.min(1, (roomTarget.living-16)/(30-16)));
+    document.getElementById('gaugeArc').style.strokeDasharray = (pct*circumference)+' '+circumference;
+  }
+
+  function runScene(key){
+    activeScene = key;
+    var s = scenes.filter(function(x){ return x.key===key; })[0];
+    if(s.rooms.length===0 && key==='away'){
+      rooms.forEach(function(r){ r.on=false; });
+    } else {
+      s.rooms.forEach(function(pair){
+        var r = rooms.filter(function(x){ return x.key===pair[0]; })[0];
+        if(r){ r.on = true; roomTarget[r.key] = pair[1]; }
+      });
+    }
+    toast('已执行「'+s.label+'」场景，相关设备已联动');
+    render();
+  }
+
+  function roomDetailHtml(key){
+    var r = rooms.filter(function(x){ return x.key===key; })[0];
+    return '<div class="rd-head"><button class="backbtn" id="rdBack">‹</button><div class="rd-title">'+r.name+'</div></div>'
+      + '<div class="rd-stats">'
+      + '<div class="rd-stat"><div class="v">'+r.temp.toFixed(1)+'℃</div><div class="l">室内温度</div></div>'
+      + '<div class="rd-stat"><div class="v">'+r.humidity+'%</div><div class="l">室内湿度</div></div>'
+      + '</div>'
+      + '<div class="rd-card">'
+      + '<select class="rd-select" id="rdMode">'+modes.map(function(m){ return '<option value="'+m.key+'" '+(roomMode[key]===m.key?'selected':'')+'>'+m.icon+' '+m.label+'</option>'; }).join('')+'</select>'
+      + '<div class="rd-target"><div class="v">'+roomTarget[key]+'℃</div><div style="font-size:11px;color:var(--ink-faint);">设定温度</div></div>'
+      + '<div style="display:flex;justify-content:center;gap:14px;"><button class="roundbtn" id="rdDown">−</button><button class="roundbtn" id="rdUp">+</button></div>'
+      + '<button class="rd-power" id="rdPower" data-on="'+r.on+'">'+(r.on?'● 运行中，点击关闭':'○ 已关闭，点击开启')+'</button>'
+      + '</div>';
+  }
+  function bindRoomDetail(key){
+    document.getElementById('rdBack').addEventListener('click', function(){ homeView='list'; render(); });
+    document.getElementById('rdMode').addEventListener('change', function(e){ roomMode[key]=e.target.value; });
+    document.getElementById('rdUp').addEventListener('click', function(){ roomTarget[key]=Math.min(30, roomTarget[key]+0.5); render(); });
+    document.getElementById('rdDown').addEventListener('click', function(){ roomTarget[key]=Math.max(16, roomTarget[key]-0.5); render(); });
+    document.getElementById('rdPower').addEventListener('click', function(){
+      var r = rooms.filter(function(x){ return x.key===key; })[0]; r.on = !r.on; render();
+    });
+  }
+
+  /* ============================================================ */
+  /* SCENES TAB                                                     */
+  /* ============================================================ */
+  function scenesHtml(){
+    var list = scenes.map(function(s){
+      var sub = s.rooms.length ? s.rooms.map(function(p){ var r=rooms.filter(function(x){return x.key===p[0];})[0]; return r.name+' '+p[1]+'℃'; }).join(' · ') : '关闭全部设备';
+      return '<div class="scene-list-item"><span class="si">'+s.icon+'</span><span class="sn">'+s.label+'<div class="ssub">'+sub+'</div></span>'
+        + '<button class="btn ghost sm" data-run="'+s.key+'" style="border:1px solid var(--border);">执行</button></div>';
+    }).join('');
+    var builderHtml = !builderOpen ? '' : '<div class="builder">'
+      + '<input type="text" id="scName" placeholder="场景名称，例如「周末清晨」">'
+      + rooms.map(function(r){ return '<label class="builder-room"><input type="checkbox" data-broom="'+r.key+'"> '+r.icon+' '+r.name+' 设为 <input type="number" min="16" max="30" value="24" data-btemp="'+r.key+'">℃</label>'; }).join('')
+      + '<div class="builder-actions"><button class="btn ghost sm" id="scCancel">取消</button><button class="btn primary sm" id="scSave">保存场景</button></div>'
+      + '</div>';
+    return '<div class="section-label">全部场景</div>' + list
+      + '<button class="addscene-btn" id="addSceneBtn">'+(builderOpen?'− 收起':'＋ 添加场景')+'</button>'
+      + builderHtml;
+  }
+  function bindScenes(){
+    document.querySelectorAll('[data-run]').forEach(function(btn){ btn.addEventListener('click', function(){ runScene(btn.getAttribute('data-run')); currentTab='home'; document.querySelectorAll('.nav-btn').forEach(function(x){x.setAttribute('aria-selected', x.getAttribute('data-tab')==='home'?'true':'false');}); render(); }); });
+    document.getElementById('addSceneBtn').addEventListener('click', function(){ builderOpen = !builderOpen; render(); });
+    if(builderOpen){
+      document.getElementById('scCancel').addEventListener('click', function(){ builderOpen=false; render(); });
+      document.getElementById('scSave').addEventListener('click', function(){
+        var name = document.getElementById('scName').value.trim() || '我的场景';
+        var picked = [];
+        document.querySelectorAll('[data-broom]').forEach(function(cb){
+          if(cb.checked){
+            var key = cb.getAttribute('data-broom');
+            var t = document.querySelector('[data-btemp="'+key+'"]').value;
+            picked.push([key, +t]);
+          }
+        });
+        scenes.push({ key:'custom'+Date.now(), label:name, icon:'⚙', built:false, rooms:picked });
+        builderOpen = false;
+        toast('已添加场景「'+name+'」');
+        render();
+      });
+    }
+  }
+
+  /* ============================================================ */
+  /* HISTORY TAB                                                    */
+  /* ============================================================ */
+  var histSeries = {
+    temp: { indoor:[21,21.4,21.8,22.6,23.9,23.1,22.3,21.9,22.4,23.6,23.9,22.7,22.1,21.8,22.6,23.8,24.1,23.2,22.4,21.9,22.2,23.5,23.9,22.6],
+            outdoor:[6,5.4,4.8,6.2,9.5,12.8,15.2,16.4,15.6,12.9,9.7,7.1,5.9,5.2,6.6,9.8,13.1,15.6,16.8,15.9,13.2,10.1,7.4,6.0],
+            target:[22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22] },
+    humidity: { indoor:[54,53,52,50,48,47,49,52,55,56,54,52,51,50,49,48,50,53,56,57,55,53,52,51],
+                outdoor:[70,71,73,68,60,55,52,54,60,66,72,74,71,72,74,69,61,56,53,55,61,67,73,75] }
+  };
+  var histLabels = ['00','02','04','06','08','10','12','14','16','18','20','22','24','02','04','06','08','10','12','14','16','18','20','22'];
+
+  function historyHtml(){
+    var metrics = [['temp','温度'],['humidity','湿度'],['aqi','空气质量'],['energy','用电']];
+    var tabsHtml = metrics.map(function(m){ return '<button class="metric-tab" data-metric="'+m[0]+'" aria-pressed="'+(m[0]===histMetric)+'">'+m[1]+'</button>'; }).join('');
+    var body = '';
+    if(histMetric==='temp'){
+      var selectsHtml = '<div class="hist-selects"><select id="histRoom">'+rooms.map(function(r){ return '<option>'+r.name+'</option>'; }).join('')+'</select>'
+        + '<select id="histRange"><option>近一周</option><option>近一月</option><option>近24小时</option></select></div>';
+      body = selectsHtml + '<div class="hist-card"><div class="hist-legend"><span><span class="sw" style="background:var(--cat1)"></span>室内温度</span><span><span class="sw" style="background:var(--cat2)"></span>室外温度</span><span><span class="sw" style="background:var(--cat3)"></span>设定温度</span></div>'
+        + '<svg id="histChart" viewBox="0 0 340 150" style="width:100%;height:auto;" role="img" aria-label="温度历史曲线"></svg></div>';
+    } else if(histMetric==='humidity'){
+      var selectsHtml = '<div class="hist-selects"><select id="histRoom">'+rooms.map(function(r){ return '<option>'+r.name+'</option>'; }).join('')+'</select>'
+        + '<select id="histRange"><option>近一周</option><option>近一月</option><option>近24小时</option></select></div>';
+      body = selectsHtml + '<div class="hist-card"><div class="hist-legend"><span><span class="sw" style="background:var(--cat1)"></span>室内湿度</span><span><span class="sw" style="background:var(--cat2)"></span>室外湿度</span></div>'
+        + '<svg id="histChart" viewBox="0 0 340 150" style="width:100%;height:auto;" role="img" aria-label="湿度历史曲线"></svg></div>';
+    } else if(histMetric==='aqi'){
+      var selectsHtml = '<div class="hist-selects"><select id="histRoom">'+rooms.map(function(r){ return '<option>'+r.name+'</option>'; }).join('')+'</select>'
+        + '<select id="histRange"><option>近一周</option><option>近一月</option><option>近24小时</option></select></div>';
+      var aqiTabs = [['pm25','PM2.5'],['co2','CO₂'],['tvoc','TVOC']].map(function(a){ return '<button class="metric-tab" data-aqi="'+a[0]+'" aria-pressed="'+(a[0]===histAqi)+'" style="font-size:11px;padding:4px 10px;">'+a[1]+'</button>'; }).join('');
+      body = selectsHtml + '<div style="display:flex;gap:6px;margin-bottom:8px;">'+aqiTabs+'</div>'
+        + '<div class="hist-card"><div class="hist-legend"><span><span class="sw" style="background:var(--cat1)"></span>室内</span><span><span class="sw" style="background:var(--cat2)"></span>室外</span></div>'
+        + '<svg id="histChart" viewBox="0 0 340 150" style="width:100%;height:auto;" role="img" aria-label="空气质量历史曲线"></svg></div>';
+    } else {
+      var tp = currentTariffPeriod();
+      var rangeBtns = [['day','今日'],['week','近7天'],['month','近30天']].map(function(r){
+        return '<button type="button" class="erange-btn" data-erange="'+r[0]+'" aria-pressed="'+(energyRange===r[0])+'">'+r[1]+'</button>';
+      }).join('');
+      var meterCard = '<div class="meter-card">'
+        + '<div class="meter-cell"><div class="mv mono">'+meterReading.toFixed(1)+'</div><div class="ml">电表累计读数 kWh</div></div>'
+        + '<div class="meter-cell"><div class="mv mono">'+currentPower.toFixed(1)+' kW</div><div class="ml">实时功率</div></div>'
+        + '<div class="meter-cell"><div class="mv mono">'+monthUsage+' kWh</div><div class="ml">本月已用电量</div></div>'
+        + '<div class="meter-cell"><div class="mv mono">¥'+monthCost.toFixed(1)+'</div><div class="ml">本月预估电费</div></div>'
+        + '</div>';
+      var eg = genEnergySeries(energyRange);
+      var rangeLabel = energyRange==='day'?'今日':(energyRange==='week'?'近7天':'近30天');
+      var legend = energyRange==='day'
+        ? '<div class="hist-legend"><span><span class="sw" style="background:var(--brass-ink)"></span>峰时段用电</span><span><span class="sw" style="background:var(--cat1)"></span>平/谷时段用电</span></div>'
+        : '<div class="hist-legend"><span><span class="sw" style="background:var(--cat1)"></span>每日用电量</span></div>';
+      var chartCard = '<div class="hist-card"><div style="font-size:11px;color:var(--ink-faint);margin-bottom:6px;">'+rangeLabel+'总电量：'+eg.total.toFixed(1)+' kWh</div>'
+        + legend
+        + '<svg id="histChart" viewBox="0 0 340 150" style="width:100%;height:auto;" role="img" aria-label="用电历史柱状图"></svg></div>';
+      var tariffCard = '<div class="tariff-card"><div class="tariff-title">分时电价标准 <span class="mono" style="font-weight:400;">当前：'+tp.label+'</span></div>'
+        + tariffPeriods.map(function(t){
+            var isNow = t.key===tp.key;
+            return '<div class="tariff-row'+(isNow?' now':'')+'"><span class="tp"><span class="dot2" style="background:'+(t.key==='peak'?'var(--critical)':(t.key==='flat'?'var(--warn)':'var(--good)'))+'"></span><span>'+t.label+(isNow?' · 当前时段':'')+'<div class="tt">'+t.time+'</div></span></span><span class="tr">¥'+t.rate.toFixed(2)+'/度</span></div>';
+          }).join('')
+        + '<div class="tariff-note">谷时段运行地暖 / 热泵机组可显著降低用电成本，暖枢管家将在场景中自动参考分时电价优化运行策略。</div></div>';
+      body = '<div class="erange-btns">'+rangeBtns+'</div>' + meterCard + chartCard + tariffCard;
+    }
+    return '<div class="section-label" style="margin-top:2px;">历史数据</div><div class="metric-tabs">'+tabsHtml+'</div>' + body;
+  }
+
+  function bindHistory(){
+    document.querySelectorAll('[data-metric]').forEach(function(b){ b.addEventListener('click', function(){ histMetric = b.getAttribute('data-metric'); render(); }); });
+    document.querySelectorAll('[data-aqi]').forEach(function(b){ b.addEventListener('click', function(){ histAqi = b.getAttribute('data-aqi'); render(); }); });
+    document.querySelectorAll('[data-erange]').forEach(function(b){ b.addEventListener('click', function(){ energyRange = b.getAttribute('data-erange'); render(); }); });
+    drawHistChart();
+  }
+
+  function drawHistChart(){
+    var svg = document.getElementById('histChart'); if(!svg) return;
+    var W=340,H=150,padL=26,padR=6,padT=8,padB=18,innerW=W-padL-padR,innerH=H-padT-padB;
+    if(histMetric==='energy'){
+      var eg = genEnergySeries(energyRange);
+      var vals = eg.vals;
+      var max=Math.max.apply(null,vals); if(max<=0) max=1;
+      var bw=innerW/vals.length*(vals.length>20?0.5:0.6), gap=innerW/vals.length;
+      var gridLines='';
+      for(var g=0; g<=2; g++){ var gy=padT+(g/2)*innerH; var gv=Math.round((max-(g/2)*max)*10)/10;
+        gridLines += '<line x1="'+padL+'" y1="'+gy+'" x2="'+(padL+innerW)+'" y2="'+gy+'" stroke="var(--border)" stroke-width="1"/><text x="'+(padL-4)+'" y="'+(gy+3)+'" font-size="7.5" fill="var(--ink-faint)" text-anchor="end" font-family="var(--font-mono)">'+gv+'</text>'; }
+      var bars = vals.map(function(v,i){
+        var h=(v/max)*innerH; var x=padL+i*gap+(gap-bw)/2; var y=padT+innerH-h;
+        var isPeak = eg.peak[i];
+        return '<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="2" fill="'+(isPeak?'var(--brass-ink)':'var(--cat1)')+'"/>';
+      }).join('');
+      var labels = vals.map(function(v,i){
+        if(!eg.labels[i]) return '';
+        var x = padL+i*gap+gap/2;
+        return '<text x="'+x.toFixed(1)+'" y="'+(H-4)+'" font-size="7.5" fill="var(--ink-faint)" text-anchor="middle" font-family="var(--font-mono)">'+eg.labels[i]+'</text>';
+      }).join('');
+      svg.innerHTML = gridLines + bars + labels;
+      return;
+    }
+    var a, b, labelA, labelB;
+    if(histMetric==='temp'){ a=histSeries.temp.indoor; b=histSeries.temp.outdoor; }
+    else if(histMetric==='humidity'){ a=histSeries.humidity.indoor; b=histSeries.humidity.outdoor; }
+    else {
+      var base = histAqi==='pm25' ? [38,42,55,60,72,80,65,50,45,40,36,34,38,44,58,66,78,70,54,46,41,37,35,33]
+        : histAqi==='co2' ? [480,500,520,560,610,640,600,560,520,500,490,480,485,505,525,565,615,645,605,565,525,505,495,485]
+        : [0.12,0.14,0.16,0.18,0.2,0.22,0.19,0.16,0.14,0.13,0.12,0.11,0.12,0.14,0.16,0.18,0.2,0.22,0.19,0.16,0.14,0.13,0.12,0.11];
+      a = base; b = base.map(function(v){ return v*0.65; });
+    }
+    var all = a.concat(b);
+    var max = Math.ceil(Math.max.apply(null,all)), min = Math.floor(Math.min.apply(null,all));
+    if(max===min) max+=1;
+    var n=a.length, stepX=innerW/(n-1);
+    function yOf(v){ return padT+innerH-((v-min)/(max-min))*innerH; }
+    var gridLines='';
+    for(var g=0; g<=2; g++){ var gy=padT+(g/2)*innerH; var gv=Math.round(max-(g/2)*(max-min));
+      gridLines += '<line x1="'+padL+'" y1="'+gy+'" x2="'+(padL+innerW)+'" y2="'+gy+'" stroke="var(--border)" stroke-width="1"/><text x="'+(padL-4)+'" y="'+(gy+3)+'" font-size="7.5" fill="var(--ink-faint)" text-anchor="end" font-family="var(--font-mono)">'+gv+'</text>'; }
+    function line(arr, color){ var pts=arr.map(function(v,i){ return (padL+i*stepX).toFixed(1)+','+yOf(v).toFixed(1); }).join(' '); return '<polyline points="'+pts+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'; }
+    svg.innerHTML = gridLines + line(a,'var(--cat1)') + line(b,'var(--cat2)');
+  }
+
+  /* ============================================================ */
+  /* SERVICE TAB                                                    */
+  /* ============================================================ */
+  function serviceHtml(){
+    var tabsHtml = '<div class="svc-tabs"><button class="svc-tab" data-svc="tips" aria-pressed="'+(svcTab==='tips')+'">温馨提示</button><button class="svc-tab" data-svc="msgs" aria-pressed="'+(svcTab==='msgs')+'">消息 ('+messages.length+')</button></div>';
+    var body;
+    if(svcTab==='tips'){
+      body = tips.map(function(t){ return '<div class="tip-card"><div class="t1"><span>'+t.title+'</span><span>'+t.time+'</span></div><div class="t2">'+t.text+'</div></div>'; }).join('');
+    } else {
+      body = messages.map(function(m){ return '<div class="msg-card"><span class="avatar">'+(m.who==='系统'?'⚙':'王')+'</span><span><div class="m1">'+(m.who==='服务商'?'服务商发来的消息：':'')+m.text+'</div><div class="m2">'+m.time+'</div></span></div>'; }).join('');
+    }
+    return '<div class="section-label" style="margin-top:2px;">服务</div>' + tabsHtml + body;
+  }
+  function bindService(){
+    document.querySelectorAll('[data-svc]').forEach(function(b){ b.addEventListener('click', function(){ svcTab = b.getAttribute('data-svc'); render(); }); });
+  }
+
+  /* ============================================================ */
+  /* ME TAB                                                         */
+  /* ============================================================ */
+  function meHtml(){
+    return '<div class="profile-card"><div class="profile-avatar"></div><div><div class="profile-name">业主 · 张先生</div><div class="profile-sub">'+projectsList[currentProject]+'</div></div></div>'
+      + '<div class="settings-row"><span>消息通知</span><span class="switch" role="switch" aria-checked="true" id="notifSwitch"></span></div>'
+      + '<div class="settings-row"><span>账户与安全</span><span class="rl">›</span></div>'
+      + '<div class="settings-row"><span>房屋与设备管理</span><span class="rl">›</span></div>'
+      + '<div class="settings-row"><span>关于暖枢</span><span class="rl">v2.4.1</span></div>';
+  }
+  function bindMe(){
+    var sw = document.getElementById('notifSwitch');
+    if(sw) sw.addEventListener('click', function(){ var on = sw.getAttribute('aria-checked')!=='true'; sw.setAttribute('aria-checked', on); });
+  }
+
+  render();
+})();
+</script>

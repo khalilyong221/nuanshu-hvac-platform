@@ -1,0 +1,897 @@
+<title>暖枢面板</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --surface: #eef1ec; --surface-raised: #ffffff; --surface-sunken: #e2e7dd; --surface-inset: #d8ded1;
+    --ink: #16211c; --ink-muted: #52625a; --ink-faint: #8b988e;
+    --border: #d1d8c9; --border-strong: #b7c1af;
+    --brass: #93641f; --brass-ink: #6e4a17; --brass-soft: #ecdcb8; --brass-soft-ink: #6e4a17;
+    --frost: #2c748a; --frost-soft: #d1e7ea;
+    --good: #2c7a4b; --good-soft: #d7ead9; --warn: #a4720a; --warn-soft: #f2e0b3;
+    --critical: #a63a24; --critical-soft: #f4d9cd;
+    --shadow-soft: 0 1px 2px rgba(20,30,22,0.06), 0 6px 18px -8px rgba(20,30,22,0.18);
+    --shadow-raised: 0 4px 10px rgba(20,30,22,0.10), 0 16px 40px -12px rgba(20,30,22,0.28);
+    --font-display: 'Oswald', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    --font-body: 'IBM Plex Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+    --radius-s: 8px; --radius-m: 14px; --radius-l: 22px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --surface: #0f1c17; --surface-raised: #16261f; --surface-sunken: #0a1511; --surface-inset: #0a1511;
+      --ink: #eef2ec; --ink-muted: #a3b3a8; --ink-faint: #6c7d72;
+      --border: #253630; --border-strong: #34473f;
+      --brass: #d6a95f; --brass-ink: #f0d9ab; --brass-soft: #3a2e17; --brass-soft-ink: #e8c98a;
+      --frost: #7fc2d6; --frost-soft: #163137;
+      --good: #5cc48c; --good-soft: #163728; --warn: #e3b544; --warn-soft: #3a2e10;
+      --critical: #e57a5c; --critical-soft: #3a1f16;
+      --shadow-soft: 0 1px 2px rgba(0,0,0,0.3), 0 6px 18px -8px rgba(0,0,0,0.5);
+      --shadow-raised: 0 4px 10px rgba(0,0,0,0.35), 0 20px 48px -14px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --surface: #0f1c17; --surface-raised: #16261f; --surface-sunken: #0a1511; --surface-inset: #0a1511;
+    --ink: #eef2ec; --ink-muted: #a3b3a8; --ink-faint: #6c7d72;
+    --border: #253630; --border-strong: #34473f;
+    --brass: #d6a95f; --brass-ink: #f0d9ab; --brass-soft: #3a2e17; --brass-soft-ink: #e8c98a;
+    --frost: #7fc2d6; --frost-soft: #163137;
+    --good: #5cc48c; --good-soft: #163728; --warn: #e3b544; --warn-soft: #3a2e10;
+    --critical: #e57a5c; --critical-soft: #3a1f16;
+    --shadow-soft: 0 1px 2px rgba(0,0,0,0.3), 0 6px 18px -8px rgba(0,0,0,0.5);
+    --shadow-raised: 0 4px 10px rgba(0,0,0,0.35), 0 20px 48px -14px rgba(0,0,0,0.6);
+  }
+
+  *{ box-sizing: border-box; }
+  body{ background: var(--surface); color: var(--ink); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+  h1,h2,h3{ font-family: var(--font-display); text-wrap: balance; }
+  .mono{ font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  button{ font-family: inherit; }
+  ::selection{ background: var(--brass-soft); color: var(--brass-ink); }
+  a{ color: var(--frost); }
+  :focus-visible{ outline: 2px solid var(--frost); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce){ *{ animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; } }
+
+  .shell{ max-width: 1180px; margin: 0 auto; padding: 20px 16px 64px; }
+
+  .nameplate{
+    display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap: wrap;
+    background: linear-gradient(155deg, var(--surface-raised), var(--surface-sunken));
+    border: 1px solid var(--border); border-radius: var(--radius-l); padding: 18px 24px;
+    box-shadow: var(--shadow-soft); position: relative; overflow: hidden;
+  }
+  .nameplate::before{
+    content:""; position:absolute; inset:0;
+    background: repeating-linear-gradient(115deg, rgba(147,100,31,0.05) 0 2px, transparent 2px 26px);
+    pointer-events:none;
+  }
+  .brandmark{ display:flex; align-items:center; gap:14px; position:relative; }
+  .brand-badge{
+    width:46px; height:46px; border-radius:12px;
+    background: conic-gradient(from 220deg, var(--frost), var(--brass), var(--frost));
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: inset 0 0 0 3px var(--surface-raised), var(--shadow-soft); flex: none;
+  }
+  .brand-badge svg{ width:24px; height:24px; }
+  .brand-text .name{ font-size: 22px; font-weight:600; letter-spacing:0.5px; line-height:1.1; }
+  .brand-text .sub{ font-size:12.5px; color: var(--ink-muted); letter-spacing:0.4px; margin-top:3px; }
+  .nameplate-right{ display:flex; align-items:center; gap:10px; position:relative; flex-wrap:wrap; }
+  .status-chip{ display:flex; align-items:center; gap:7px; background: var(--surface-raised); border:1px solid var(--border); padding: 7px 12px; border-radius: 999px; font-size:12.5px; color:var(--ink-muted); box-shadow: var(--shadow-soft); }
+  .dot{ width:7px; height:7px; border-radius:50%; background:var(--good); flex:none; }
+  .dot.pulse{ animation: pulse 2.2s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.35; } }
+  .theme-toggle{ display:flex; align-items:center; gap:6px; background: var(--surface-raised); border:1px solid var(--border); border-radius:999px; padding:5px; box-shadow: var(--shadow-soft); }
+  .theme-toggle button{ border:none; background:transparent; color:var(--ink-muted); width:30px; height:30px; border-radius:999px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px; }
+  .theme-toggle button.active{ background: var(--brass-soft); color: var(--brass-ink); }
+
+  .arch-nav{ margin: 18px 0 26px; display:flex; align-items:stretch; gap:10px; flex-wrap: wrap; background: var(--surface-inset); border:1px solid var(--border); border-radius: var(--radius-l); padding:10px; box-shadow: inset 0 1px 4px rgba(0,0,0,0.08); }
+  .arch-node{ flex:1 1 190px; min-width:170px; border:1px solid transparent; border-radius: var(--radius-m); padding:12px 14px; display:flex; align-items:center; gap:11px; text-decoration:none; color: var(--ink-muted); }
+  .arch-node .idx{ font-family: var(--font-mono); font-size:11px; color: var(--ink-faint); width:24px; height:24px; border-radius:50%; border:1px solid var(--border-strong); display:flex; align-items:center; justify-content:center; flex:none; }
+  .arch-node .txt{ display:flex; flex-direction:column; gap:2px; }
+  .arch-node .t1{ font-weight:600; font-size:13.5px; color:var(--ink); }
+  .arch-node .t2{ font-size:11px; color:var(--ink-faint); }
+  .arch-node.current{ background: var(--surface-raised); box-shadow: var(--shadow-raised); }
+  .arch-node.current .idx{ background: var(--brass); border-color: var(--brass); color: var(--surface-raised); }
+  .arch-node.link{ cursor:pointer; }
+  .arch-node.link:hover{ background: var(--surface-raised); }
+  .arch-node.link:hover .t1{ color: var(--frost); }
+  .arch-flow{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding: 4px 4px; flex: 0 0 auto; color: var(--ink-faint); min-width:64px; }
+  .arch-flow .arrow{ font-size:15px; }
+  .arch-flow small{ font-size:9.5px; text-align:center; line-height:1.25; }
+
+  .footer-note{ text-align:center; color: var(--ink-faint); font-size:11.5px; margin-top: 22px; }
+
+  /* ---------- wall-mounted touch panel shell (bezel follows page theme) ---------- */
+  .panel-stage{ display:flex; justify-content:center; padding: 6px 0 10px; }
+  .wallpanel{ width:100%; max-width: 980px; background: linear-gradient(155deg, var(--surface-inset), var(--surface-sunken)); border-radius: 30px; padding: 16px; box-shadow: var(--shadow-raised); position:relative; border:1px solid var(--border-strong); }
+  .wallpanel::before, .wallpanel::after{ content:""; position:absolute; width:7px; height:7px; border-radius:50%; background: var(--ink-faint); opacity:0.4; top:9px; }
+  .wallpanel::before{ left:16px; }
+  .wallpanel::after{ right:16px; }
+  .wallpanel-cam{ position:absolute; top:8px; left:50%; transform:translateX(-50%); width:8px; height:8px; border-radius:50%; background:#000; opacity:0.3; }
+
+  /* the physical panel's own display: a fixed dark glass surface, independent of the
+     page's light/dark theme -- like a real device screen, so every color below this
+     point is a literal hex value on purpose, never a --token */
+  .hp-screen{
+    background: #0d1a15; border-radius: 18px; overflow:hidden; position:relative;
+    display:flex; min-height: 600px; color:#eef2ec;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+  }
+  @media (max-width:680px){ .hp-screen{ flex-direction:column; min-height:0; } }
+
+  .hp-sidebar{ flex:0 0 78px; background:#0a1511; border-right:1px solid rgba(255,255,255,0.07); display:flex; flex-direction:column; align-items:stretch; padding:14px 8px; gap:4px; }
+  @media (max-width:680px){ .hp-sidebar{ flex-direction:row; border-right:none; border-bottom:1px solid rgba(255,255,255,0.07); padding:8px; overflow-x:auto; } }
+  .hp-navbtn{ background:transparent; border:none; color:#8fa39a; display:flex; flex-direction:column; align-items:center; gap:4px; padding:10px 4px; border-radius:12px; cursor:pointer; font-size:10.5px; flex:1 1 auto; }
+  .hp-navbtn .ni{ font-size:19px; line-height:1; }
+  .hp-navbtn[aria-pressed="true"]{ background: rgba(214,169,95,0.16); color:#f0d9ab; }
+  .hp-navbtn:hover{ color:#eef2ec; }
+
+  .hp-content{ flex:1; min-width:0; padding: 18px 20px 22px; overflow-y:auto; max-height: 760px; }
+  @media (max-width:680px){ .hp-content{ max-height:none; } }
+
+  .hp-topbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+  .hp-topbar .home-name{ font-size:13.5px; font-weight:600; color:#eef2ec; }
+  .hp-topbar .home-sub{ font-size:10.5px; color:#7f9189; margin-top:2px; }
+  .hp-bell{ width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; font-size:13px; color:#c9d4cd; flex:none; position:relative; }
+  .hp-bell .bd{ position:absolute; top:-2px; right:-2px; width:8px; height:8px; border-radius:50%; background:#e57a5c; border:2px solid #0d1a15; }
+
+  .hp-row2{ display:grid; grid-template-columns: 1.1fr 1fr; gap:12px; margin-bottom:14px; }
+  @media (max-width:560px){ .hp-row2{ grid-template-columns:1fr; } }
+  .hp-card{ background:#132119; border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:14px 16px; }
+  .hp-clock{ font-family: var(--font-display); font-size:34px; font-weight:600; line-height:1; }
+  .hp-date{ font-size:11px; color:#8fa39a; margin-top:5px; }
+  .hp-loc{ display:flex; align-items:center; gap:5px; font-size:11.5px; color:#c9d4cd; margin-top:12px; }
+  .hp-wxrow{ display:flex; gap:16px; margin-top:8px; }
+  .hp-wxrow .wi{ font-size:10px; color:#7f9189; }
+  .hp-wxrow .wv{ font-size:14.5px; font-weight:600; margin-top:2px; }
+  .hp-pill{ display:inline-block; font-size:9.5px; padding:2px 7px; border-radius:999px; margin-top:3px; }
+  .hp-pill.good{ background:rgba(92,196,140,0.18); color:#7fdba8; }
+  .hp-pill.warn{ background:rgba(227,181,68,0.18); color:#f0cd7c; }
+  .hp-pill.crit{ background:rgba(229,122,92,0.18); color:#f2a488; }
+  .hp-aqi-title{ font-size:11px; color:#8fa39a; margin-bottom:10px; }
+  .hp-aqi-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .hp-aqi-cell .av{ font-size:16px; font-weight:600; font-family: var(--font-mono); }
+  .hp-aqi-cell .al{ font-size:9.5px; color:#7f9189; margin-top:2px; }
+
+  .hp-devgrid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
+  @media (max-width:560px){ .hp-devgrid{ grid-template-columns:repeat(2,1fr); } }
+  .hp-devtile{ background:#132119; border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:11px 12px; display:flex; align-items:flex-start; justify-content:space-between; gap:6px; cursor:pointer; text-align:left; color:inherit; }
+  .hp-devtile .di{ font-size:16px; }
+  .hp-devtile .dn{ font-size:11.5px; margin-top:7px; color:#dce6e0; }
+  .hp-devtile .ds{ font-size:9.5px; color:#7f9189; margin-top:2px; }
+  .hp-devtile[data-on="true"] .ds{ color:#f0d9ab; }
+  .hp-devtoggle{ width:22px; height:22px; border-radius:50%; border:1px solid rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center; font-size:10px; color:#8fa39a; flex:none; }
+  .hp-devtile[data-on="true"] .hp-devtoggle{ background:#d6a95f; border-color:#d6a95f; color:#20160a; }
+
+  .hp-sectitle{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .hp-sectitle h3{ font-size:12px; font-weight:600; color:#dce6e0; margin:0; }
+
+  .hp-floortabs{ display:flex; gap:6px; }
+  .hp-floortab{ border:1px solid rgba(255,255,255,0.14); background:transparent; color:#8fa39a; padding:5px 12px; border-radius:999px; font-size:11px; cursor:pointer; }
+  .hp-floortab[aria-pressed="true"]{ background:#7fc2d6; border-color:#7fc2d6; color:#06232a; }
+
+  .hp-roomrow{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:6px; }
+  @media (max-width:680px){ .hp-roomrow{ grid-template-columns:repeat(2,1fr); } }
+  .hp-roomcard{ background:#132119; border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:12px; cursor:pointer; color:inherit; text-align:left; }
+  .hp-roomcard:hover{ border-color:rgba(214,169,95,0.4); }
+  .hp-roomcard .ri{ font-size:16px; }
+  .hp-roomcard .rn{ font-size:11.5px; margin-top:8px; color:#dce6e0; }
+  .hp-roomcard .rt{ font-family: var(--font-mono); font-size:15px; font-weight:600; margin-top:3px; }
+  .hp-roomcard[data-on="false"] .rt{ color:#7f9189; }
+  .hp-roomcard .rp{ width:16px; height:16px; border-radius:50%; float:right; border:1px solid rgba(255,255,255,0.18); }
+  .hp-roomcard[data-on="true"] .rp{ background:#5cc48c; border-color:#5cc48c; }
+
+  .hp-scenebar{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:16px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08); }
+  .hp-scenebtn{ border:1px solid rgba(255,255,255,0.16); background:transparent; color:#c9d4cd; padding:8px 14px; border-radius:12px; font-size:11.5px; cursor:pointer; }
+  .hp-scenebtn[aria-pressed="true"]{ background:#7fc2d6; border-color:#7fc2d6; color:#06232a; font-weight:600; }
+  .hp-carbon{ margin-left:auto; display:flex; gap:16px; font-size:10.5px; color:#8fa39a; }
+  .hp-carbon b{ color:#dce6e0; font-family: var(--font-mono); font-weight:600; }
+
+  /* room detail */
+  .hp-backbar{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .hp-backbtn{ width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#dce6e0; cursor:pointer; }
+  .hp-roomtabs{ display:flex; gap:6px; flex-wrap:wrap; }
+  .hp-roomtab{ border:1px solid rgba(255,255,255,0.14); background:transparent; color:#8fa39a; padding:5px 11px; border-radius:999px; font-size:11px; cursor:pointer; }
+  .hp-roomtab[aria-pressed="true"]{ background:rgba(214,169,95,0.2); border-color:#d6a95f; color:#f0d9ab; }
+
+  .hp-detail{ display:grid; grid-template-columns: 1fr 2fr 1fr; gap:14px; align-items:start; }
+  @media (max-width:820px){ .hp-detail{ grid-template-columns:1fr; } }
+  .hp-stat-tile{ background:#132119; border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:14px; margin-bottom:10px; }
+  .hp-stat-tile .sv{ font-family: var(--font-mono); font-size:20px; font-weight:600; }
+  .hp-stat-tile .sl{ font-size:10.5px; color:#8fa39a; margin-top:4px; }
+
+  .hp-accard{ background:#132119; border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:16px; }
+  .hp-acrow1{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .hp-pwrbtn{ width:36px; height:36px; border-radius:50%; border:1px solid rgba(255,255,255,0.18); background:transparent; color:#8fa39a; font-size:14px; cursor:pointer; }
+  .hp-pwrbtn[aria-pressed="true"]{ background:#5cc48c; border-color:#5cc48c; color:#06231a; }
+  .hp-modebtn{ border:1px solid rgba(255,255,255,0.16); background:transparent; color:#c9d4cd; padding:7px 13px; border-radius:11px; font-size:11.5px; cursor:pointer; display:flex; align-items:center; gap:5px; }
+  .hp-modebtn[aria-pressed="true"]{ background:#d6a95f; border-color:#d6a95f; color:#20160a; }
+  .hp-settemp{ text-align:center; margin:20px 0 8px; }
+  .hp-settemp .v{ font-family: var(--font-display); font-size:52px; font-weight:600; }
+  .hp-settemp .l{ font-size:10.5px; color:#8fa39a; margin-top:2px; }
+  .hp-ticks{ display:flex; justify-content:center; align-items:flex-end; gap:9px; margin:10px 0 18px; }
+  .hp-tick{ width:2px; height:10px; background:rgba(255,255,255,0.2); border-radius:1px; }
+  .hp-tick.active{ height:20px; width:3px; background:#d6a95f; }
+  .hp-tick-lbl{ font-size:8.5px; color:#7f9189; margin-top:5px; text-align:center; }
+  .hp-fanrow{ display:flex; align-items:center; gap:12px; margin-top:16px; }
+  .hp-fanrow input[type="range"]{ flex:1; accent-color:#7fc2d6; }
+  .hp-autobtn{ width:34px; height:34px; border-radius:10px; border:1px solid rgba(255,255,255,0.16); background:transparent; color:#8fa39a; cursor:pointer; font-size:12px; }
+  .hp-autobtn[aria-pressed="true"]{ background:#7fc2d6; border-color:#7fc2d6; color:#06232a; }
+
+  .hp-shortcuts{ display:flex; flex-direction:column; gap:10px; }
+  .hp-shortcut{ background:#132119; border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:13px; text-align:center; cursor:pointer; color:#c9d4cd; font-size:11.5px; }
+  .hp-shortcut .si{ font-size:17px; display:block; margin-bottom:6px; }
+  .hp-shortcut[aria-pressed="true"]{ background:rgba(214,169,95,0.16); border-color:#d6a95f; color:#f0d9ab; }
+
+  /* scenes tab */
+  .hp-scene-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+  @media (max-width:560px){ .hp-scene-grid{ grid-template-columns:1fr; } }
+  .hp-scenecard{ background:#132119; border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:16px; display:flex; align-items:center; gap:12px; }
+  .hp-scenecard .sci{ width:40px; height:40px; border-radius:12px; background:rgba(214,169,95,0.14); display:flex; align-items:center; justify-content:center; font-size:18px; flex:none; }
+  .hp-scenecard .scn{ font-size:13px; font-weight:600; color:#eef2ec; }
+  .hp-scenecard .scd{ font-size:10.5px; color:#8fa39a; margin-top:3px; }
+  .hp-runbtn{ margin-left:auto; border:1px solid rgba(255,255,255,0.18); background:transparent; color:#dce6e0; padding:7px 13px; border-radius:10px; font-size:11px; cursor:pointer; flex:none; }
+  .hp-runbtn:hover{ background:rgba(214,169,95,0.18); border-color:#d6a95f; }
+
+  /* data tab */
+  .hp-datatabs{ display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
+  .hp-dtab{ border:1px solid rgba(255,255,255,0.16); background:transparent; color:#8fa39a; padding:6px 13px; border-radius:999px; font-size:11.5px; cursor:pointer; }
+  .hp-dtab[aria-pressed="true"]{ background:#d6a95f; border-color:#d6a95f; color:#20160a; }
+  .hp-selrow{ display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+  .hp-sel{ background:#132119; border:1px solid rgba(255,255,255,0.14); color:#dce6e0; font-size:11px; padding:6px 10px; border-radius:9px; }
+  .hp-chartcard{ background:#132119; border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:14px; }
+  .hp-legend{ display:flex; gap:14px; font-size:10.5px; color:#c9d4cd; margin-bottom:8px; }
+  .hp-legend span{ display:inline-flex; align-items:center; gap:5px; }
+  .hp-legend i{ width:8px; height:8px; border-radius:2px; display:inline-block; }
+
+  /* electricity meter (data tab) */
+  .hp-erange{ display:flex; gap:6px; margin-bottom:12px; }
+  .hp-erange .hp-dtab{ flex:1; text-align:center; }
+  .hp-metergrid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:12px; }
+  @media (max-width:560px){ .hp-metergrid{ grid-template-columns:repeat(2,1fr); } }
+  .hp-metercell{ background:#132119; border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:12px 13px; }
+  .hp-metercell .mv{ font-family: var(--font-mono); font-size:16px; font-weight:600; color:#eef2ec; }
+  .hp-metercell .ml{ font-size:9.5px; color:#7f9189; margin-top:4px; }
+  .hp-tariffcard{ background:#132119; border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:6px 16px; margin-top:12px; }
+  .hp-tariff-title{ font-size:11px; font-weight:600; color:#dce6e0; margin:12px 0 2px; display:flex; justify-content:space-between; align-items:center; }
+  .hp-tariff-row{ display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.07); font-size:11.5px; }
+  .hp-tariff-row:last-child{ border-bottom:none; }
+  .hp-tariff-row .tp{ display:flex; align-items:center; gap:8px; color:#dce6e0; font-weight:600; }
+  .hp-tariff-row .dot3{ width:7px; height:7px; border-radius:50%; flex:none; }
+  .hp-tariff-row .tt{ color:#7f9189; font-size:10px; margin-top:3px; font-weight:400; }
+  .hp-tariff-row .tr{ font-family: var(--font-mono); font-weight:600; color:#eef2ec; font-size:12.5px; }
+  .hp-tariff-row.now{ background:rgba(214,169,95,0.14); margin:0 -16px; padding:10px 16px; border-radius:10px; border-bottom-color:transparent; }
+  .hp-tariff-note{ font-size:10px; color:#7f9189; padding:10px 0 12px; line-height:1.6; }
+
+  /* service tab */
+  .hp-faq{ border:1px solid rgba(255,255,255,0.08); border-radius:12px; margin-bottom:8px; overflow:hidden; }
+  .hp-faq-q{ width:100%; text-align:left; background:#132119; border:none; color:#dce6e0; padding:12px 14px; font-size:12px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .hp-faq-a{ padding:0 14px 13px; font-size:11.5px; color:#a9b8b0; line-height:1.6; }
+  .hp-escalate{ background:#132119; border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:16px; margin-top:14px; }
+  .hp-escalate textarea{ width:100%; background:#0d1a15; border:1px solid rgba(255,255,255,0.14); border-radius:10px; color:#eef2ec; font-family:inherit; font-size:12px; padding:10px; resize:vertical; min-height:56px; }
+  .hp-escalate input[type="tel"]{ width:100%; background:#0d1a15; border:1px solid rgba(255,255,255,0.14); border-radius:10px; color:#eef2ec; font-family:inherit; font-size:12px; padding:9px 10px; margin-top:8px; }
+  .hp-submitbtn{ width:100%; margin-top:10px; background:#d6a95f; border:none; color:#20160a; font-weight:600; padding:11px; border-radius:10px; font-size:12.5px; cursor:pointer; }
+  .hp-worker{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .hp-worker .wav{ width:34px; height:34px; border-radius:50%; background:conic-gradient(from 200deg,#7fc2d6,#d6a95f); flex:none; }
+  .hp-worker .wn{ font-size:12px; color:#dce6e0; }
+  .hp-worker .wr{ font-size:10.5px; color:#8fa39a; }
+
+  /* me tab */
+  .hp-devinfo dl{ display:grid; grid-template-columns:auto 1fr; gap:7px 14px; margin:0; font-size:11.5px; }
+  .hp-devinfo dt{ color:#7f9189; }
+  .hp-devinfo dd{ margin:0; color:#dce6e0; font-family: var(--font-mono); }
+  .hp-setrow{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:11px 0; border-bottom:1px solid rgba(255,255,255,0.06); font-size:12px; color:#dce6e0; }
+  .hp-setrow input[type="range"]{ width:130px; accent-color:#d6a95f; }
+  .hp-switch{ width:38px; height:22px; border-radius:999px; background:rgba(255,255,255,0.14); border:none; position:relative; cursor:pointer; flex:none; }
+  .hp-switch::after{ content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#c9d4cd; transition: transform 0.15s; }
+  .hp-switch[aria-pressed="true"]{ background:#5cc48c; }
+  .hp-switch[aria-pressed="true"]::after{ transform:translateX(16px); background:#0d1a15; }
+  .hp-maint{ margin-top:14px; }
+  .hp-maint-row{ display:flex; justify-content:space-between; gap:10px; font-size:11px; padding:9px 0; border-bottom:1px solid rgba(255,255,255,0.06); }
+  .hp-maint-row .mt{ color:#dce6e0; }
+  .hp-maint-row .md{ color:#7f9189; }
+
+  .hp-toast{ position:fixed; left:50%; bottom:30px; transform:translate(-50%,14px); background:#132119; color:#eef2ec; border:1px solid rgba(255,255,255,0.14); padding:11px 20px; border-radius:12px; font-size:12.5px; box-shadow:0 12px 32px rgba(0,0,0,0.35); opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; z-index:50; }
+  .hp-toast.show{ opacity:1; transform:translate(-50%,0); }
+
+  .section-hide{ display:none; }
+</style>
+
+<div class="shell">
+
+  <div class="nameplate">
+    <div class="brandmark">
+      <div class="brand-badge">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 3c2 3-1 4-1 6.5A3 3 0 0 0 14 12.5 5 5 0 1 1 8 8" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="brand-text">
+        <div class="name">暖枢面板 <span class="mono" style="font-size:13px;color:var(--ink-faint);font-weight:400;">NUANSHU PANEL</span></div>
+        <div class="sub">硬件中控面板 · 墙面触控终端 HP-300</div>
+      </div>
+    </div>
+    <div class="nameplate-right">
+      <div class="status-chip"><span class="dot pulse"></span> RS-485 / Wi-Fi 已连接</div>
+      <div class="theme-toggle" role="group" aria-label="主题切换">
+        <button type="button" data-theme-btn="light" aria-label="浅色主题">☀</button>
+        <button type="button" data-theme-btn="dark" aria-label="深色主题">☾</button>
+        <button type="button" data-theme-btn="system" aria-label="跟随系统" class="active">◐</button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="arch-nav" aria-label="暖枢三端架构">
+    <a class="arch-node link" href="https://claude.ai/artifact/9r1ShCviBKxXmbtHVZn1VC" target="_blank" rel="noopener">
+      <span class="idx">01</span>
+      <span class="txt"><span class="t1">服务商中控台</span><span class="t2">独立页面 · 新窗口打开</span></span>
+    </a>
+    <div class="arch-flow"><span class="arrow">⇄</span><small>指令下发<br>状态上报</small></div>
+    <a class="arch-node link" href="https://claude.ai/artifact/E7RfhychJMvkm7Dft8ZzYo" target="_blank" rel="noopener">
+      <span class="idx">02</span>
+      <span class="txt"><span class="t1">业主端小程序</span><span class="t2">独立页面 · 新窗口打开</span></span>
+    </a>
+    <div class="arch-flow"><span class="arrow">⇄</span><small>场景联动<br>数据同步</small></div>
+    <div class="arch-node current" aria-current="page">
+      <span class="idx">03</span>
+      <span class="txt"><span class="t1">硬件中控面板</span><span class="t2">当前页面 · 独立部署</span></span>
+    </div>
+  </nav>
+
+  <div class="panel-stage">
+    <div class="wallpanel">
+      <div class="wallpanel-cam"></div>
+      <div class="hp-screen">
+        <nav class="hp-sidebar" id="hpNav" aria-label="面板导航"></nav>
+        <div class="hp-content" id="hpContent"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">暖枢面板 NUANSHU PANEL — 三端中的硬件终端，安装于星海国际公寓 · 3栋 2703，与「服务商中控台」「业主端小程序」通过云端数据独立同步</div>
+</div>
+
+<div class="hp-toast" id="hpToast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var root = document.documentElement;
+  var themeBtns = document.querySelectorAll('[data-theme-btn]');
+  function setTheme(mode){
+    if(mode === 'system'){ root.removeAttribute('data-theme'); }
+    else{ root.setAttribute('data-theme', mode); }
+    themeBtns.forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-theme-btn') === mode); });
+    try{ localStorage.setItem('nuanshu-theme', mode); }catch(e){}
+  }
+  themeBtns.forEach(function(b){ b.addEventListener('click', function(){ setTheme(b.getAttribute('data-theme-btn')); }); });
+  try{ var saved = localStorage.getItem('nuanshu-theme'); if(saved) setTheme(saved); }catch(e){}
+
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function toast(msg){
+    var t = document.getElementById('hpToast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(t._tm);
+    t._tm = setTimeout(function(){ t.classList.remove('show'); }, 2600);
+  }
+
+  /* ---------------- data model ---------------- */
+  var floors = ['-1楼','1楼','2楼'];
+  var rooms = [
+    { key:'living',  name:'客厅',   floor:'1楼',  icon:'🛋', on:true,  temp:24.8, humidity:62, target:25.5, mode:'heat', fan:3, auto:false },
+    { key:'elder',   name:'老人房', floor:'1楼',  icon:'👴', on:true,  temp:25.9, humidity:55, target:25.5, mode:'heat', fan:2, auto:true  },
+    { key:'tea',     name:'茶室',   floor:'1楼',  icon:'🍵', on:true,  temp:23.6, humidity:52, target:23.8, mode:'heat', fan:2, auto:false },
+    { key:'lounge',  name:'休闲厅', floor:'1楼',  icon:'🎮', on:true,  temp:24.0, humidity:54, target:24.1, mode:'heat', fan:1, auto:false },
+    { key:'master',  name:'卧室',   floor:'2楼',  icon:'🛏', on:true,  temp:24.9, humidity:56, target:25.1, mode:'heat', fan:2, auto:true  },
+    { key:'kids',    name:'儿童房', floor:'2楼',  icon:'🧸', on:true,  temp:25.3, humidity:58, target:25.5, mode:'heat', fan:1, auto:true  },
+    { key:'study',   name:'书房',   floor:'2楼',  icon:'📖', on:false, temp:22.0, humidity:50, target:23.8, mode:'heat', fan:2, auto:false },
+    { key:'cinema',  name:'影视厅', floor:'-1楼', icon:'🎬', on:true,  temp:20.8, humidity:58, target:20.8, mode:'cool', fan:2, auto:false }
+  ];
+
+  var devices = [
+    { key:'ac',      name:'空调主机', icon:'❄', on:true,  onTxt:'制热',   offTxt:'待机' },
+    { key:'water',   name:'生活热水', icon:'♨', on:true,  onTxt:'45°C',   offTxt:'待机' },
+    { key:'freshair',name:'新风',    icon:'≋', on:false, onTxt:'运行中', offTxt:'待机' },
+    { key:'dehum',   name:'除湿',    icon:'⬦', on:false, onTxt:'运行中', offTxt:'待机' },
+    { key:'boiler',  name:'壁挂炉',  icon:'⛭', on:true,  onTxt:'运行中', offTxt:'待机' },
+    { key:'other',   name:'其他设备',icon:'⋯', on:false, onTxt:'开启',   offTxt:'—'   }
+  ];
+
+  var scenes = [
+    { key:'home',   icon:'🏠', name:'回家模式',  desc:'客厅 25.5℃ · 老人房 25.5℃', rooms:[['living',25.5],['elder',25.5]] },
+    { key:'away',   icon:'🚪', name:'离家模式',  desc:'全屋设备转为节能待机',        rooms:[['living',18],['elder',18],['tea',18],['lounge',18],['master',18],['kids',18]] },
+    { key:'sleep',  icon:'🌙', name:'睡眠模式',  desc:'卧室 23℃ · 儿童房 24℃',      rooms:[['master',23],['kids',24]] },
+    { key:'eco',    icon:'🌿', name:'节能模式',  desc:'客厅 27℃ · 卧室 26℃',        rooms:[['living',27],['master',26]] },
+    { key:'movie',  icon:'🎬', name:'观影模式',  desc:'影视厅 25℃ · 灯光调暗',       rooms:[['cinema',25]] },
+    { key:'cook',   icon:'🍳', name:'烹饪模式',  desc:'厨房新风开启 · 客厅 26℃',     rooms:[['living',26]] }
+  ];
+  var seasonPresets = ['夏季回家','冬季回家','春秋过渡','离家'];
+  var activeSeason = '冬季回家';
+
+  var shortcuts = [
+    { key:'light',    icon:'💡', name:'灯光', on:true  },
+    { key:'curtain',  icon:'🪟', name:'窗帘', on:false },
+    { key:'freshair2',icon:'≋', name:'新风', on:false, devKey:'freshair' }
+  ];
+
+  var faqs = [
+    { q:'机组遇冷死机，无法启动', a:'1、检查电源故障断电开关；2、查机组电源接线是否松动或脱开电源开关，检查电源；3、查机组控制电源断路器是否跳断，查明原因后更换新熔断器。' },
+    { q:'室外机结霜严重，制热效果能力严重不足', a:'检查除霜传感器是否松脱或失灵；确认化霜周期设置是否正常；清理室外机翅片积尘积雪，保证进出风通畅。' },
+    { q:'整机瘫痪', a:'1、查电源故障断电开关；2、查机组电源接线松动或断开电源开关，检查电源；3、查机组控制电源断路器跳断，查明原因后更换新熔断器。' },
+    { q:'压缩机堵转', a:'检查压缩机启动电容是否老化；确认系统制冷剂压力是否过高导致排气阻力过大；必要时联系专业工程师上门检测。' },
+    { q:'压缩机纯电机烧毁', a:'该故障需专业维修人员现场检测处理，请勿自行拆解，建议立即预约上门服务。' },
+    { q:'通讯故障', a:'检查面板与室外机之间的通讯线是否松动；尝试断电重启面板；若仍无法恢复，请预约工程师上门排查。' }
+  ];
+  var repairLog = [
+    { title:'地暖检修', date:'2026-09-02', status:'已完成' },
+    { title:'年度保养巡检', date:'2026-06-18', status:'已完成' }
+  ];
+
+  /* ---- electricity meter (single whole-home meter, shared narrative with 业主端小程序) ---- */
+  var meterReading = 12456.8;   // kWh 累计读数
+  var currentPower = 2.8;       // kW 实时功率
+  var monthUsage = 286;         // kWh 本月已用
+  var monthCost = 214.5;        // ¥ 本月预估电费
+  var tariffPeriods = [
+    { key:'peak',   label:'峰段', time:'08:00–11:00, 18:00–21:00', rate:1.20, hours:[8,9,10,18,19,20] },
+    { key:'flat',   label:'平段', time:'11:00–18:00, 21:00–23:00', rate:0.68, hours:[11,12,13,14,15,16,17,21,22] },
+    { key:'valley', label:'谷段', time:'23:00–08:00',              rate:0.35, hours:[23,0,1,2,3,4,5,6,7] }
+  ];
+  function currentTariffPeriod(){
+    var h = new Date().getHours();
+    for(var i=0;i<tariffPeriods.length;i++){ if(tariffPeriods[i].hours.indexOf(h)!==-1) return tariffPeriods[i]; }
+    return tariffPeriods[1];
+  }
+  function genEnergySeries(range){
+    if(range==='day'){
+      var vals=[0.4,0.35,0.3,0.3,0.35,0.5,0.9,1.6,1.9,1.7,1.3,0.9,0.85,0.8,0.85,0.95,1.1,1.6,2.1,2.3,1.9,1.2,0.7,0.5];
+      var labels=['0','','','','','','6','','','','','','12','','','','','','18','','','','',''];
+      return { vals:vals, labels:labels, peak:vals.map(function(_,i){ return tariffPeriods[0].hours.indexOf(i)!==-1; }), total: vals.reduce(function(a,b){return a+b;},0) };
+    } else if(range==='week'){
+      var vals=[22.4,19.8,24.1,26.5,21.0,18.2,23.6];
+      var labels=['周一','周二','周三','周四','周五','周六','周日'];
+      return { vals:vals, labels:labels, peak:vals.map(function(){return false;}), total: vals.reduce(function(a,b){return a+b;},0) };
+    } else {
+      var vals=[]; for(var i=0;i<30;i++){ vals.push(Math.round((20+Math.sin(i/30*Math.PI*2)*4+(i%7<2?4:0))*10)/10); }
+      var labels=vals.map(function(_,i){ return ((i+1)%5===0) ? String(i+1) : ''; });
+      return { vals:vals, labels:labels, peak:vals.map(function(){return false;}), total: vals.reduce(function(a,b){return a+b;},0) };
+    }
+  }
+  function drawBarChart(eg, w, h){
+    var pad = { l:30, r:8, t:8, b:18 };
+    var vals = eg.vals;
+    var max = Math.max.apply(null, vals); if(max<=0) max=1;
+    var innerW = w-pad.l-pad.r, innerH = h-pad.t-pad.b;
+    var gap = innerW/vals.length, bw = gap*(vals.length>20?0.5:0.6);
+    var gridLines = '';
+    for(var g=0; g<=3; g++){
+      var gy = pad.t + (g/3)*innerH; var gv = Math.round((max-(g/3)*max)*10)/10;
+      gridLines += '<line x1="'+pad.l+'" y1="'+gy+'" x2="'+(w-pad.r)+'" y2="'+gy+'" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>';
+      gridLines += '<text x="4" y="'+(gy+3)+'" font-size="8.5" fill="#7f9189" font-family="IBM Plex Mono, monospace">'+gv+'</text>';
+    }
+    var bars = vals.map(function(v,i){
+      var bh = (v/max)*innerH; var x = pad.l+i*gap+(gap-bw)/2; var y = pad.t+innerH-bh;
+      var isPeak = eg.peak[i];
+      return '<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+bh.toFixed(1)+'" rx="2" fill="'+(isPeak?'#f0d9ab':'#d6a95f')+'"/>';
+    }).join('');
+    var labels = vals.map(function(v,i){
+      if(!eg.labels[i]) return '';
+      var x = pad.l+i*gap+gap/2;
+      return '<text x="'+x.toFixed(1)+'" y="'+(h-4)+'" font-size="8.5" fill="#7f9189" text-anchor="middle" font-family="IBM Plex Mono, monospace">'+eg.labels[i]+'</text>';
+    }).join('');
+    return '<svg viewBox="0 0 '+w+' '+h+'" width="100%" height="'+h+'" role="img">'+gridLines+bars+labels+'</svg>';
+  }
+
+  var view = { tab:'home', floor:'1楼', roomKey:null, faqOpen:null, escalate:false, dataMetric:'temp', dataAqi:'pm25', dataFloor:'1楼', dataRoom:'living', dataRange:'近一周', dataEnergyRange:'day' };
+
+  var tabs = [
+    { key:'home',    icon:'🏠', label:'首页' },
+    { key:'scenes',  icon:'▦', label:'场景' },
+    { key:'data',    icon:'📈', label:'数据' },
+    { key:'service', icon:'♡', label:'服务' },
+    { key:'me',      icon:'☺', label:'我的' }
+  ];
+
+  function roomByKey(k){ for(var i=0;i<rooms.length;i++){ if(rooms[i].key===k) return rooms[i]; } return null; }
+  function deviceByKey(k){ for(var i=0;i<devices.length;i++){ if(devices[i].key===k) return devices[i]; } return null; }
+  function roomsOnFloor(f){ return rooms.filter(function(r){ return r.floor===f; }); }
+  function aqiStatus(kind, v){
+    if(kind==='pm25') return v<=50?'good':(v<=100?'warn':'crit');
+    if(kind==='tvoc') return v<=0.5?'good':(v<=0.8?'warn':'crit');
+    if(kind==='co2') return v<=800?'good':(v<=1000?'warn':'crit');
+    return 'good';
+  }
+  var aqiLabel = { good:'优', warn:'轻度', crit:'超标' };
+
+  /* ---------------- render: sidebar ---------------- */
+  function renderNav(){
+    document.getElementById('hpNav').innerHTML = tabs.map(function(t){
+      return '<button type="button" class="hp-navbtn" data-tab="'+t.key+'" aria-pressed="'+(view.tab===t.key)+'"><span class="ni">'+t.icon+'</span>'+t.label+'</button>';
+    }).join('');
+    Array.prototype.forEach.call(document.querySelectorAll('#hpNav .hp-navbtn'), function(b){
+      b.addEventListener('click', function(){ view.tab = b.getAttribute('data-tab'); view.roomKey = null; render(); });
+    });
+  }
+
+  /* ---------------- home tab ---------------- */
+  function homeHtml(){
+    var dev = devices.map(function(d){
+      return '<button type="button" class="hp-devtile" data-dev="'+d.key+'" data-on="'+d.on+'">'+
+        '<div><div class="di">'+d.icon+'</div><div class="dn">'+d.name+'</div><div class="ds">'+(d.on?d.onTxt:d.offTxt)+'</div></div>'+
+        '<span class="hp-devtoggle">⏻</span></button>';
+    }).join('');
+
+    var rr = roomsOnFloor(view.floor).map(function(r){
+      return '<button type="button" class="hp-roomcard" data-room="'+r.key+'" data-on="'+r.on+'">'+
+        '<span class="rp"></span><div class="ri">'+r.icon+'</div><div class="rn">'+r.name+'</div>'+
+        '<div class="rt mono">'+(r.on? r.temp.toFixed(1)+'℃' : '已关闭')+'</div></button>';
+    }).join('');
+
+    var scenebtns = seasonPresets.map(function(s){
+      return '<button type="button" class="hp-scenebtn" data-season="'+s+'" aria-pressed="'+(s===activeSeason)+'">'+s+'</button>';
+    }).join('');
+
+    return ''+
+    '<div class="hp-topbar"><div><div class="home-name">我的一号家</div><div class="home-sub">星海国际公寓 · 3栋 2703</div></div>'+
+      '<div class="hp-bell">🔔<span class="bd"></span></div></div>'+
+
+    '<div class="hp-row2">'+
+      '<div class="hp-card">'+
+        '<div class="hp-clock mono" id="hpClock">09:41</div><div class="hp-date" id="hpDate"></div>'+
+        '<div class="hp-loc">📍 浙江杭州 · 室外</div>'+
+        '<div class="hp-wxrow">'+
+          '<div><div class="wi">温度</div><div class="wv">12℃</div></div>'+
+          '<div><div class="wi">湿度</div><div class="wv">79%</div></div>'+
+          '<div><div class="wi">PM2.5</div><div class="wv">142</div><span class="hp-pill crit">中度污染</span></div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="hp-card">'+
+        '<div class="hp-aqi-title">室内空气质量</div>'+
+        '<div class="hp-aqi-grid">'+
+          '<div class="hp-aqi-cell"><div class="av">35</div><div class="al">PM2.5 <span class="hp-pill good">优</span></div></div>'+
+          '<div class="hp-aqi-cell"><div class="av">0.2</div><div class="al">TVOC mg/m³</div></div>'+
+          '<div class="hp-aqi-cell"><div class="av">550</div><div class="al">CO₂ ppm</div></div>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+
+    '<div class="hp-sectitle"><h3>快捷设备</h3></div>'+
+    '<div class="hp-devgrid">'+dev+'</div>'+
+
+    '<div class="hp-sectitle"><h3>房间温控</h3><div class="hp-floortabs" id="hpFloorTabs"></div></div>'+
+    '<div class="hp-roomrow">'+rr+'</div>'+
+
+    '<div class="hp-scenebar">'+scenebtns+
+      '<div class="hp-carbon"><span>实时碳排放 <b>0.5</b> kg/h</span><span>本月累计 <b>92</b> kg</span></div>'+
+    '</div>';
+  }
+
+  function bindHome(){
+    document.getElementById('hpFloorTabs').innerHTML = floors.map(function(f){
+      return '<button type="button" class="hp-floortab" data-floor="'+f+'" aria-pressed="'+(view.floor===f)+'">'+f+'</button>';
+    }).join('');
+    Array.prototype.forEach.call(document.querySelectorAll('.hp-floortab'), function(b){
+      b.addEventListener('click', function(){ view.floor = b.getAttribute('data-floor'); render(); });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.hp-devtile'), function(b){
+      b.addEventListener('click', function(){
+        var d = deviceByKey(b.getAttribute('data-dev')); d.on = !d.on;
+        toast(d.name + (d.on? ' 已开启' : ' 已关闭')); render();
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.hp-roomcard'), function(b){
+      b.addEventListener('click', function(){ view.roomKey = b.getAttribute('data-room'); render(); });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.hp-scenebtn'), function(b){
+      b.addEventListener('click', function(){ activeSeason = b.getAttribute('data-season'); toast('已切换至「'+activeSeason+'」预设'); render(); });
+    });
+  }
+
+  /* ---------------- room detail ---------------- */
+  function roomDetailHtml(key){
+    var r = roomByKey(key);
+    var floorRooms = roomsOnFloor(r.floor);
+    var roomtabs = floorRooms.map(function(x){
+      return '<button type="button" class="hp-roomtab" data-room="'+x.key+'" aria-pressed="'+(x.key===r.key)+'">'+x.name+'</button>';
+    }).join('');
+    var floortabs = floors.map(function(f){
+      return '<button type="button" class="hp-floortab" data-floor="'+f+'" aria-pressed="'+(f===r.floor)+'">'+f+'</button>';
+    }).join('');
+
+    var ticks = [];
+    var base = Math.round(r.target*2)/2 - 1.5;
+    for(var i=0;i<7;i++){ var v = Math.round((base+i*0.5)*10)/10; ticks.push(v); }
+    var tickHtml = ticks.map(function(v){
+      var active = Math.abs(v-r.target) < 0.01;
+      return '<div style="text-align:center;"><div class="hp-tick'+(active?' active':'')+'"></div><div class="hp-tick-lbl">'+v+'</div></div>';
+    }).join('');
+
+    var modes = [ ['cool','❄','制冷'], ['heat','☀','制热'], ['fan','≋','送风'], ['dry','⬦','除湿'] ];
+    var modeBtns = modes.map(function(m){
+      return '<button type="button" class="hp-modebtn" data-mode="'+m[0]+'" aria-pressed="'+(r.mode===m[0])+'"><span>'+m[1]+'</span>'+m[2]+'</button>';
+    }).join('');
+
+    var sc = shortcuts.map(function(s){
+      var on = s.devKey ? deviceByKey(s.devKey).on : s.on;
+      return '<button type="button" class="hp-shortcut" data-sc="'+s.key+'" aria-pressed="'+on+'"><span class="si">'+s.icon+'</span>'+s.name+'</button>';
+    }).join('');
+
+    return ''+
+    '<div class="hp-backbar"><button type="button" class="hp-backbtn" id="hpBack">‹</button><div class="hp-floortabs">'+floortabs+'</div></div>'+
+    '<div class="hp-roomtabs" style="margin-bottom:14px;">'+roomtabs+'</div>'+
+    '<div class="hp-detail">'+
+      '<div>'+
+        '<div class="hp-stat-tile"><div class="sv mono">'+r.temp.toFixed(1)+'℃</div><div class="sl">房间温度</div></div>'+
+        '<div class="hp-stat-tile"><div class="sv mono">'+r.humidity+'%</div><div class="sl">房间湿度</div></div>'+
+      '</div>'+
+      '<div class="hp-accard">'+
+        '<div class="hp-acrow1">'+
+          '<button type="button" class="hp-pwrbtn" id="hpRoomPwr" aria-pressed="'+r.on+'">⏻</button>'+
+          modeBtns+
+        '</div>'+
+        '<div class="hp-settemp"><div class="v mono">'+r.target.toFixed(1)+'℃</div><div class="l">设定温度 · '+r.name+'</div></div>'+
+        '<div class="hp-ticks">'+tickHtml+'</div>'+
+        '<div class="hp-fanrow"><span style="font-size:11px;color:#8fa39a;">风速</span><input type="range" min="1" max="5" value="'+r.fan+'" id="hpFan"><button type="button" class="hp-autobtn" id="hpAuto" aria-pressed="'+r.auto+'">自动</button></div>'+
+      '</div>'+
+      '<div class="hp-shortcuts">'+sc+'</div>'+
+    '</div>';
+  }
+
+  function bindRoomDetail(key){
+    var r = roomByKey(key);
+    document.getElementById('hpBack').addEventListener('click', function(){ view.roomKey = null; render(); });
+    Array.prototype.forEach.call(document.querySelectorAll('.hp-floortabs .hp-floortab'), function(b){
+      b.addEventListener('click', function(){
+        var f = b.getAttribute('data-floor'); var first = roomsOnFloor(f)[0];
+        if(first){ view.floor = f; view.roomKey = first.key; render(); }
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.hp-roomtab'), function(b){
+      b.addEventListener('click', function(){ view.roomKey = b.getAttribute('data-room'); render(); });
+    });
+    document.getElementById('hpRoomPwr').addEventListener('click', function(){ r.on = !r.on; toast(r.name + (r.on?' 已开启':' 已关闭')); render(); });
+    Array.prototype.forEach.call(document.querySelectorAll('.hp-modebtn'), function(b){
+      b.addEventListener('click', function(){ r.mode = b.getAttribute('data-mode'); render(); });
+    });
+    document.getElementById('hpFan').addEventListener('input', function(e){ r.fan = +e.target.value; });
+    document.getElementById('hpAuto').addEventListener('click', function(){ r.auto = !r.auto; render(); });
+    Array.prototype.forEach.call(document.querySelectorAll('.hp-shortcut'), function(b){
+      b.addEventListener('click', function(){
+        var key2 = b.getAttribute('data-sc');
+        var s = shortcuts.filter(function(x){ return x.key===key2; })[0];
+        if(s.devKey){ var d = deviceByKey(s.devKey); d.on = !d.on; toast(s.name+(d.on?' 已开启':' 已关闭')); }
+        else{ s.on = !s.on; toast(s.name+(s.on?' 已开启':' 已关闭')); }
+        render();
+      });
+    });
+  }
+
+  /* ---------------- scenes tab ---------------- */
+  function scenesHtml(){
+    return '<div class="hp-sectitle"><h3>全屋场景 · 与业主端小程序同步</h3></div><div class="hp-scene-grid">'+
+      scenes.map(function(s){
+        return '<div class="hp-scenecard"><div class="sci">'+s.icon+'</div><div><div class="scn">'+s.name+'</div><div class="scd">'+s.desc+'</div></div>'+
+          '<button type="button" class="hp-runbtn" data-scene="'+s.key+'">执行</button></div>';
+      }).join('') + '</div>';
+  }
+  function bindScenes(){
+    Array.prototype.forEach.call(document.querySelectorAll('.hp-runbtn'), function(b){
+      b.addEventListener('click', function(){
+        var key = b.getAttribute('data-scene');
+        var sc = scenes.filter(function(s){ return s.key===key; })[0];
+        sc.rooms.forEach(function(pair){ var r = roomByKey(pair[0]); if(r){ r.target = pair[1]; r.temp = pair[1]; r.on = true; } });
+        toast('已执行「'+sc.name+'」，'+sc.rooms.length+' 个房间已联动调整'); render();
+      });
+    });
+  }
+
+  /* ---------------- data tab ---------------- */
+  function genSeries(base, n, amp, phase){
+    var out = [];
+    for(var i=0;i<n;i++){ out.push(Math.round((base + Math.sin(i/n*Math.PI*2 + (phase||0))*amp)*10)/10); }
+    return out;
+  }
+  function drawLineChart(seriesList, w, h){
+    var pad = { l:30, r:8, t:8, b:16 };
+    var allVals = [].concat.apply([], seriesList.map(function(s){ return s.data; }));
+    var min = Math.min.apply(null, allVals), max = Math.max.apply(null, allVals);
+    if(min===max){ min-=1; max+=1; }
+    var span = max-min; min -= span*0.1; max += span*0.1; span = max-min;
+    var n = seriesList[0].data.length;
+    var x = function(i){ return pad.l + (w-pad.l-pad.r) * (i/(n-1)); };
+    var y = function(v){ return h-pad.b - (h-pad.t-pad.b) * ((v-min)/span); };
+    var gridLines = '';
+    for(var g=0; g<=3; g++){
+      var gv = min + span*g/3; var gy = y(gv);
+      gridLines += '<line x1="'+pad.l+'" y1="'+gy+'" x2="'+(w-pad.r)+'" y2="'+gy+'" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>';
+      gridLines += '<text x="4" y="'+(gy+3)+'" font-size="8.5" fill="#7f9189" font-family="IBM Plex Mono, monospace">'+Math.round(gv)+'</text>';
+    }
+    var paths = seriesList.map(function(s){
+      var d = s.data.map(function(v,i){ return (i===0?'M':'L')+x(i).toFixed(1)+','+y(v).toFixed(1); }).join(' ');
+      return '<path d="'+d+'" fill="none" stroke="'+s.color+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+    }).join('');
+    return '<svg viewBox="0 0 '+w+' '+h+'" width="100%" height="'+h+'" role="img">'+gridLines+paths+'</svg>';
+  }
+  var catColors = { c1:'#d6a95f', c2:'#7fc2d6', c3:'#c58fc2' };
+
+  function dataHtml(){
+    var metrics = [['temp','温度'],['humidity','湿度'],['aqi','空气质量'],['energy','用电']];
+    var mtabs = metrics.map(function(m){ return '<button type="button" class="hp-dtab" data-metric="'+m[0]+'" aria-pressed="'+(view.dataMetric===m[0])+'">'+m[1]+'</button>'; }).join('');
+
+    if(view.dataMetric==='energy'){
+      var tp = currentTariffPeriod();
+      var eg = genEnergySeries(view.dataEnergyRange);
+      var rangeBtns = [['day','今日'],['week','近7天'],['month','近30天']].map(function(rg){
+        return '<button type="button" class="hp-dtab" data-erange="'+rg[0]+'" aria-pressed="'+(view.dataEnergyRange===rg[0])+'">'+rg[1]+'</button>';
+      }).join('');
+      var rangeLabel = view.dataEnergyRange==='day'?'今日':(view.dataEnergyRange==='week'?'近7天':'近30天');
+      var legend = view.dataEnergyRange==='day'
+        ? '<div class="hp-legend"><span><i style="background:#f0d9ab"></i>峰时段用电</span><span><i style="background:#d6a95f"></i>平/谷时段用电</span></div>'
+        : '<div class="hp-legend"><span><i style="background:#d6a95f"></i>每日用电量</span></div>';
+      var meterGrid = '<div class="hp-metergrid">'
+        + '<div class="hp-metercell"><div class="mv">'+meterReading.toFixed(1)+'</div><div class="ml">电表累计读数 kWh</div></div>'
+        + '<div class="hp-metercell"><div class="mv">'+currentPower.toFixed(1)+' kW</div><div class="ml">实时功率</div></div>'
+        + '<div class="hp-metercell"><div class="mv">'+monthUsage+' kWh</div><div class="ml">本月已用电量</div></div>'
+        + '<div class="hp-metercell"><div class="mv">¥'+monthCost.toFixed(1)+'</div><div class="ml">本月预估电费</div></div>'
+        + '</div>';
+      var tariffCard = '<div class="hp-tariffcard"><div class="hp-tariff-title">分时电价标准 <span style="font-family:var(--font-mono);font-weight:400;">当前：'+tp.label+'</span></div>'
+        + tariffPeriods.map(function(t){
+            var isNow = t.key===tp.key;
+            var dotColor = t.key==='peak' ? '#e57a5c' : (t.key==='flat' ? '#e3b544' : '#5cc48c');
+            return '<div class="hp-tariff-row'+(isNow?' now':'')+'"><span class="tp"><span class="dot3" style="background:'+dotColor+'"></span><span>'+t.label+(isNow?' · 当前时段':'')+'<div class="tt">'+t.time+'</div></span></span><span class="tr">¥'+t.rate.toFixed(2)+'/度</span></div>';
+          }).join('')
+        + '<div class="hp-tariff-note">谷时段运行地暖 / 热泵机组可显著降低用电成本，系统将在场景中自动参考分时电价优化运行策略。</div></div>';
+      return '<div class="hp-sectitle"><h3>历史数据</h3></div>'+
+        '<div class="hp-datatabs">'+mtabs+'</div>'+
+        '<div class="hp-erange">'+rangeBtns+'</div>'+
+        meterGrid+
+        '<div class="hp-chartcard"><div style="font-size:11px;color:#7f9189;margin-bottom:8px;">'+rangeLabel+'总电量：'+eg.total.toFixed(1)+' kWh</div>'+legend+drawBarChart(eg,640,190)+'</div>'+
+        tariffCard;
+    }
+
+    var floorSel = '<select class="hp-sel" id="hpDFloor">'+floors.map(function(f){ return '<option'+(f===view.dataFloor?' selected':'')+'>'+f+'</option>'; }).join('')+'</select>';
+    var roomOpts = roomsOnFloor(view.dataFloor);
+    if(!roomOpts.some(function(r){ return r.key===view.dataRoom; })){ view.dataRoom = roomOpts[0] ? roomOpts[0].key : null; }
+    var roomSel = '<select class="hp-sel" id="hpDRoom">'+roomOpts.map(function(r){ return '<option value="'+r.key+'"'+(r.key===view.dataRoom?' selected':'')+'>'+r.name+'</option>'; }).join('')+'</select>';
+    var rangeSel = '<select class="hp-sel" id="hpDRange">'+['近24小时','近一周','近30天'].map(function(rg){ return '<option'+(rg===view.dataRange?' selected':'')+'>'+rg+'</option>'; }).join('')+'</select>';
+
+    var body = '';
+    var r = roomByKey(view.dataRoom) || rooms[0];
+    if(view.dataMetric==='temp'){
+      var indoor = genSeries(r.temp, 14, 1.4, 0);
+      var outdoor = genSeries(12, 14, 5, 1.2);
+      var target = indoor.map(function(){ return r.target; });
+      body = '<div class="hp-legend"><span><i style="background:'+catColors.c1+'"></i>室内温度</span><span><i style="background:'+catColors.c2+'"></i>室外温度</span><span><i style="background:'+catColors.c3+'"></i>设定温度</span></div>'+
+        drawLineChart([{data:indoor,color:catColors.c1},{data:outdoor,color:catColors.c2},{data:target,color:catColors.c3}], 640, 210);
+    } else if(view.dataMetric==='humidity'){
+      var hin = genSeries(r.humidity, 14, 4, 0);
+      var hout = genSeries(70, 14, 10, 0.8);
+      body = '<div class="hp-legend"><span><i style="background:'+catColors.c1+'"></i>室内湿度</span><span><i style="background:'+catColors.c2+'"></i>室外湿度</span></div>'+
+        drawLineChart([{data:hin,color:catColors.c1},{data:hout,color:catColors.c2}], 640, 210);
+    } else {
+      var atabs = [['pm25','PM2.5'],['co2','CO₂'],['tvoc','TVOC']].map(function(a){
+        return '<button type="button" class="hp-dtab" data-aqi="'+a[0]+'" aria-pressed="'+(view.dataAqi===a[0])+'" style="font-size:10.5px;padding:4px 10px;">'+a[1]+'</button>';
+      }).join('');
+      var base = view.dataAqi==='pm25'?35:(view.dataAqi==='co2'?550:0.2);
+      var amp = view.dataAqi==='pm25'?14:(view.dataAqi==='co2'?90:0.12);
+      var inS = genSeries(base, 14, amp*0.6, 0.3);
+      var outS = genSeries(base*1.6, 14, amp, 0);
+      body = '<div style="margin-bottom:8px;">'+atabs+'</div>'+
+        '<div class="hp-legend"><span><i style="background:'+catColors.c1+'"></i>室内</span><span><i style="background:'+catColors.c2+'"></i>室外</span></div>'+
+        drawLineChart([{data:inS,color:catColors.c1},{data:outS,color:catColors.c2}], 640, 190);
+    }
+
+    return '<div class="hp-sectitle"><h3>历史数据</h3></div>'+
+      '<div class="hp-datatabs">'+mtabs+'</div>'+
+      '<div class="hp-selrow">'+floorSel+roomSel+rangeSel+'</div>'+
+      '<div class="hp-chartcard">'+body+'</div>';
+  }
+  function bindData(){
+    Array.prototype.forEach.call(document.querySelectorAll('.hp-datatabs .hp-dtab'), function(b){
+      b.addEventListener('click', function(){ view.dataMetric = b.getAttribute('data-metric'); render(); });
+    });
+    var aqiTabs = document.querySelectorAll('.hp-dtab[data-aqi]');
+    Array.prototype.forEach.call(aqiTabs, function(b){
+      b.addEventListener('click', function(){ view.dataAqi = b.getAttribute('data-aqi'); render(); });
+    });
+    var erangeTabs = document.querySelectorAll('.hp-dtab[data-erange]');
+    Array.prototype.forEach.call(erangeTabs, function(b){
+      b.addEventListener('click', function(){ view.dataEnergyRange = b.getAttribute('data-erange'); render(); });
+    });
+    var fSel = document.getElementById('hpDFloor'); if(fSel) fSel.addEventListener('change', function(e){ view.dataFloor = e.target.value; render(); });
+    var rSel = document.getElementById('hpDRoom'); if(rSel) rSel.addEventListener('change', function(e){ view.dataRoom = e.target.value; render(); });
+    var gSel = document.getElementById('hpDRange'); if(gSel) gSel.addEventListener('change', function(e){ view.dataRange = e.target.value; render(); });
+  }
+
+  /* ---------------- service tab ---------------- */
+  function serviceHtml(){
+    var list = faqs.map(function(f,i){
+      var open = view.faqOpen===i;
+      return '<div class="hp-faq"><button type="button" class="hp-faq-q" data-faq="'+i+'">'+f.q+'<span>'+(open?'−':'+')+'</span></button>'+
+        (open?'<div class="hp-faq-a">'+f.a+'</div>':'')+'</div>';
+    }).join('');
+
+    var escalateBody = view.escalate
+      ? '<div class="hp-worker"><div class="wav"></div><div><div class="wn">王师傅 · 暖通工程师</div><div class="wr">平均响应 10 分钟内</div></div></div>'+
+        '<textarea id="hpDesc" placeholder="请简要描述您的问题"></textarea>'+
+        '<input type="tel" id="hpPhone" value="186 8888 8145">'+
+        '<button type="button" class="hp-submitbtn" id="hpSubmitRepair">立即预约</button>'
+      : '<button type="button" class="hp-submitbtn" id="hpEscalateBtn">仍无法解决，我要求助</button>';
+
+    return '<div class="hp-sectitle"><h3>一键求助 · 常见问题</h3></div>'+
+      list+
+      '<div class="hp-escalate">'+escalateBody+'</div>';
+  }
+  function bindService(){
+    Array.prototype.forEach.call(document.querySelectorAll('.hp-faq-q'), function(b){
+      b.addEventListener('click', function(){ var i = +b.getAttribute('data-faq'); view.faqOpen = (view.faqOpen===i? null : i); render(); });
+    });
+    var eb = document.getElementById('hpEscalateBtn'); if(eb) eb.addEventListener('click', function(){ view.escalate = true; render(); });
+    var sb = document.getElementById('hpSubmitRepair'); if(sb) sb.addEventListener('click', function(){
+      repairLog.unshift({ title:'一键求助 · 王师傅上门', date:'2026-09-15', status:'待上门' });
+      view.escalate = false; view.faqOpen = null;
+      toast('预约成功，工单已同步至服务商中控台，工作人员将尽快与您联系'); render();
+    });
+  }
+
+  /* ---------------- me tab ---------------- */
+  var brightness = 78, volume = 40, childLock = false;
+  function meHtml(){
+    var maint = repairLog.map(function(m){
+      return '<div class="hp-maint-row"><span class="mt">'+m.title+'</span><span class="md">'+m.date+' · '+m.status+'</span></div>';
+    }).join('');
+    return '<div class="hp-sectitle"><h3>关于本设备</h3></div>'+
+      '<div class="hp-card hp-devinfo"><dl>'+
+        '<dt>设备型号</dt><dd>HP-300</dd>'+
+        '<dt>安装位置</dt><dd>玄关墙面 · 86 盒</dd>'+
+        '<dt>关联项目</dt><dd>星海国际公寓</dd>'+
+        '<dt>通信协议</dt><dd>RS-485 / Wi-Fi 2.4G</dd>'+
+        '<dt>固件版本</dt><dd>v3.2.1</dd>'+
+        '<dt>上次校准</dt><dd>2026-08-30</dd>'+
+      '</dl></div>'+
+      '<div class="hp-sectitle" style="margin-top:16px;"><h3>面板设置</h3></div>'+
+      '<div class="hp-card">'+
+        '<div class="hp-setrow"><span>屏幕亮度</span><input type="range" id="hpBright" min="20" max="100" value="'+brightness+'"></div>'+
+        '<div class="hp-setrow"><span>提示音量</span><input type="range" id="hpVol" min="0" max="100" value="'+volume+'"></div>'+
+        '<div class="hp-setrow"><span>儿童锁</span><button type="button" class="hp-switch" id="hpLock" aria-pressed="'+childLock+'"></button></div>'+
+      '</div>'+
+      '<div class="hp-maint"><div class="hp-sectitle"><h3>维保与报修记录</h3></div>'+maint+'</div>';
+  }
+  function bindMe(){
+    var br = document.getElementById('hpBright');
+    br.addEventListener('input', function(e){ brightness = +e.target.value; document.querySelector('.hp-screen').style.filter = 'brightness('+(0.55+brightness/100*0.55)+')'; });
+    document.getElementById('hpVol').addEventListener('input', function(e){ volume = +e.target.value; });
+    document.getElementById('hpLock').addEventListener('click', function(){ childLock = !childLock; toast(childLock?'儿童锁已开启':'儿童锁已关闭'); render(); });
+  }
+
+  /* ---------------- root render ---------------- */
+  function render(){
+    var html, bind;
+    if(view.tab==='home'){
+      if(view.roomKey){ html = roomDetailHtml(view.roomKey); bind = function(){ bindRoomDetail(view.roomKey); }; }
+      else{ html = homeHtml(); bind = bindHome; }
+    } else if(view.tab==='scenes'){ html = scenesHtml(); bind = bindScenes; }
+    else if(view.tab==='data'){ html = dataHtml(); bind = bindData; }
+    else if(view.tab==='service'){ html = serviceHtml(); bind = bindService; }
+    else{ html = meHtml(); bind = bindMe; }
+
+    document.getElementById('hpContent').innerHTML = html;
+    renderNav();
+    bind();
+    if(brightness!==78 || true){ var scr = document.querySelector('.hp-screen'); if(scr) scr.style.filter = 'brightness('+(0.55+brightness/100*0.55)+')'; }
+  }
+
+  function pad(n){ return n<10 ? '0'+n : ''+n; }
+  function tickClock(){
+    var d = new Date();
+    var c = document.getElementById('hpClock');
+    if(c) c.textContent = pad(d.getHours())+':'+pad(d.getMinutes());
+    var dd = document.getElementById('hpDate');
+    if(dd){ var days=['周日','周一','周二','周三','周四','周五','周六']; dd.textContent = '2026年9月15日 · '+days[d.getDay()]; }
+  }
+  setInterval(tickClock, 15000);
+
+  render();
+  tickClock();
+})();
+</script>

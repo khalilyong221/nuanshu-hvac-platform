@@ -6,11 +6,11 @@
 
 | 页面 | 说明 | 链接 |
 |---|---|---|
-| 作品集展示页 | 面向面试官 / 简历读者的整体案例介绍，含架构图、设计系统、三端截图 | https://claude.ai/artifact/KqzbvpdmuxHeKqSK7i186U |
-| 服务商中控台（console.html） | 面向暖通服务商的大屏 SaaS 管理后台：多站点监控、工单、能耗、告警联动 | https://claude.ai/artifact/9r1ShCviBKxXmbtHVZn1VC |
-| 业主端小程序（app.html） | 面向终端业主的移动端小程序风格界面：设备控制、历史数据、用电量分析 | https://claude.ai/artifact/E7RfhychJMvkm7Dft8ZzYo |
-| 硬件中控面板（panel.html） | 模拟墙面硬件面板的深色触屏界面：本地控制、传感器数据、用电量分析 | https://claude.ai/artifact/U4rvU9DnkjvHN4RZVeE93W |
-| 最初的三端合一原型（index.html） | 项目早期版本，三端整合在一个页面内，作为设计演进的起点保留 | https://claude.ai/artifact/JLeJbLGxuzpHzkSKw1rbmu |
+| 作品集展示页 | 面向面试官 / 简历读者的整体案例介绍，含架构图、设计系统、三端截图 | https://khalilyong221.github.io/nuanshu-hvac-platform/showcase.html |
+| 服务商中控台（console.html） | 面向暖通服务商的大屏 SaaS 管理后台：多站点监控、工单、能耗、告警联动 | https://khalilyong221.github.io/nuanshu-hvac-platform/console.html |
+| 业主端小程序（app.html） | 面向终端业主的移动端小程序风格界面：设备控制、历史数据、用电量分析 | https://khalilyong221.github.io/nuanshu-hvac-platform/app.html |
+| 硬件中控面板（panel.html） | 模拟墙面硬件面板的深色触屏界面：本地控制、传感器数据、用电量分析 | https://khalilyong221.github.io/nuanshu-hvac-platform/panel.html |
+| 最初的三端合一原型（index.html） | 项目早期版本，三端整合在一个页面内，作为设计演进的起点保留 | https://khalilyong221.github.io/nuanshu-hvac-platform/index.html |
 
 ## 项目结构
 

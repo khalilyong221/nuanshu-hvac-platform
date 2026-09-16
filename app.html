@@ -105,8 +105,8 @@
   .arch-flow .arrow{ font-size:15px; }
   .arch-flow small{ font-size:9.5px; text-align:center; line-height:1.25; }
 
-  .toast{ position: fixed; left:50%; bottom: 22px; transform: translateX(-50%) translateY(140%); background: var(--ink); color: var(--surface); padding:11px 18px; border-radius:999px; font-size:13px; box-shadow: var(--shadow-raised); transition: transform 0.25s ease; z-index:80; max-width: 90vw; text-align:center; }
-  .toast.show{ transform: translateX(-50%) translateY(0); }
+  .toast{ position: fixed; left:50%; bottom: 22px; transform: translateX(-50%) translateY(calc(100% + 40px)); visibility:hidden; background: var(--ink); color: var(--surface); padding:11px 18px; border-radius:999px; font-size:13px; box-shadow: var(--shadow-raised); transition: transform 0.25s ease; z-index:80; max-width: 90vw; text-align:center; }
+  .toast.show{ transform: translateX(-50%) translateY(0); visibility:visible; }
 
   .phone-stage{ display:flex; justify-content:center; padding: 10px 0 30px; }
   .phone{ width: 100%; max-width: 390px; background: var(--surface-raised); border-radius: 42px; border:1px solid var(--border); box-shadow: var(--shadow-raised); padding: 14px 14px 14px; position:relative; }
@@ -221,6 +221,11 @@
   .tariff-row .tr{ font-family:var(--font-mono); font-weight:600; color:var(--ink); font-size:12px; }
   .tariff-row.now{ background: var(--brass-soft); margin:0 -14px; padding:8px 14px; border-radius:8px; border-bottom-color:transparent; }
   .tariff-row.now .tp,.tariff-row.now .tr{ color: var(--brass-soft-ink); }
+  .gas-progress{ padding: 2px 0 10px; }
+  .gp-bar{ height:8px; border-radius:4px; background: var(--surface-sunken); overflow:hidden; }
+  .gp-bar span{ display:block; height:100%; border-radius:4px; background: var(--good); }
+  .gp-txt{ display:flex; justify-content:space-between; gap:8px; font-size:10.5px; color: var(--ink-muted); margin-top:5px; flex-wrap:wrap; }
+  .gp-txt b{ color: var(--ink); font-weight:600; }
   .tariff-note{ font-size:10px; color:var(--ink-faint); padding:8px 0 10px; line-height:1.5; }
 
   /* service tab */
@@ -245,6 +250,63 @@
   .settings-row .rl{ color: var(--ink-faint); }
 
   .footer-note{ text-align:center; color: var(--ink-faint); font-size:11.5px; margin-top: 30px; }
+  /* ---------- 安防与家居 ---------- */
+  .sh-summary{ width:100%; display:grid; grid-template-columns:1fr 1fr; gap:8px; background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:10px; cursor:pointer; font-family:inherit; color:inherit; text-align:left; }
+  .ss-cell{ display:flex; flex-direction:column; gap:2px; background: var(--surface-sunken); border-radius: var(--radius-s); padding:8px 10px; }
+  .ss-v{ font-size:13px; font-weight:600; }
+  .ss-v.ok{ color: var(--good); } .ss-v.crit{ color: var(--critical); }
+  .ss-l{ font-size:10.5px; color: var(--ink-faint); }
+  .sh-alarm{ width:100%; display:flex; align-items:center; gap:10px; text-align:left; font-family:inherit; background: var(--critical-soft); color: var(--critical); border:1px solid var(--critical); border-radius: var(--radius-m); padding:10px 12px; margin:6px 0 4px; cursor:pointer; font-size:12px; line-height:1.45; animation: shpulse 1.6s ease-in-out infinite; }
+  .sh-alarm .sa-i{ font-size:20px; }
+  .sh-alarm .sa-s{ font-size:10.5px; opacity:0.85; }
+  .sh-alarm .chev{ margin-left:auto; }
+  @keyframes shpulse{ 0%,100%{ box-shadow:0 0 0 0 color-mix(in srgb, var(--critical) 40%, transparent); } 50%{ box-shadow:0 0 0 5px transparent; } }
+  .sh-card{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:4px 12px; }
+  .sh-lock{ padding:12px; display:flex; flex-direction:column; gap:10px; margin-top:6px; }
+  .sh-lockmain{ display:flex; gap:10px; align-items:center; }
+  .sh-lockic{ font-size:26px; }
+  .sh-rn{ display:block; font-size:12.5px; font-weight:600; }
+  .sh-sub{ display:block; font-size:10.5px; color: var(--ink-faint); margin-top:2px; }
+  .sh-actions{ display:flex; gap:8px; }
+  .sh-btn{ flex:1; border:1px solid var(--border-strong); background: var(--surface-raised); color: var(--ink); border-radius: var(--radius-s); padding:8px; font-size:12px; font-family:inherit; cursor:pointer; }
+  .sh-btn.primary{ background: var(--brass); border-color: var(--brass); color: var(--surface-raised); }
+  .sh-row{ display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .sh-row:last-child{ border-bottom:none; }
+  .sh-ic{ font-size:16px; width:22px; text-align:center; }
+  .sh-rt{ flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; align-items:flex-start; }
+  .sh-pill{ font-size:10px; padding:1px 7px; border-radius:999px; font-weight:600; }
+  .sh-pill.ok{ background: var(--good-soft); color: var(--good); }
+  .sh-pill.crit{ background: var(--critical-soft); color: var(--critical); }
+  .sh-mini{ border:1px solid var(--border-strong); background: transparent; color: var(--ink-muted); border-radius:999px; padding:3px 10px; font-size:10.5px; font-family:inherit; cursor:pointer; font-weight:500; }
+  .sh-mini.solid{ background: var(--critical); border-color: var(--critical); color: #fff; }
+  .sh-camgrid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .sh-cam{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); overflow:hidden; }
+  .sh-camview{ position:relative; aspect-ratio: 16/10; background: radial-gradient(ellipse at 30% 70%, #3b4a44, #1a2420 70%); color:#e8efe9; }
+  .sh-camview::before{ content:""; position:absolute; left:12%; right:12%; bottom:18%; height:28%; border-radius:4px 4px 0 0; background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03)); }
+  .sh-cam.off .sh-camview{ background:#1c1f1e; }
+  .sh-cam.off .sh-camview::before{ display:none; }
+  .sh-camview .rec{ position:absolute; top:6px; left:7px; font-size:9px; color:#ff6a5a; font-weight:700; }
+  .sh-camview .ts{ position:absolute; top:6px; right:7px; font-size:9px; opacity:0.8; }
+  .sh-camview .zn{ position:absolute; bottom:5px; left:7px; font-size:10px; opacity:0.85; }
+  .sh-camview .offtxt{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:10.5px; color:#8a938f; }
+  .sh-camfoot{ display:flex; align-items:center; justify-content:space-between; padding:7px 9px; font-size:11px; }
+  .sh-slider{ flex-basis:100%; display:flex; align-items:center; gap:8px; padding-left:32px; font-size:10px; color: var(--ink-faint); }
+  .sh-slider input{ flex:1; accent-color: var(--brass); }
+  .sh-slider input:disabled{ opacity:0.4; }
+  .sh-pv{ color: var(--ink); min-width:30px; text-align:right; }
+  .sh-lightgrid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .sh-light{ display:flex; flex-direction:column; align-items:center; gap:3px; background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:9px 4px; font-size:11px; font-family:inherit; color: var(--ink-muted); cursor:pointer; }
+  .sh-light .li{ font-size:16px; }
+  .sh-light .ls{ font-size:10px; color: var(--ink-faint); }
+  .sh-light[aria-pressed="true"]{ background: var(--brass-soft); border-color: var(--brass); color: var(--brass-ink); }
+  .sh-light[aria-pressed="true"] .ls{ color: var(--brass-ink); }
+  .sh-evt{ display:grid; grid-template-columns: 38px 1fr auto; gap:8px; align-items:baseline; padding:7px 0; border-bottom:1px solid var(--border); font-size:11px; }
+  .sh-evt:last-child{ border-bottom:none; }
+  .sh-evt .et{ color: var(--ink-faint); font-size:10px; }
+  .sh-evt .es{ font-size:9.5px; color: var(--ink-faint); border:1px solid var(--border); border-radius:999px; padding:0 6px; white-space:nowrap; }
+  .sh-evt.crit .eb{ color: var(--critical); }
+  .sh-evt.warn .eb b{ color: var(--warn); }
+  .sh-note{ font-size:10.5px; color: var(--ink-faint); margin:10px 4px 4px; line-height:1.5; }
 </style>
 
 <div class="shell">
@@ -390,11 +452,12 @@
   /* NAV STATE                                                      */
   /* ============================================================ */
   var currentTab = 'home';
-  var homeView = 'list'; // 'list' | roomKey
+  var homeView = 'list'; // 'list' | roomKey | 'smart'
   var svcTab = 'tips';
   var histMetric = 'temp';
   var histAqi = 'pm25';
   var energyRange = 'day'; // 'day' | 'week' | 'month'
+  var gasRange = 'day';    // 用气图表的时间范围
   var builderOpen = false;
 
   /* ---- electricity meter (single whole-home meter, shared narrative with 硬件中控面板) ---- */
@@ -412,6 +475,38 @@
     for(var i=0;i<tariffPeriods.length;i++){ if(tariffPeriods[i].hours.indexOf(h)!==-1) return tariffPeriods[i]; }
     return tariffPeriods[1];
   }
+
+  /* ---- gas meter (whole-home, feeds 燃气壁挂炉 + 灶具) ---- */
+  var gasReading = 3268.4;     // m³ 累计读数
+  var gasFlow = 0.42;          // m³/h 实时流量
+  var gasMonth = 58.6;         // m³ 本月已用
+  var gasYear = 286;           // m³ 本年度累计（阶梯计价按年度累计）
+  var gasTiers = [
+    { key:'t1', label:'第一档', range:'0–350 m³/年',   rate:2.61, max:350 },
+    { key:'t2', label:'第二档', range:'350–500 m³/年', rate:3.13, max:500 },
+    { key:'t3', label:'第三档', range:'500 m³/年以上', rate:4.18, max:Infinity }
+  ];
+  function currentGasTier(){
+    for(var i=0;i<gasTiers.length;i++){ if(gasYear < gasTiers[i].max) return gasTiers[i]; }
+    return gasTiers[gasTiers.length-1];
+  }
+  function genGasSeries(range){
+    if(range==='day'){
+      var heat = [0.03,0.03,0.02,0.02,0.03,0.08,0.16,0.18,0.10,0.06,0.05,0.04,0.04,0.03,0.03,0.04,0.06,0.10,0.15,0.17,0.14,0.10,0.06,0.04];
+      var cook = [0,0,0,0,0,0,0.02,0.04,0,0,0,0.06,0.03,0,0,0,0,0.07,0.05,0,0,0,0,0];
+      var labels=['0','','','','','','6','','','','','','12','','','','','','18','','','','',''];
+      return { heat:heat, cook:cook, labels:labels, total: heat.concat(cook).reduce(function(a,b){return a+b;},0) };
+    } else if(range==='week'){
+      var heat=[1.6,1.4,1.7,1.9,1.5,2.0,2.1], cook=[0.25,0.22,0.26,0.28,0.24,0.42,0.45];
+      return { heat:heat, cook:cook, labels:['周一','周二','周三','周四','周五','周六','周日'], total: heat.concat(cook).reduce(function(a,b){return a+b;},0) };
+    } else {
+      var heat=[], cook=[];
+      for(var i=0;i<30;i++){ heat.push(Math.round((1.55+Math.cos(i/30*Math.PI*2)*0.35+(i%7>4?0.3:0))*100)/100); cook.push(i%7>4?0.42:0.25); }
+      var labels=heat.map(function(_,i){ return ((i+1)%5===0) ? String(i+1) : ''; });
+      return { heat:heat, cook:cook, labels:labels, total: heat.concat(cook).reduce(function(a,b){return a+b;},0) };
+    }
+  }
+
   function genEnergySeries(range){
     if(range==='day'){
       var vals=[0.4,0.35,0.3,0.3,0.35,0.5,0.9,1.6,1.9,1.7,1.3,0.9,0.85,0.8,0.85,0.95,1.1,1.6,2.1,2.3,1.9,1.2,0.7,0.5];
@@ -448,9 +543,217 @@
     toast('已提交求助，客服将尽快联系您');
   });
 
+  /* ============================================================ */
+  /* 智能家居与安防 · 三端共享状态                                        */
+  /* 同一浏览器内打开的三端页面通过 localStorage 实时同步（演示用）            */
+  /* ============================================================ */
+  var SH_KEY = 'nuanshu-smarthome-v1';
+  function shDefault(){
+    return {
+      v: 1,
+      lock: { name:'入户智能门锁', locked:true, doorClosed:true, battery:82 },
+      cameras: [
+        { id:'cam1', zone:'入户门', on:true },
+        { id:'cam2', zone:'客厅', on:true },
+        { id:'cam3', zone:'车库', on:true },
+        { id:'cam4', zone:'花园', on:false }
+      ],
+      smoke: [ { id:'sm1', zone:'客厅', alarm:false }, { id:'sm2', zone:'厨房', alarm:false }, { id:'sm3', zone:'主卧', alarm:false } ],
+      gas: [ { id:'gd1', zone:'厨房', alarm:false } ],
+      curtains: [ { id:'ct1', zone:'客厅', open:true, pct:60 }, { id:'ct2', zone:'主卧', open:false, pct:40 }, { id:'ct3', zone:'书房', open:true, pct:30 } ],
+      lights: [
+        { id:'lt1', zone:'客厅', kind:'灯带', on:true }, { id:'lt2', zone:'客厅', kind:'筒灯', on:true },
+        { id:'lt3', zone:'餐厅', kind:'筒灯', on:false }, { id:'lt4', zone:'主卧', kind:'灯带', on:false },
+        { id:'lt5', zone:'走廊', kind:'筒灯', on:true }
+      ],
+      events: [
+        { t:'08:13', dev:'入户智能门锁', act:'检测到关门，已自动上锁', src:'门锁', lvl:'info' },
+        { t:'08:12', dev:'入户智能门锁', act:'检测到开门（指纹 · 王先生）', src:'门锁', lvl:'warn' },
+        { t:'07:30', dev:'客厅窗帘', act:'打开至 60%', src:'场景', lvl:'info' }
+      ]
+    };
+  }
+  function shLoad(){
+    try{ var raw = localStorage.getItem(SH_KEY); if(raw){ var o = JSON.parse(raw); if(o && o.v === 1) return o; } }catch(e){}
+    return shDefault();
+  }
+  var SH = shLoad();
+  var shSubs = [];
+  function shOn(fn){ shSubs.push(fn); }
+  function shNow(){ var d = new Date(); return (d.getHours()<10?'0':'')+d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes(); }
+  function shFind(list, id){ for(var i=0;i<list.length;i++){ if(list[i].id === id) return list[i]; } return null; }
+  function shAlarms(){
+    return SH.smoke.map(function(d){ return { d:d, kind:'smoke', name:d.zone+'烟雾报警器' }; })
+      .concat(SH.gas.map(function(d){ return { d:d, kind:'gas', name:d.zone+'燃气探测器' }; }))
+      .filter(function(x){ return x.d.alarm; });
+  }
+  function shCommit(dev, act, src, lvl){
+    SH.events.unshift({ t:shNow(), dev:dev, act:act, src:src, lvl:lvl || 'info' });
+    SH.events = SH.events.slice(0, 30);
+    try{ localStorage.setItem(SH_KEY, JSON.stringify(SH)); }catch(e){}
+    shSubs.forEach(function(f){ f(false, false); });
+  }
+  window.addEventListener('storage', function(e){
+    if(e.key !== SH_KEY) return;
+    var before = shAlarms().length;
+    SH = shLoad();
+    var raised = shAlarms().length > before;
+    shSubs.forEach(function(f){ f(true, raised); });
+  });
+  function shToggleLock(src){
+    SH.lock.locked = !SH.lock.locked;
+    shCommit(SH.lock.name, SH.lock.locked ? '远程上锁' : '远程开锁', src, SH.lock.locked ? 'info' : 'warn');
+  }
+  function shDoorAction(src){
+    if(SH.lock.doorClosed){ SH.lock.locked = false; SH.lock.doorClosed = false; shCommit(SH.lock.name, '检测到开门', src, 'warn'); }
+    else { SH.lock.doorClosed = true; SH.lock.locked = true; shCommit(SH.lock.name, '检测到关门，已自动上锁', src, 'info'); }
+  }
+  function shSetCurtain(id, open, pct, src){
+    var c = shFind(SH.curtains, id);
+    c.open = open;
+    if(pct != null){ c.pct = Math.max(10, Math.min(90, Math.round(pct/10)*10)); }
+    shCommit(c.zone+'窗帘', c.open ? ('打开至 '+c.pct+'%') : '关闭', src);
+  }
+  function shToggleLight(id, src){
+    var l = shFind(SH.lights, id); l.on = !l.on;
+    shCommit(l.zone+l.kind, l.on ? '打开' : '关闭', src);
+  }
+  function shAllLights(on, src){
+    SH.lights.forEach(function(l){ l.on = on; });
+    shCommit('分区灯光', on ? '全部打开' : '全部关闭', src);
+  }
+  function shToggleCamera(id, src){
+    var c = shFind(SH.cameras, id); c.on = !c.on;
+    shCommit(c.zone+'摄像头', c.on ? '开启监控' : '关闭（隐私模式）', src);
+  }
+  function shSetAlarm(kind, id, alarm, src){
+    var d = shFind(kind === 'smoke' ? SH.smoke : SH.gas, id);
+    d.alarm = alarm;
+    var name = d.zone + (kind === 'smoke' ? '烟雾报警器' : '燃气探测器');
+    var act = alarm ? (kind === 'smoke' ? '检测到烟雾，触发报警' : '检测到燃气泄漏，触发报警') : '报警已解除';
+    shCommit(name, act, src, alarm ? 'crit' : 'info');
+  }
+  function shReset(src){
+    var fresh = shDefault();
+    for(var k in fresh){ SH[k] = fresh[k]; }
+    shCommit('智能家居', '恢复演示初始状态', src);
+  }
+  function shSummary(){
+    return {
+      alarms: shAlarms().length,
+      lightsOn: SH.lights.filter(function(l){ return l.on; }).length,
+      curtainsOpen: SH.curtains.filter(function(c){ return c.open; }).length,
+      camsOn: SH.cameras.filter(function(c){ return c.on; }).length,
+      total: 1 + SH.cameras.length + SH.smoke.length + SH.gas.length + SH.curtains.length + SH.lights.length
+    };
+  }
+
+  /* ---------- 业主端：安防与家居 ---------- */
+  var SRC_APP = '业主端';
+  function shAlarmBanner(){
+    var al = shAlarms();
+    if(!al.length) return '';
+    return '<button class="sh-alarm" id="shAlarmBanner" type="button"><span class="sa-i">⚠</span><span><b>'+al.map(function(a){ return a.name; }).join('、')+'</b> 正在报警<br><span class="sa-s">请立即确认现场情况，已同步通知服务商</span></span><span class="chev">›</span></button>';
+  }
+  function shHomeCard(){
+    var s = shSummary();
+    return '<div class="section-label" id="shJump" style="cursor:pointer;">安防与家居 <span class="mono" style="font-weight:400;color:var(--ink-faint);">'+s.total+' 个设备 · 查看全部 ›</span></div>'
+      + '<button type="button" class="sh-summary" id="shSummaryCard">'
+      + '<span class="ss-cell"><span class="ss-v">'+(SH.lock.locked ? '🔒 已上锁' : '🔓 未上锁')+'</span><span class="ss-l">'+(SH.lock.doorClosed ? '入户门已关' : '入户门未关')+'</span></span>'
+      + '<span class="ss-cell"><span class="ss-v'+(s.alarms ? ' crit' : ' ok')+'">'+(s.alarms ? '✕ '+s.alarms+' 处报警' : '✓ 安防正常')+'</span><span class="ss-l">烟雾 / 燃气探测</span></span>'
+      + '<span class="ss-cell"><span class="ss-v">'+s.lightsOn+' / '+SH.lights.length+'</span><span class="ss-l">灯光已开</span></span>'
+      + '<span class="ss-cell"><span class="ss-v">'+s.curtainsOpen+' / '+SH.curtains.length+'</span><span class="ss-l">窗帘已开</span></span>'
+      + '</button>';
+  }
+  function shSwitch(attr, id, on, label){
+    return '<span class="switch" role="switch" tabindex="0" aria-label="'+label+'" aria-checked="'+on+'" '+attr+'="'+id+'"></span>';
+  }
+  function smartHtml(){
+    var lk = SH.lock;
+    var detectors = SH.smoke.map(function(d){ return { d:d, kind:'smoke', label:'烟雾报警器' }; })
+      .concat(SH.gas.map(function(d){ return { d:d, kind:'gas', label:'燃气探测器' }; }));
+    var detRows = detectors.map(function(x){
+      return '<div class="sh-row"><span class="sh-ic">'+(x.kind==='smoke' ? '💨' : '🔥')+'</span>'
+        + '<span class="sh-rt"><span class="sh-rn">'+x.d.zone+' · '+x.label+'</span><span class="sh-pill '+(x.d.alarm ? 'crit' : 'ok')+'">'+(x.d.alarm ? '✕ 报警中' : '✓ 未报警')+'</span></span>'
+        + '<button type="button" class="sh-mini'+(x.d.alarm ? ' solid' : '')+'" data-sh-alarm="'+x.kind+':'+x.d.id+'">'+(x.d.alarm ? '解除报警' : '模拟报警')+'</button></div>';
+    }).join('');
+    var cams = SH.cameras.map(function(c){
+      return '<div class="sh-cam'+(c.on ? '' : ' off')+'"><div class="sh-camview">'
+        + (c.on ? '<span class="rec">● REC</span><span class="ts mono">'+shNow()+'</span>' : '<span class="offtxt">隐私模式 · 已关闭</span>')
+        + '<span class="zn">'+c.zone+'</span></div>'
+        + '<div class="sh-camfoot"><span>'+c.zone+'摄像头</span>'+shSwitch('data-sh-cam', c.id, c.on, c.zone+'摄像头')+'</div></div>';
+    }).join('');
+    var curtains = SH.curtains.map(function(c){
+      return '<div class="sh-row sh-curtain"><span class="sh-ic">🪟</span>'
+        + '<span class="sh-rt"><span class="sh-rn">'+c.zone+'窗帘</span><span class="sh-sub">'+(c.open ? '已打开 '+c.pct+'%' : '已关闭')+'</span></span>'
+        + shSwitch('data-sh-ct', c.id, c.open, c.zone+'窗帘')
+        + '<div class="sh-slider"><span class="mono">10%</span><input type="range" min="10" max="90" step="10" value="'+c.pct+'" data-sh-pct="'+c.id+'" aria-label="'+c.zone+'窗帘开合比例" '+(c.open ? '' : 'disabled')+'><span class="mono sh-pv" id="pv-'+c.id+'">'+c.pct+'%</span></div>'
+        + '</div>';
+    }).join('');
+    var lights = SH.lights.map(function(l){
+      return '<button type="button" class="sh-light" aria-pressed="'+l.on+'" data-sh-lt="'+l.id+'"><span class="li">'+(l.kind==='灯带' ? '〰' : '◉')+'</span><span>'+l.zone+l.kind+'</span><span class="ls">'+(l.on ? '开' : '关')+'</span></button>';
+    }).join('');
+    var evts = SH.events.slice(0, 8).map(function(e){
+      return '<div class="sh-evt '+e.lvl+'"><span class="mono et">'+e.t+'</span><span class="eb"><b>'+e.dev+'</b> '+e.act+'</span><span class="es">'+e.src+'</span></div>';
+    }).join('');
+    return '<div class="rd-head"><button class="backbtn" id="shBack">‹</button><div class="rd-title">安防与家居</div></div>'
+      + shAlarmBanner()
+      + '<div class="sh-card sh-lock"><div class="sh-lockmain"><span class="sh-lockic">'+(lk.locked ? '🔒' : '🔓')+'</span>'
+      + '<span><span class="sh-rn">'+lk.name+'</span><span class="sh-sub">'+(lk.locked ? '已上锁' : '未上锁')+' · '+(lk.doorClosed ? '门已关闭' : '门未关闭')+' · 电量 '+lk.battery+'%</span></span></div>'
+      + '<div class="sh-actions"><button type="button" class="sh-btn primary" id="shLockBtn">'+(lk.locked ? '远程开锁' : '远程上锁')+'</button>'
+      + '<button type="button" class="sh-btn" id="shDoorBtn">'+(lk.doorClosed ? '模拟开门动作' : '模拟关门动作')+'</button></div></div>'
+      + '<div class="section-label">安防探测</div><div class="sh-card">'+detRows+'</div>'
+      + '<div class="section-label">分区摄像头 <span class="mono" style="font-weight:400;color:var(--ink-faint);">'+shSummary().camsOn+' / '+SH.cameras.length+' 在线</span></div><div class="sh-camgrid">'+cams+'</div>'
+      + '<div class="section-label">智能窗帘 <span class="mono" style="font-weight:400;color:var(--ink-faint);">开合 10%–90%</span></div><div class="sh-card">'+curtains+'</div>'
+      + '<div class="section-label">分区灯光 <span><button type="button" class="sh-mini" id="shAllOn">全开</button> <button type="button" class="sh-mini" id="shAllOff">全关</button></span></div><div class="sh-lightgrid">'+lights+'</div>'
+      + '<div class="section-label">最近动态 <button type="button" class="sh-mini" id="shReset">恢复演示状态</button></div><div class="sh-card">'+evts+'</div>'
+      + '<div class="sh-note">在同一浏览器中同时打开服务商中控台或硬件中控面板，这里的操作会实时同步过去。</div>';
+  }
+  function bindSmart(){
+    function on(id, fn){ var el = document.getElementById(id); if(el) el.addEventListener('click', fn); }
+    on('shBack', function(){ homeView = 'list'; render(); });
+    on('shLockBtn', function(){ shToggleLock(SRC_APP); toast(SH.lock.locked ? '门锁已上锁' : '门锁已远程开锁'); });
+    on('shDoorBtn', function(){ shDoorAction(SRC_APP); });
+    on('shAllOn', function(){ shAllLights(true, SRC_APP); });
+    on('shAllOff', function(){ shAllLights(false, SRC_APP); });
+    on('shReset', function(){ shReset(SRC_APP); toast('已恢复演示初始状态'); });
+    function sw(sel, fn){
+      document.querySelectorAll(sel).forEach(function(el){
+        el.addEventListener('click', fn);
+        el.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); fn.call(el); } });
+      });
+    }
+    sw('[data-sh-cam]', function(){ shToggleCamera(this.getAttribute('data-sh-cam'), SRC_APP); });
+    sw('[data-sh-ct]', function(){ var c = shFind(SH.curtains, this.getAttribute('data-sh-ct')); shSetCurtain(c.id, !c.open, null, SRC_APP); });
+    document.querySelectorAll('[data-sh-lt]').forEach(function(b){ b.addEventListener('click', function(){ shToggleLight(b.getAttribute('data-sh-lt'), SRC_APP); }); });
+    document.querySelectorAll('[data-sh-alarm]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var p = b.getAttribute('data-sh-alarm').split(':');
+        var d = shFind(p[0] === 'smoke' ? SH.smoke : SH.gas, p[1]);
+        shSetAlarm(p[0], p[1], !d.alarm, SRC_APP);
+      });
+    });
+    document.querySelectorAll('[data-sh-pct]').forEach(function(r){
+      var id = r.getAttribute('data-sh-pct');
+      r.addEventListener('input', function(){ document.getElementById('pv-'+id).textContent = r.value + '%'; });
+      r.addEventListener('change', function(){ shSetCurtain(id, true, +r.value, SRC_APP); });
+    });
+    var ab = document.getElementById('shAlarmBanner'); if(ab) ab.addEventListener('click', function(){ window.scrollTo({ top:0, behavior:'smooth' }); });
+  }
+  shOn(function(remote, raised){
+    if(currentTab === 'home'){
+      var active = document.activeElement;
+      if(!(active && active.getAttribute && active.getAttribute('data-sh-pct'))) render();
+    }
+    if(raised) toast('⚠ 安防报警：' + shAlarms().map(function(a){ return a.name; }).join('、'));
+  });
+
   function render(){
     var body = document.getElementById('screenBody');
-    if(currentTab==='home'){ body.innerHTML = homeView==='list' ? homeListHtml() : roomDetailHtml(homeView); bindHome(); }
+    if(currentTab==='home'){
+      if(homeView==='smart'){ body.innerHTML = smartHtml(); bindSmart(); }
+      else { body.innerHTML = homeView==='list' ? homeListHtml() : roomDetailHtml(homeView); bindHome(); }
+    }
     else if(currentTab==='scenes'){ body.innerHTML = scenesHtml(); bindScenes(); }
     else if(currentTab==='history'){ body.innerHTML = historyHtml(); bindHistory(); }
     else if(currentTab==='service'){ body.innerHTML = serviceHtml(); bindService(); }
@@ -464,7 +767,7 @@
     var proj = projectsList[currentProject];
     var loc = proj.split(' · ')[0];
     var room = rooms[0];
-    return '<div class="proj-switch">📍 <select id="projSelect">'+projectsList.map(function(p,i){ return '<option value="'+i+'" '+(i===currentProject?'selected':'')+'>'+p+'</option>'; }).join('')+'</select></div>'
+    return shAlarmBanner() + '<div class="proj-switch">📍 <select id="projSelect">'+projectsList.map(function(p,i){ return '<option value="'+i+'" '+(i===currentProject?'selected':'')+'>'+p+'</option>'; }).join('')+'</select></div>'
       + '<div class="weather-card"><div><div class="wloc">室外气象 · '+loc+'</div>'
       + '<div class="wvals"><span><b>12</b>℃</span><span>湿度 79%</span><span class="tag warn">PM2.5 142 中度污染</span></div></div></div>'
       + '<div class="home-hero">'
@@ -483,8 +786,10 @@
       + '<div class="scene-grid" id="sceneGridHome"></div>'
       + '<div class="section-label">房间设备 <span class="mono" style="font-weight:400;color:var(--ink-faint);">'+rooms.filter(function(r){return r.on;}).length+' / '+rooms.length+' 间运行中</span></div>'
       + '<div class="room-list" id="roomList"></div>'
+      + shHomeCard()
       + '<div class="section-label" id="energyJump" style="cursor:pointer;">今日用电 <span class="mono" style="font-weight:400;color:var(--ink-faint);">7.8 kWh · 查看电表 ›</span></div>'
-      + '<div class="energy-mini" id="energyMini"></div>';
+      + '<div class="energy-mini" id="energyMini"></div>'
+      + '<div class="section-label" id="gasJump" style="cursor:pointer;">今日用气 <span class="mono" style="font-weight:400;color:var(--ink-faint);">'+genGasSeries('day').total.toFixed(1)+' m³ · 查看燃气表 ›</span></div>';
   }
 
   function bindHome(){
@@ -538,6 +843,16 @@
       var max = Math.max.apply(null, vals);
       em.innerHTML = vals.map(function(v){ return '<div class="bar" style="height:'+Math.max(6,(v/max)*100)+'%"></div>'; }).join('');
     }
+    ['shJump','shSummaryCard','shAlarmBanner'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) el.addEventListener('click', function(){ homeView = 'smart'; render(); window.scrollTo({ top:0 }); });
+    });
+    var gj = document.getElementById('gasJump');
+    if(gj) gj.addEventListener('click', function(){
+      currentTab='history'; histMetric='gas'; gasRange='day'; homeView='list';
+      navBtns.forEach(function(x){ x.setAttribute('aria-selected', x.getAttribute('data-tab')==='history'?'true':'false'); });
+      render();
+    });
     var ej = document.getElementById('energyJump');
     if(ej) ej.addEventListener('click', function(){
       currentTab='history'; histMetric='energy'; energyRange='day'; homeView='list';
@@ -646,7 +961,7 @@
   var histLabels = ['00','02','04','06','08','10','12','14','16','18','20','22','24','02','04','06','08','10','12','14','16','18','20','22'];
 
   function historyHtml(){
-    var metrics = [['temp','温度'],['humidity','湿度'],['aqi','空气质量'],['energy','用电']];
+    var metrics = [['temp','温度'],['humidity','湿度'],['aqi','空气质量'],['energy','用电'],['gas','用气']];
     var tabsHtml = metrics.map(function(m){ return '<button class="metric-tab" data-metric="'+m[0]+'" aria-pressed="'+(m[0]===histMetric)+'">'+m[1]+'</button>'; }).join('');
     var body = '';
     if(histMetric==='temp'){
@@ -666,6 +981,32 @@
       body = selectsHtml + '<div style="display:flex;gap:6px;margin-bottom:8px;">'+aqiTabs+'</div>'
         + '<div class="hist-card"><div class="hist-legend"><span><span class="sw" style="background:var(--cat1)"></span>室内</span><span><span class="sw" style="background:var(--cat2)"></span>室外</span></div>'
         + '<svg id="histChart" viewBox="0 0 340 150" style="width:100%;height:auto;" role="img" aria-label="空气质量历史曲线"></svg></div>';
+    } else if(histMetric==='gas'){
+      var tier = currentGasTier();
+      var gBtns = [['day','今日'],['week','近7天'],['month','近30天']].map(function(r){
+        return '<button type="button" class="erange-btn" data-grange="'+r[0]+'" aria-pressed="'+(gasRange===r[0])+'">'+r[1]+'</button>';
+      }).join('');
+      var gMeter = '<div class="meter-card">'
+        + '<div class="meter-cell"><div class="mv mono">'+gasReading.toFixed(1)+'</div><div class="ml">燃气表累计读数 m³</div></div>'
+        + '<div class="meter-cell"><div class="mv mono">'+gasFlow.toFixed(2)+' m³/h</div><div class="ml">实时流量</div></div>'
+        + '<div class="meter-cell"><div class="mv mono">'+gasMonth.toFixed(1)+' m³</div><div class="ml">本月已用气量</div></div>'
+        + '<div class="meter-cell"><div class="mv mono">¥'+(gasMonth*tier.rate).toFixed(1)+'</div><div class="ml">本月预估燃气费</div></div>'
+        + '</div>';
+      var gg = genGasSeries(gasRange);
+      var gLabel = gasRange==='day'?'今日':(gasRange==='week'?'近7天':'近30天');
+      var gChart = '<div class="hist-card"><div style="font-size:11px;color:var(--ink-faint);margin-bottom:6px;">'+gLabel+'总用气量：'+gg.total.toFixed(1)+' m³</div>'
+        + '<div class="hist-legend"><span><span class="sw" style="background:var(--cat2)"></span>采暖 / 热水（壁挂炉）</span><span><span class="sw" style="background:var(--cat1)"></span>炊事（燃气灶）</span></div>'
+        + '<svg id="histChart" viewBox="0 0 340 150" style="width:100%;height:auto;" role="img" aria-label="用气历史柱状图"></svg></div>';
+      var pct = Math.min(100, gasYear / 350 * 100);
+      var gTier = '<div class="tariff-card"><div class="tariff-title">居民阶梯气价 <span class="mono" style="font-weight:400;">当前：'+tier.label+'</span></div>'
+        + '<div class="gas-progress"><div class="gp-bar"><span style="width:'+pct.toFixed(0)+'%"></span></div>'
+        + '<div class="gp-txt"><span>本年度已用 <b class="mono">'+gasYear+'</b> m³</span><span>距第二档还剩 <b class="mono">'+Math.max(0,350-gasYear)+'</b> m³</span></div></div>'
+        + gasTiers.map(function(t){
+            var isNow = t.key===tier.key;
+            return '<div class="tariff-row'+(isNow?' now':'')+'"><span class="tp"><span class="dot2" style="background:'+(t.key==='t1'?'var(--good)':(t.key==='t2'?'var(--warn)':'var(--critical)'))+'"></span><span>'+t.label+(isNow?' · 当前档位':'')+'<div class="tt">'+t.range+'</div></span></span><span class="tr">¥'+t.rate.toFixed(2)+'/m³</span></div>';
+          }).join('')
+        + '<div class="tariff-note">阶梯气价为演示数据，实际以当地燃气公司标准为准。冬季采暖用气集中，暖枢管家会在接近档位上限时提醒调整壁挂炉设定温度。</div></div>';
+      body = '<div class="erange-btns">'+gBtns+'</div>' + gMeter + gChart + gTier;
     } else {
       var tp = currentTariffPeriod();
       var rangeBtns = [['day','今日'],['week','近7天'],['month','近30天']].map(function(r){
@@ -700,12 +1041,39 @@
     document.querySelectorAll('[data-metric]').forEach(function(b){ b.addEventListener('click', function(){ histMetric = b.getAttribute('data-metric'); render(); }); });
     document.querySelectorAll('[data-aqi]').forEach(function(b){ b.addEventListener('click', function(){ histAqi = b.getAttribute('data-aqi'); render(); }); });
     document.querySelectorAll('[data-erange]').forEach(function(b){ b.addEventListener('click', function(){ energyRange = b.getAttribute('data-erange'); render(); }); });
+    document.querySelectorAll('[data-grange]').forEach(function(b){ b.addEventListener('click', function(){ gasRange = b.getAttribute('data-grange'); render(); }); });
     drawHistChart();
   }
 
   function drawHistChart(){
     var svg = document.getElementById('histChart'); if(!svg) return;
     var W=340,H=150,padL=26,padR=6,padT=8,padB=18,innerW=W-padL-padR,innerH=H-padT-padB;
+    if(histMetric==='gas'){
+      var gg = genGasSeries(gasRange);
+      var tot = gg.heat.map(function(v,i){ return v + gg.cook[i]; });
+      var gmax = Math.max.apply(null, tot); gmax = Math.ceil(gmax*10)/10 || 1;
+      var ggap = innerW/tot.length, gbw = ggap*(tot.length>20?0.55:0.6);
+      var ggrid = '';
+      for(var q=0; q<=2; q++){ var qy=padT+(q/2)*innerH; var qv=Math.round((gmax-(q/2)*gmax)*10)/10;
+        ggrid += '<line x1="'+padL+'" y1="'+qy+'" x2="'+(padL+innerW)+'" y2="'+qy+'" stroke="var(--border)" stroke-width="1"/><text x="'+(padL-4)+'" y="'+(qy+3)+'" font-size="7.5" fill="var(--ink-faint)" text-anchor="end" font-family="var(--font-mono)">'+qv+'</text>'; }
+      var gbars = tot.map(function(_, i){
+        var x = padL + i*ggap + (ggap-gbw)/2;
+        var hH = gg.heat[i]/gmax*innerH, hC = gg.cook[i]/gmax*innerH;
+        var yH = padT + innerH - hH;
+        var out = '<rect x="'+x.toFixed(1)+'" y="'+yH.toFixed(1)+'" width="'+gbw.toFixed(1)+'" height="'+hH.toFixed(1)+'" fill="var(--cat2)"><title>采暖/热水 '+gg.heat[i]+' m³</title></rect>';
+        if(hC > 0){
+          var yC = yH - hC - (hC > 2 ? 1 : 0);
+          out += '<rect x="'+x.toFixed(1)+'" y="'+yC.toFixed(1)+'" width="'+gbw.toFixed(1)+'" height="'+Math.max(1,hC-(hC>2?0:0)).toFixed(1)+'" rx="1.5" fill="var(--cat1)"><title>炊事 '+gg.cook[i]+' m³</title></rect>';
+        }
+        return out;
+      }).join('');
+      var glabels = tot.map(function(_, i){
+        if(!gg.labels[i]) return '';
+        return '<text x="'+(padL+i*ggap+ggap/2).toFixed(1)+'" y="'+(H-4)+'" font-size="7.5" fill="var(--ink-faint)" text-anchor="middle" font-family="var(--font-mono)">'+gg.labels[i]+'</text>';
+      }).join('');
+      svg.innerHTML = ggrid + gbars + glabels;
+      return;
+    }
     if(histMetric==='energy'){
       var eg = genEnergySeries(energyRange);
       var vals = eg.vals;

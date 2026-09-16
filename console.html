@@ -235,7 +235,7 @@
   .info-cell .v{ font-size:12.5px; margin-top:3px; color:var(--ink); font-family: var(--font-mono); }
 
   .device-mini{ border-top:1px solid var(--border); }
-  .device-mini-row{ display:grid; grid-template-columns: 24px 1.5fr 0.9fr 0.7fr 70px; gap:8px; align-items:center; padding:10px 18px; border-bottom:1px solid var(--border); font-size:12px; }
+  .device-mini-row{ display:grid; grid-template-columns: 24px 1.5fr 0.9fr 0.7fr 96px; gap:8px; align-items:center; padding:10px 18px; border-bottom:1px solid var(--border); font-size:12px; }
   .device-mini-row .statusdot{ width:8px; height:8px; border-radius:50%; }
   .device-mini-row .statusdot.online{ background: var(--good); }
   .device-mini-row .statusdot.warn{ background: var(--warn); }
@@ -500,6 +500,37 @@
     .map-left{ order:3; }
     .map-legend{ left:auto; right:auto; }
   }
+  .device-mini-row .btn{ white-space:nowrap; justify-self:end; }
+  .cfg-title{ font-size:12.5px; font-weight:600; padding: 12px 18px 6px; border-top:1px solid var(--border); }
+  .cfg-table{ padding: 0 18px 12px; }
+  .cfg-row{ display:grid; grid-template-columns: 1.2fr 0.7fr 1fr 0.9fr 0.5fr; gap:8px; padding:7px 0; font-size:12px; border-bottom:1px dashed var(--border); }
+  .cfg-row:last-child{ border-bottom:none; }
+  .cfg-note{ font-size:10.5px; color: var(--ink-faint); }
+  .cfg-head{ font-size:10.5px; color: var(--ink-faint); text-transform:uppercase; letter-spacing:0.4px; }
+  .cfg-row span:last-child{ text-align:right; }
+  .shc-live{ font-weight:400; font-size:10.5px; color: var(--good); display:inline-flex; align-items:center; gap:5px; margin-left:8px; }
+  .shc-alarm{ margin: 4px 18px 10px; display:flex; align-items:center; gap:10px; background: var(--critical-soft); border:1px solid var(--critical); color: var(--critical); border-radius: var(--radius-s); padding:9px 12px; font-size:12px; animation: shcpulse 1.6s ease-in-out infinite; flex-wrap:wrap; }
+  .shc-alarm .ai{ font-size:18px; }
+  @keyframes shcpulse{ 0%,100%{ box-shadow:none; } 50%{ box-shadow:0 0 16px -2px var(--critical); } }
+  .shc-stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; padding: 2px 18px 10px; }
+  @media (max-width:700px){ .shc-stats{ grid-template-columns:repeat(2,1fr); } }
+  .shc-stat{ background: var(--surface-sunken); border-radius: var(--radius-s); padding:9px 10px; }
+  .shc-stat .v{ font-size:13px; font-weight:600; }
+  .shc-stat .v.ok{ color: var(--good); } .shc-stat .v.crit{ color: var(--critical); } .shc-stat .v.warn{ color: var(--warn); }
+  .shc-stat .l{ font-size:10.5px; color: var(--ink-faint); margin-top:2px; }
+  .shc-group{ display:grid; grid-template-columns: 56px 1fr; gap:8px; padding: 5px 18px; align-items:start; }
+  .shc-gl{ font-size:11px; color: var(--ink-faint); padding-top:3px; }
+  .shc-chips{ display:flex; flex-wrap:wrap; gap:5px; }
+  .shc-chip{ font-size:11px; padding:2px 8px; border-radius:999px; border:1px solid var(--border); color: var(--ink-muted); }
+  .shc-chip.ok{ color: var(--good); border-color: color-mix(in srgb, var(--good) 40%, transparent); }
+  .shc-chip.crit{ color:#fff; background: var(--critical); border-color: var(--critical); }
+  .shc-chip.on{ color: var(--brass-ink); background: var(--brass-soft); border-color: var(--brass); }
+  .shc-evts{ padding: 8px 18px 14px; }
+  .shc-evt{ display:grid; grid-template-columns: 44px 1fr auto; gap:8px; font-size:11.5px; padding:5px 0; border-bottom:1px dashed var(--border); }
+  .shc-evt:last-child{ border-bottom:none; }
+  .shc-evt .mono{ color: var(--ink-faint); }
+  .shc-evt.crit{ color: var(--critical); }
+  .shc-src{ font-size:10px; color: var(--ink-faint); border:1px solid var(--border); border-radius:999px; padding:0 7px; white-space:nowrap; }
 </style>
 
 <div class="shell">
@@ -600,7 +631,7 @@
             <h2>设备台账</h2>
             <div class="desc">示例网点设备 · 完整列表见各网点详情</div>
           </div>
-          <span class="pill neutral" id="deviceCountPill">共 9 台</span>
+          <span class="pill neutral" id="deviceCountPill">共 18 台</span>
         </div>
         <div class="filter-row">
           <button class="chip" data-filter="all" aria-pressed="true">全部</button>
@@ -771,12 +802,35 @@
     { id:'d9', name:'VRF室内机 5F-会议室', type:'VRF末端', status:'online', temp:23.5, power:0.8,
       series:{ indoor:[22,22.4,22.8,23.1,23.3,23.5,23.5,23.4,23.5,23.6,23.5,23.5], outdoor:[10,9,8,10,12,14,16,17,16,14,12,10], target:[23,23,23,23,23,23,23,23,23,23,23,23], discharge:[36,37,38,38,39,40,39,39,38,38,39,39], condense:[31,32,33,33,34,35,34,34,33,33,34,34] } }
   ];
+  // 星海国际公寓（重点项目）的完整设备清单
+  function mkSeries(indoor, target, discharge, condense, wobble){
+    var outdoor = [9,8,7,9,11,13,15,16,15,13,11,9];
+    function wave(base, amp){ return outdoor.map(function(_, i){ return Math.round((base + Math.sin(i/1.8)*amp)*10)/10; }); }
+    return { indoor: wave(indoor, wobble), outdoor: outdoor, target: outdoor.map(function(){ return target; }),
+             discharge: wave(discharge, wobble*2), condense: wave(condense, wobble*1.5) };
+  }
+  devices.push(
+    { id:'x1', name:'空气源热泵主机 A-02', type:'空调主机', status:'online', temp:45.2, power:4.6, series: mkSeries(24.2, 24, 45, 38, 0.4) },
+    { id:'x2', name:'空气源热泵主机 A-03', type:'空调主机', status:'online', temp:44.8, power:4.2, series: mkSeries(24.0, 24, 44, 37, 0.4) },
+    { id:'x3', name:'燃气壁挂炉 G-01', type:'壁挂炉', status:'online', temp:55.0, power:0.2, series: mkSeries(22.8, 23, 55, 48, 0.6) },
+    { id:'x4', name:'生活热水机组 W-01', type:'热水机组', status:'online', temp:48.5, power:1.5, series: mkSeries(23.5, 24, 50, 44, 0.5) },
+    { id:'x5', name:'风机盘管 12F-客厅', type:'风机盘管', status:'online', temp:23.9, power:0.08, series: mkSeries(23.9, 24, 30, 26, 0.3) },
+    { id:'x6', name:'风机盘管 12F-主卧', type:'风机盘管', status:'online', temp:24.2, power:0.06, series: mkSeries(24.2, 24, 30, 26, 0.3) },
+    { id:'x7', name:'风机盘管 12F-书房', type:'风机盘管', status:'warn', temp:27.8, power:0.07, series: mkSeries(27.0, 24, 31, 27, 0.8) },
+    { id:'x8', name:'循环水泵 P-01', type:'循环水泵', status:'online', temp:38.0, power:0.75, series: mkSeries(23.8, 24, 40, 36, 0.4) },
+    { id:'x9', name:'除湿新风一体机 F-05', type:'新风机组', status:'offline', temp:0, power:0, series: mkSeries(25.0, 24, 0, 0, 0) }
+  );
+  var deviceSpec = {
+    '空调主机':['NS-AH16','16 kW'], '新风机组':['NS-FV500','0.6 kW'], '地暖水器':['NS-MF08','—'],
+    '壁挂炉':['NS-GB28','28 kW'], '热水机组':['NS-HW300','3 kW'], '风机盘管':['NS-FC34','0.08 kW'],
+    '循环水泵':['NS-CP25','0.75 kW'], 'VRF末端':['NS-VR28','2.8 kW'], '除湿机组':['NS-DH90','0.9 kW']
+  };
   var deviceById = {}; devices.forEach(function(d){ deviceById[d.id] = d; });
 
   var projects = [
     { id:'p1', name:'星海国际公寓', dealer:'dl-hd', star:true, customer:'星海物业管理有限公司', code:'PRJ-20230114-07',
       installDate:'2023-01-14', commissionDate:'2023-01-20', warrantyDate:'2027-01-14', contact:'张经理', phone:'138****2210',
-      area:12800, heatArea:9200, coolArea:9200, deviceIds:['d1','d2','d3'] },
+      area:12800, heatArea:9200, coolArea:9200, focus:true, deviceIds:['d1','x1','x2','x3','d3','x8','x4','d2','x9','x5','x6','x7'] },
     { id:'p2', name:'云港商业广场', dealer:'dl-hn', star:false, customer:'云港商业管理股份有限公司', code:'PRJ-20220608-22',
       installDate:'2022-06-08', commissionDate:'2022-06-25', warrantyDate:'2026-06-08', contact:'黄总', phone:'139****7761',
       area:34500, heatArea:0, coolArea:34500, deviceIds:['d4','d5','d6'] },
@@ -790,7 +844,8 @@
     { id:'f2', projectId:'p3', deviceId:'d8', sev:'warn', text:'滤网压差偏高，建议检修', time:'22 分钟前', hasOrder:false },
     { id:'f3', projectId:'p2', deviceId:'d6', sev:'critical', text:'设备离线，最后心跳 47 分钟前', time:'47 分钟前', hasOrder:true },
     { id:'f4', projectId:'p2', deviceId:'d4', sev:'warn', text:'夜间能耗环比上升 18%', time:'1 小时前', hasOrder:false },
-    { id:'f5', projectId:'p1', deviceId:'d1', sev:'warn', text:'压缩机启停频繁，请留意', time:'2 小时前', hasOrder:false }
+    { id:'f5', projectId:'p1', deviceId:'d1', sev:'warn', text:'压缩机启停频繁，请留意', time:'2 小时前', hasOrder:false },
+    { id:'f6', projectId:'p1', deviceId:'x7', sev:'warn', text:'书房室温高于设定 3.8℃，疑似水阀卡滞', time:'2 小时前', hasOrder:false }
   ];
   var watchAlerts = [
     { dev:'VRF室内机 5F-会议室', text:'CO₂ 浓度短时超标，已自动加大新风', time:'40 分钟前' },
@@ -910,10 +965,24 @@
           + '</div>';
       }).join('');
 
-      body.innerHTML = '<div class="panel-head"><div><h2>'+p.name+(p.star?' <span style="color:var(--brass);font-size:12px;">★ 星标客户</span>':'')+'</h2><div class="desc">'+p.deviceIds.length+' 台设备 · 隶属 '+(dealer?dealer.name:'—')+'</div></div></div>'
+      var typeCount = {}, typeOrder = [];
+      p.deviceIds.forEach(function(id){ var t = deviceById[id].type; if(!typeCount[t]){ typeCount[t] = 0; typeOrder.push(t); } typeCount[t]++; });
+      var sc = { online:0, warn:0, offline:0 };
+      p.deviceIds.forEach(function(id){ sc[deviceById[id].status]++; });
+      var configTable = '<div class="cfg-title">项目配置</div><div class="cfg-table"><div class="cfg-row cfg-head"><span>设备类型</span><span>品牌</span><span>型号</span><span>额定功率 / 说明</span><span>数量</span></div>'
+        + typeOrder.map(function(t){ var sp = deviceSpec[t] || ['—','—'];
+            return '<div class="cfg-row"><span>'+t+'</span><span>暖枢</span><span class="mono">'+sp[0]+'</span><span class="mono">'+sp[1]+'</span><span class="mono">'+typeCount[t]+'</span></div>'; }).join('')
+        + (p.focus ? shTypeRows.map(function(r){ return '<div class="cfg-row"><span>'+r[0]+'</span><span>暖枢</span><span class="mono">'+r[1]+'</span><span class="cfg-note">'+r[2]+'</span><span class="mono">'+r[3]()+'</span></div>'; }).join('') : '')
+        + '</div>';
+      var badge = p.focus ? ' <span class="pill warn" style="font-size:11px;vertical-align:2px;">重点项目</span>' : '';
+      body.innerHTML = '<div class="panel-head"><div><h2>'+p.name+(p.star?' <span style="color:var(--brass);font-size:12px;">★ 星标客户</span>':'')+badge+'</h2><div class="desc">'+p.deviceIds.length+' 台暖通设备'+(p.focus ? ' · '+shSummary().total+' 个智能家居设备' : '')+' · 在线 '+sc.online+' · 异常 '+sc.warn+' · 离线 '+sc.offline+' · 隶属 '+(dealer?dealer.name:'—')+'</div></div></div>'
         + '<div class="info-grid">'+infoCells.map(function(c){ return '<div class="info-cell"><div class="l">'+c[0]+'</div><div class="v">'+c[1]+'</div></div>'; }).join('')+'</div>'
+        + configTable
+        + (p.focus ? smartProjectHtml() : '')
+        + '<div class="cfg-title">暖通设备清单</div>'
         + '<div class="device-mini">'+devRows+'</div>';
 
+      if(p.focus) bindSmartProject(p);
       body.querySelectorAll('[data-goto-device]').forEach(function(btn){
         btn.addEventListener('click', function(){
           activateSection('monitor');
@@ -929,7 +998,7 @@
     body.innerHTML = '<div class="project-list-head"><span>项目</span><span>客户</span><span>面积</span><span>设备</span><span></span></div>'
       + '<div class="project-list">' + list.map(function(p){
         return '<div class="project-row" data-id="'+p.id+'">'
-          + '<span class="pn">'+(p.star?'<span class="star">★</span>':'')+p.name+'<div class="psub" style="font-weight:400;">'+p.code+'</div></span>'
+          + '<span class="pn">'+(p.star?'<span class="star">★</span>':'')+p.name+(p.focus?' <span class="pill warn" style="font-size:10px;padding:1px 7px;">重点</span>':'')+'<div class="psub" style="font-weight:400;">'+p.code+'</div></span>'
           + '<span class="psub">'+p.customer+'</span>'
           + '<span class="dval">'+p.area.toLocaleString()+'m²</span>'
           + '<span class="dval">'+p.deviceIds.length+' 台</span>'
@@ -1537,6 +1606,168 @@
       document.querySelectorAll('.chip[data-mfilter]').forEach(function(c){ c.setAttribute('aria-pressed', c===chip ? 'true' : 'false'); });
       renderMap();
     });
+  });
+
+  /* ============================================================ */
+  /* 智能家居与安防 · 三端共享状态                                        */
+  /* 同一浏览器内打开的三端页面通过 localStorage 实时同步（演示用）            */
+  /* ============================================================ */
+  var SH_KEY = 'nuanshu-smarthome-v1';
+  function shDefault(){
+    return {
+      v: 1,
+      lock: { name:'入户智能门锁', locked:true, doorClosed:true, battery:82 },
+      cameras: [
+        { id:'cam1', zone:'入户门', on:true },
+        { id:'cam2', zone:'客厅', on:true },
+        { id:'cam3', zone:'车库', on:true },
+        { id:'cam4', zone:'花园', on:false }
+      ],
+      smoke: [ { id:'sm1', zone:'客厅', alarm:false }, { id:'sm2', zone:'厨房', alarm:false }, { id:'sm3', zone:'主卧', alarm:false } ],
+      gas: [ { id:'gd1', zone:'厨房', alarm:false } ],
+      curtains: [ { id:'ct1', zone:'客厅', open:true, pct:60 }, { id:'ct2', zone:'主卧', open:false, pct:40 }, { id:'ct3', zone:'书房', open:true, pct:30 } ],
+      lights: [
+        { id:'lt1', zone:'客厅', kind:'灯带', on:true }, { id:'lt2', zone:'客厅', kind:'筒灯', on:true },
+        { id:'lt3', zone:'餐厅', kind:'筒灯', on:false }, { id:'lt4', zone:'主卧', kind:'灯带', on:false },
+        { id:'lt5', zone:'走廊', kind:'筒灯', on:true }
+      ],
+      events: [
+        { t:'08:13', dev:'入户智能门锁', act:'检测到关门，已自动上锁', src:'门锁', lvl:'info' },
+        { t:'08:12', dev:'入户智能门锁', act:'检测到开门（指纹 · 王先生）', src:'门锁', lvl:'warn' },
+        { t:'07:30', dev:'客厅窗帘', act:'打开至 60%', src:'场景', lvl:'info' }
+      ]
+    };
+  }
+  function shLoad(){
+    try{ var raw = localStorage.getItem(SH_KEY); if(raw){ var o = JSON.parse(raw); if(o && o.v === 1) return o; } }catch(e){}
+    return shDefault();
+  }
+  var SH = shLoad();
+  var shSubs = [];
+  function shOn(fn){ shSubs.push(fn); }
+  function shNow(){ var d = new Date(); return (d.getHours()<10?'0':'')+d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes(); }
+  function shFind(list, id){ for(var i=0;i<list.length;i++){ if(list[i].id === id) return list[i]; } return null; }
+  function shAlarms(){
+    return SH.smoke.map(function(d){ return { d:d, kind:'smoke', name:d.zone+'烟雾报警器' }; })
+      .concat(SH.gas.map(function(d){ return { d:d, kind:'gas', name:d.zone+'燃气探测器' }; }))
+      .filter(function(x){ return x.d.alarm; });
+  }
+  function shCommit(dev, act, src, lvl){
+    SH.events.unshift({ t:shNow(), dev:dev, act:act, src:src, lvl:lvl || 'info' });
+    SH.events = SH.events.slice(0, 30);
+    try{ localStorage.setItem(SH_KEY, JSON.stringify(SH)); }catch(e){}
+    shSubs.forEach(function(f){ f(false, false); });
+  }
+  window.addEventListener('storage', function(e){
+    if(e.key !== SH_KEY) return;
+    var before = shAlarms().length;
+    SH = shLoad();
+    var raised = shAlarms().length > before;
+    shSubs.forEach(function(f){ f(true, raised); });
+  });
+  function shToggleLock(src){
+    SH.lock.locked = !SH.lock.locked;
+    shCommit(SH.lock.name, SH.lock.locked ? '远程上锁' : '远程开锁', src, SH.lock.locked ? 'info' : 'warn');
+  }
+  function shDoorAction(src){
+    if(SH.lock.doorClosed){ SH.lock.locked = false; SH.lock.doorClosed = false; shCommit(SH.lock.name, '检测到开门', src, 'warn'); }
+    else { SH.lock.doorClosed = true; SH.lock.locked = true; shCommit(SH.lock.name, '检测到关门，已自动上锁', src, 'info'); }
+  }
+  function shSetCurtain(id, open, pct, src){
+    var c = shFind(SH.curtains, id);
+    c.open = open;
+    if(pct != null){ c.pct = Math.max(10, Math.min(90, Math.round(pct/10)*10)); }
+    shCommit(c.zone+'窗帘', c.open ? ('打开至 '+c.pct+'%') : '关闭', src);
+  }
+  function shToggleLight(id, src){
+    var l = shFind(SH.lights, id); l.on = !l.on;
+    shCommit(l.zone+l.kind, l.on ? '打开' : '关闭', src);
+  }
+  function shAllLights(on, src){
+    SH.lights.forEach(function(l){ l.on = on; });
+    shCommit('分区灯光', on ? '全部打开' : '全部关闭', src);
+  }
+  function shToggleCamera(id, src){
+    var c = shFind(SH.cameras, id); c.on = !c.on;
+    shCommit(c.zone+'摄像头', c.on ? '开启监控' : '关闭（隐私模式）', src);
+  }
+  function shSetAlarm(kind, id, alarm, src){
+    var d = shFind(kind === 'smoke' ? SH.smoke : SH.gas, id);
+    d.alarm = alarm;
+    var name = d.zone + (kind === 'smoke' ? '烟雾报警器' : '燃气探测器');
+    var act = alarm ? (kind === 'smoke' ? '检测到烟雾，触发报警' : '检测到燃气泄漏，触发报警') : '报警已解除';
+    shCommit(name, act, src, alarm ? 'crit' : 'info');
+  }
+  function shReset(src){
+    var fresh = shDefault();
+    for(var k in fresh){ SH[k] = fresh[k]; }
+    shCommit('智能家居', '恢复演示初始状态', src);
+  }
+  function shSummary(){
+    return {
+      alarms: shAlarms().length,
+      lightsOn: SH.lights.filter(function(l){ return l.on; }).length,
+      curtainsOpen: SH.curtains.filter(function(c){ return c.open; }).length,
+      camsOn: SH.cameras.filter(function(c){ return c.on; }).length,
+      total: 1 + SH.cameras.length + SH.smoke.length + SH.gas.length + SH.curtains.length + SH.lights.length
+    };
+  }
+
+  /* ---------- 服务商中控台：星海国际公寓 智能家居与安防（实时） ---------- */
+  var SRC_CONSOLE = '服务商';
+  var shTypeRows = [
+    ['智能门锁', 'NS-DL7', '指纹 / 密码 / 远程开锁，开关门动作检测', function(){ return 1; }],
+    ['分区摄像头', 'NS-CM4', '1080P，支持隐私关闭', function(){ return SH.cameras.length; }],
+    ['烟雾报警器', 'NS-SD2', '光电式，报警 / 未报警', function(){ return SH.smoke.length; }],
+    ['燃气探测器', 'NS-GD2', '天然气泄漏检测，报警 / 未报警', function(){ return SH.gas.length; }],
+    ['智能窗帘', 'NS-CT1', '开关 + 开合比例 10%–90%', function(){ return SH.curtains.length; }],
+    ['灯带 / 筒灯', 'NS-LT3', '分区开关', function(){ return SH.lights.length; }]
+  ];
+  // 让报警工单能在工单列表中显示设备名称
+  SH.smoke.concat(SH.gas).forEach(function(d, i){
+    var kind = i < SH.smoke.length ? '烟雾报警器' : '燃气探测器';
+    deviceById['sh-'+d.id] = { id:'sh-'+d.id, name:d.zone+kind, type:kind, status:'online', temp:0, power:0 };
+  });
+  function smartProjectHtml(){
+    var s = shSummary(), al = shAlarms(), lk = SH.lock;
+    var banner = al.length
+      ? '<div class="shc-alarm"><span class="ai">⚠</span><span><b>'+al.map(function(a){ return a.name; }).join('、')+'</b> 正在报警（业主端 / 硬件面板实时上报）</span>'
+        + '<button class="btn sm" id="shcDispatch" style="margin-left:auto;">一键派单</button></div>'
+      : '';
+    function stat(label, value, cls){ return '<div class="shc-stat"><div class="v '+(cls||'')+'">'+value+'</div><div class="l">'+label+'</div></div>'; }
+    function chip(txt, cls){ return '<span class="shc-chip '+(cls||'')+'">'+txt+'</span>'; }
+    var detChips = SH.smoke.map(function(d){ return chip(d.zone+'烟感 · '+(d.alarm?'报警':'正常'), d.alarm?'crit':'ok'); })
+      .concat(SH.gas.map(function(d){ return chip(d.zone+'燃气 · '+(d.alarm?'报警':'正常'), d.alarm?'crit':'ok'); })).join('');
+    var camChips = SH.cameras.map(function(c){ return chip(c.zone+' · '+(c.on?'在线':'已关闭'), c.on?'ok':''); }).join('');
+    var ctChips = SH.curtains.map(function(c){ return chip(c.zone+' · '+(c.open?'开 '+c.pct+'%':'关'), c.open?'on':''); }).join('');
+    var ltChips = SH.lights.map(function(l){ return chip(l.zone+l.kind+' · '+(l.on?'开':'关'), l.on?'on':''); }).join('');
+    var evts = SH.events.slice(0, 6).map(function(e){
+      return '<div class="shc-evt '+e.lvl+'"><span class="mono">'+e.t+'</span><span><b>'+e.dev+'</b> '+e.act+'</span><span class="shc-src">'+e.src+'</span></div>';
+    }).join('');
+    return '<div class="cfg-title">智能家居与安防 <span class="shc-live"><span class="dot pulse"></span>三端实时同步</span></div>'
+      + banner
+      + '<div class="shc-stats">'
+      + stat('入户门锁', (lk.locked?'已上锁':'未上锁')+' · '+(lk.doorClosed?'门关':'门开'), lk.locked && lk.doorClosed ? '' : 'warn')
+      + stat('安防探测', al.length ? al.length+' 处报警' : '全部正常', al.length ? 'crit' : 'ok')
+      + stat('摄像头在线', s.camsOn+' / '+SH.cameras.length)
+      + stat('灯光 / 窗帘', s.lightsOn+' 开 · '+s.curtainsOpen+' 开')
+      + '</div>'
+      + '<div class="shc-group"><span class="shc-gl">探测器</span><span class="shc-chips">'+detChips+'</span></div>'
+      + '<div class="shc-group"><span class="shc-gl">摄像头</span><span class="shc-chips">'+camChips+'</span></div>'
+      + '<div class="shc-group"><span class="shc-gl">窗帘</span><span class="shc-chips">'+ctChips+'</span></div>'
+      + '<div class="shc-group"><span class="shc-gl">灯光</span><span class="shc-chips">'+ltChips+'</span></div>'
+      + '<div class="shc-evts"><div class="shc-gl" style="margin-bottom:4px;">设备动态</div>'+evts+'</div>';
+  }
+  function bindSmartProject(p){
+    var b = document.getElementById('shcDispatch');
+    if(b) b.addEventListener('click', function(){
+      shAlarms().forEach(function(a){ createOrder(deviceById['sh-'+a.d.id], p, '安防报警', a.name+'报警，请立即上门核查'); });
+      shCommit('服务工单', '已派单处理 '+shAlarms().length+' 处报警', SRC_CONSOLE, 'info');
+    });
+  }
+  shOn(function(remote, raised){
+    if(selectedProject === 'p1') renderProjectPanel();
+    if(raised) toast('⚠ 星海国际公寓：' + shAlarms().map(function(a){ return a.name; }).join('、') + ' 报警');
   });
 
   /* ============================================================ */

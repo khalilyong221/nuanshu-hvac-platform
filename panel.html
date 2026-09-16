@@ -117,20 +117,22 @@
      point is a literal hex value on purpose, never a --token */
   .hp-screen{
     background: #0d1a15; border-radius: 18px; overflow:hidden; position:relative;
-    display:flex; min-height: 600px; color:#eef2ec;
+    display:flex; color:#eef2ec;
+    /* 固定屏幕比例，切换任何标签页尺寸都不变，内容在屏幕内滚动 */
+    aspect-ratio: 5 / 4;
     box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
   }
-  @media (max-width:680px){ .hp-screen{ flex-direction:column; min-height:0; } }
+  @media (max-width:680px){ .hp-screen{ flex-direction:column; aspect-ratio:auto; height: min(680px, calc(100svh - 140px)); min-height:480px; } }
 
   .hp-sidebar{ flex:0 0 78px; background:#0a1511; border-right:1px solid rgba(255,255,255,0.07); display:flex; flex-direction:column; align-items:stretch; padding:14px 8px; gap:4px; }
   @media (max-width:680px){ .hp-sidebar{ flex-direction:row; border-right:none; border-bottom:1px solid rgba(255,255,255,0.07); padding:8px; overflow-x:auto; } }
-  .hp-navbtn{ background:transparent; border:none; color:#8fa39a; display:flex; flex-direction:column; align-items:center; gap:4px; padding:10px 4px; border-radius:12px; cursor:pointer; font-size:10.5px; flex:1 1 auto; }
+  .hp-navbtn{ background:transparent; border:none; color:#8fa39a; display:flex; flex-direction:column; align-items:center; gap:4px; padding:12px 4px; border-radius:12px; cursor:pointer; font-size:10.5px; flex:0 0 auto; }
+  @media (max-width:680px){ .hp-navbtn{ flex:1 1 auto; } }
   .hp-navbtn .ni{ font-size:19px; line-height:1; }
   .hp-navbtn[aria-pressed="true"]{ background: rgba(214,169,95,0.16); color:#f0d9ab; }
   .hp-navbtn:hover{ color:#eef2ec; }
 
-  .hp-content{ flex:1; min-width:0; padding: 18px 20px 22px; overflow-y:auto; max-height: 760px; }
-  @media (max-width:680px){ .hp-content{ max-height:none; } }
+  .hp-content{ flex:1; min-width:0; min-height:0; padding: 18px 20px 22px; overflow-y:auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.18) transparent; }
 
   .hp-topbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
   .hp-topbar .home-name{ font-size:13.5px; font-weight:600; color:#eef2ec; }
@@ -1129,7 +1131,11 @@
     else if(view.tab==='service'){ html = serviceHtml(); bind = bindService; }
     else{ html = meHtml(); bind = bindMe; }
 
-    document.getElementById('hpContent').innerHTML = html;
+    var hc = document.getElementById('hpContent');
+    hc.innerHTML = html;
+    // 切换到不同页面时回到顶部；同一页面因数据同步重绘时保留滚动位置
+    var viewKey = view.tab + '|' + (view.roomKey || '');
+    if(viewKey !== render.lastKey){ hc.scrollTop = 0; render.lastKey = viewKey; }
     renderNav();
     bind();
     tickClock();

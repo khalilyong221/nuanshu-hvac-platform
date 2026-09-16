@@ -114,8 +114,9 @@
   .phone{ width: 100%; max-width: 390px; background: var(--surface-raised); border-radius: 42px; border:1px solid var(--border); box-shadow: var(--shadow-raised); padding: 14px 14px 14px; position:relative; }
   .phone-notch{ width:110px; height:22px; background: var(--surface-inset); border-radius:0 0 16px 16px; margin: 0 auto 6px; }
   .phone-status{ display:flex; justify-content:space-between; font-size:11px; color:var(--ink-faint); padding:0 8px 8px; font-family: var(--font-mono); }
-  .phone-screen{ background: var(--surface-sunken); border-radius: 26px; min-height: 620px; display:flex; flex-direction:column; overflow:hidden; }
-  .screen-body{ flex:1; padding: 14px 14px 10px; overflow-y:auto; }
+  /* 固定为真实手机屏幕比例（约 390×844 去掉状态栏），各页面尺寸一致，内容在屏幕内滚动 */
+  .phone-screen{ background: var(--surface-sunken); border-radius: 26px; height: min(720px, calc(100svh - 150px)); min-height: 520px; display:flex; flex-direction:column; overflow:hidden; }
+  .screen-body{ flex:1; min-height:0; padding: 14px 14px 10px; overflow-y:auto; overscroll-behavior: contain; scrollbar-width: thin; }
 
   .proj-switch{ display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-muted); margin-bottom:10px; }
   .proj-switch select{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-s); padding:5px 8px; font-size:12px; color:var(--ink); }
@@ -160,6 +161,16 @@
   .room-card.off .rn, .room-card.off .ri{ opacity:0.45; }
   .room-card .chev{ color:var(--ink-faint); }
 
+  /* 首页折叠分组 */
+  .fold{ margin-top:10px; }
+  .fold-head{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px; background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:11px 12px; font-family:inherit; font-size:12.5px; font-weight:600; color: var(--ink); cursor:pointer; text-align:left; }
+  .fold-head .fold-meta{ display:flex; align-items:center; gap:8px; font-family: var(--font-mono); font-size:11px; font-weight:400; color: var(--ink-faint); min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .fold-head .fold-meta .crit{ color: var(--critical); font-weight:600; }
+  .fold-chev{ flex:none; color: var(--ink-faint); font-size:14px; line-height:1; transition: transform 0.2s ease; }
+  .fold-head[aria-expanded="true"] .fold-chev{ transform: rotate(90deg); }
+  .fold-body{ padding-top:8px; }
+  .fold-link{ width:100%; display:flex; justify-content:space-between; align-items:center; background:none; border:none; padding:10px 4px 2px; font-family:inherit; font-size:11.5px; color: var(--ink-muted); cursor:pointer; }
+  .fold-link .mono{ color: var(--ink-faint); }
   .energy-mini{ display:flex; align-items:flex-end; gap:4px; height:52px; margin-top:6px; }
   .energy-mini .bar{ flex:1; background: linear-gradient(180deg, var(--brass), var(--brass-soft)); border-radius: 3px 3px 0 0; min-height:4px; }
 
@@ -653,13 +664,15 @@
   }
   function shHomeCard(){
     var s = shSummary();
-    return '<div class="section-label" id="shJump" style="cursor:pointer;">安防与家居 <span class="mono" style="font-weight:400;color:var(--ink-faint);">'+s.total+' 个设备 · 查看全部 ›</span></div>'
-      + '<button type="button" class="sh-summary" id="shSummaryCard">'
+    var meta = (s.alarms ? '<span class="crit">✕ '+s.alarms+' 处报警</span>' : '✓ 安防正常') + ' · ' + (SH.lock.locked ? '已上锁' : '未上锁');
+    return foldSection('smart', '安防与家居', meta,
+      '<button type="button" class="sh-summary" id="shSummaryCard">'
       + '<span class="ss-cell"><span class="ss-v">'+(SH.lock.locked ? '🔒 已上锁' : '🔓 未上锁')+'</span><span class="ss-l">'+(SH.lock.doorClosed ? '入户门已关' : '入户门未关')+'</span></span>'
       + '<span class="ss-cell"><span class="ss-v'+(s.alarms ? ' crit' : ' ok')+'">'+(s.alarms ? '✕ '+s.alarms+' 处报警' : '✓ 安防正常')+'</span><span class="ss-l">烟雾 / 燃气探测</span></span>'
       + '<span class="ss-cell"><span class="ss-v">'+s.lightsOn+' / '+SH.lights.length+'</span><span class="ss-l">灯光已开</span></span>'
       + '<span class="ss-cell"><span class="ss-v">'+s.curtainsOpen+' / '+SH.curtains.length+'</span><span class="ss-l">窗帘已开</span></span>'
-      + '</button>';
+      + '</button>'
+      + '<button type="button" class="fold-link" id="shJump"><span>查看全部 '+s.total+' 个设备</span><span class="mono">详情 ›</span></button>');
   }
   function shSwitch(attr, id, on, label){
     return '<span class="switch" role="switch" tabindex="0" aria-label="'+label+'" aria-checked="'+on+'" '+attr+'="'+id+'"></span>';
@@ -734,7 +747,7 @@
       r.addEventListener('input', function(){ document.getElementById('pv-'+id).textContent = r.value + '%'; });
       r.addEventListener('change', function(){ shSetCurtain(id, true, +r.value, SRC_APP); });
     });
-    var ab = document.getElementById('shAlarmBanner'); if(ab) ab.addEventListener('click', function(){ window.scrollTo({ top:0, behavior:'smooth' }); });
+    var ab = document.getElementById('shAlarmBanner'); if(ab) ab.addEventListener('click', function(){ document.getElementById('screenBody').scrollTo({ top:0, behavior:'smooth' }); });
   }
   shOn(function(remote, raised){
     if(currentTab === 'home'){
@@ -744,8 +757,12 @@
     if(raised) toast('⚠ 安防报警：' + shAlarms().map(function(a){ return a.name; }).join('、'));
   });
 
+  var lastViewKey = '';
   function render(){
     var body = document.getElementById('screenBody');
+    // 切换到不同页面时回到顶部；同一页面因数据同步重绘时保留滚动位置
+    var viewKey = currentTab + '|' + homeView;
+    if(viewKey !== lastViewKey){ body.scrollTop = 0; lastViewKey = viewKey; }
     if(currentTab==='home'){
       if(homeView==='smart'){ body.innerHTML = smartHtml(); bindSmart(); }
       else { body.innerHTML = homeView==='list' ? homeListHtml() : roomDetailHtml(homeView); bindHome(); }
@@ -778,17 +795,40 @@
       + '</div>'
       + '<div class="mode-row" id="modeRow"></div>'
       + '</div>'
-      + '<div class="section-label">一键场景</div>'
-      + '<div class="scene-grid" id="sceneGridHome"></div>'
-      + '<div class="section-label">房间设备 <span class="mono" style="font-weight:400;color:var(--ink-faint);">'+rooms.filter(function(r){return r.on;}).length+' / '+rooms.length+' 间运行中</span></div>'
-      + '<div class="room-list" id="roomList"></div>'
+      + foldSection('scenes', '一键场景', activeScene ? '当前：'+scenes.filter(function(s){ return s.key===activeScene; })[0].label : scenes.length+' 个场景',
+          '<div class="scene-grid" id="sceneGridHome"></div>')
+      + foldSection('rooms', '房间设备', rooms.filter(function(r){return r.on;}).length+' / '+rooms.length+' 间运行中',
+          '<div class="room-list" id="roomList"></div>')
       + shHomeCard()
-      + '<div class="section-label" id="energyJump" style="cursor:pointer;">今日用电 <span class="mono" style="font-weight:400;color:var(--ink-faint);">7.8 kWh · 查看电表 ›</span></div>'
-      + '<div class="energy-mini" id="energyMini"></div>'
-      + '<div class="section-label" id="gasJump" style="cursor:pointer;">今日用气 <span class="mono" style="font-weight:400;color:var(--ink-faint);">'+genGasSeries('day').total.toFixed(1)+' m³ · 查看燃气表 ›</span></div>';
+      + foldSection('energy', '今日能耗', '电 7.8 kWh · 气 '+genGasSeries('day').total.toFixed(1)+' m³',
+          '<div class="energy-mini" id="energyMini"></div>'
+          + '<button type="button" class="fold-link" id="energyJump"><span>今日用电 7.8 kWh</span><span class="mono">查看电表 ›</span></button>'
+          + '<button type="button" class="fold-link" id="gasJump"><span>今日用气 '+genGasSeries('day').total.toFixed(1)+' m³</span><span class="mono">查看燃气表 ›</span></button>');
+  }
+
+  /* 首页折叠分组：默认只展开「一键场景」，其余收起并在标题行显示摘要 */
+  var homeFold = { scenes:true, rooms:false, smart:false, energy:false };
+  function foldSection(key, title, meta, bodyHtml){
+    return '<div class="fold">'
+      + '<button type="button" class="fold-head" data-fold="'+key+'" aria-expanded="'+homeFold[key]+'">'
+      + '<span>'+title+'</span><span class="fold-meta">'+meta+'<span class="fold-chev">›</span></span></button>'
+      + '<div class="fold-body"'+(homeFold[key] ? '' : ' hidden')+'>'+bodyHtml+'</div></div>';
+  }
+  function bindFolds(){
+    document.querySelectorAll('[data-fold]').forEach(function(h){
+      if(h.dataset.bound) return; // bindHome 会被多次调用，避免重复绑定
+      h.dataset.bound = '1';
+      h.addEventListener('click', function(){
+        var key = h.getAttribute('data-fold');
+        homeFold[key] = !homeFold[key];
+        h.setAttribute('aria-expanded', homeFold[key]);
+        h.nextElementSibling.hidden = !homeFold[key];
+      });
+    });
   }
 
   function bindHome(){
+    bindFolds();
     var sel = document.getElementById('projSelect');
     if(sel) sel.addEventListener('change', function(e){ currentProject = +e.target.value; render(); toast('已切换至 '+projectsList[currentProject]); });
 
@@ -841,7 +881,7 @@
     }
     ['shJump','shSummaryCard','shAlarmBanner'].forEach(function(id){
       var el = document.getElementById(id);
-      if(el) el.addEventListener('click', function(){ homeView = 'smart'; render(); window.scrollTo({ top:0 }); });
+      if(el) el.addEventListener('click', function(){ homeView = 'smart'; render(); });
     });
     var gj = document.getElementById('gasJump');
     if(gj) gj.addEventListener('click', function(){

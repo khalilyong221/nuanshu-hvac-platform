@@ -1198,7 +1198,18 @@
 
   function renderFaultList(){
     var el = document.getElementById('faultList');
-    el.innerHTML = faults.map(function(f){
+    // 星海国际公寓的实时安防报警排在最前
+    var live = shAlarms().map(function(a){
+      return '<div class="fault-row">'
+        + '<span class="sev critical">⚠</span>'
+        + '<span>'+projName('p1')+'</span>'
+        + '<span>'+a.name+'</span>'
+        + '<span class="ftxt">'+(a.kind === 'smoke' ? '检测到烟雾' : '检测到燃气泄漏')+'（实时上报）</span>'
+        + '<span class="ftxt">刚刚</span>'
+        + '<button class="btn '+(a.d.order?'ghost':'primary')+' sm" data-sh-fault="'+a.d.id+'" '+(a.d.order?'disabled':'')+'>'+(a.d.order?'已建单':'发起服务')+'</button>'
+        + '</div>';
+    }).join('');
+    el.innerHTML = live + faults.map(function(f){
       var d = deviceById[f.deviceId];
       return '<div class="fault-row">'
         + '<span class="sev '+f.sev+'">'+(f.sev==='critical'?'⚠':'●')+'</span>'
@@ -1219,6 +1230,9 @@
         createOrder(d, proj, '故障维修', f.text);
         renderFaultList();
       });
+    });
+    el.querySelectorAll('[data-sh-fault]').forEach(function(btn){
+      btn.addEventListener('click', function(){ shDispatch(btn.getAttribute('data-sh-fault')); });
     });
   }
 
@@ -1249,6 +1263,7 @@
     toast('已生成工单 '+id+'，待分配技师接单');
     updateOrderBadge();
     renderOrderList();
+    return id;
   }
 
   function renderOrderList(){
@@ -1694,6 +1709,7 @@
   function shSetAlarm(kind, id, alarm, src){
     var d = shFind(kind === 'smoke' ? SH.smoke : SH.gas, id);
     d.alarm = alarm;
+    if(!alarm) delete d.order; // 解除报警时一并清除服务商派单号
     var name = d.zone + (kind === 'smoke' ? '烟雾报警器' : '燃气探测器');
     var act = alarm ? (kind === 'smoke' ? '检测到烟雾，触发报警' : '检测到燃气泄漏，触发报警') : '报警已解除';
     shCommit(name, act, src, alarm ? 'crit' : 'info');
@@ -1702,6 +1718,10 @@
     var fresh = shDefault();
     for(var k in fresh){ SH[k] = fresh[k]; }
     shCommit('智能家居', '恢复演示初始状态', src);
+  }
+  // 报警中且服务商已派单的工单号（三端共享）
+  function shOrderIds(){
+    return shAlarms().filter(function(a){ return a.d.order; }).map(function(a){ return a.d.order; });
   }
   function shSummary(){
     return {
@@ -1730,9 +1750,13 @@
   });
   function smartProjectHtml(){
     var s = shSummary(), al = shAlarms(), lk = SH.lock;
+    var pendingDispatch = al.filter(function(a){ return !a.d.order; }).length;
     var banner = al.length
       ? '<div class="shc-alarm"><span class="ai">⚠</span><span><b>'+al.map(function(a){ return a.name; }).join('、')+'</b> 正在报警（业主端 / 硬件面板实时上报）</span>'
-        + '<button class="btn sm" id="shcDispatch" style="margin-left:auto;">一键派单</button></div>'
+        + (pendingDispatch
+            ? '<button class="btn sm" id="shcDispatch" style="margin-left:auto;">一键派单</button>'
+            : '<button class="btn ghost sm" style="margin-left:auto;" disabled>已派单 '+shOrderIds().join('、')+'</button>')
+        + '</div>'
       : '';
     function stat(label, value, cls){ return '<div class="shc-stat"><div class="v '+(cls||'')+'">'+value+'</div><div class="l">'+label+'</div></div>'; }
     function chip(txt, cls){ return '<span class="shc-chip '+(cls||'')+'">'+txt+'</span>'; }
@@ -1758,15 +1782,21 @@
       + '<div class="shc-group"><span class="shc-gl">灯光</span><span class="shc-chips">'+ltChips+'</span></div>'
       + '<div class="shc-evts"><div class="shc-gl" style="margin-bottom:4px;">设备动态</div>'+evts+'</div>';
   }
+  // 为尚未派单的安防报警建单，工单号写回共享状态，业主端 / 面板随即可见
+  function shDispatch(onlyId){
+    var p = projects.filter(function(x){ return x.id === 'p1'; })[0];
+    var todo = shAlarms().filter(function(a){ return !a.d.order && (!onlyId || a.d.id === onlyId); });
+    if(!todo.length) return;
+    todo.forEach(function(a){ a.d.order = createOrder(deviceById['sh-'+a.d.id], p, '安防报警', a.name+'报警，请立即上门核查'); });
+    shCommit('服务工单', '已派单 '+todo.map(function(a){ return a.d.order; }).join('、'), SRC_CONSOLE, 'info');
+  }
   function bindSmartProject(p){
     var b = document.getElementById('shcDispatch');
-    if(b) b.addEventListener('click', function(){
-      shAlarms().forEach(function(a){ createOrder(deviceById['sh-'+a.d.id], p, '安防报警', a.name+'报警，请立即上门核查'); });
-      shCommit('服务工单', '已派单处理 '+shAlarms().length+' 处报警', SRC_CONSOLE, 'info');
-    });
+    if(b) b.addEventListener('click', function(){ shDispatch(); });
   }
   shOn(function(remote, raised){
     if(selectedProject === 'p1') renderProjectPanel();
+    renderFaultList();
     if(raised) toast('⚠ 星海国际公寓：' + shAlarms().map(function(a){ return a.name; }).join('、') + ' 报警');
   });
 

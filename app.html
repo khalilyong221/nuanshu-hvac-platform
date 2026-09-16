@@ -629,6 +629,7 @@
   function shSetAlarm(kind, id, alarm, src){
     var d = shFind(kind === 'smoke' ? SH.smoke : SH.gas, id);
     d.alarm = alarm;
+    if(!alarm) delete d.order; // 解除报警时一并清除服务商派单号
     var name = d.zone + (kind === 'smoke' ? '烟雾报警器' : '燃气探测器');
     var act = alarm ? (kind === 'smoke' ? '检测到烟雾，触发报警' : '检测到燃气泄漏，触发报警') : '报警已解除';
     shCommit(name, act, src, alarm ? 'crit' : 'info');
@@ -637,6 +638,10 @@
     var fresh = shDefault();
     for(var k in fresh){ SH[k] = fresh[k]; }
     shCommit('智能家居', '恢复演示初始状态', src);
+  }
+  // 报警中且服务商已派单的工单号（三端共享）
+  function shOrderIds(){
+    return shAlarms().filter(function(a){ return a.d.order; }).map(function(a){ return a.d.order; });
   }
   function shSummary(){
     return {
@@ -650,10 +655,15 @@
 
   /* ---------- 业主端：安防与家居 ---------- */
   var SRC_APP = '业主端';
+  function shAlarmStatusText(){
+    var ids = shOrderIds();
+    if(!ids.length) return '请立即确认现场情况，已同步通知服务商';
+    return '服务商已派单 ' + ids.join('、') + '，技师正在赶来';
+  }
   function shAlarmBanner(){
     var al = shAlarms();
     if(!al.length) return '';
-    return '<button class="sh-alarm" id="shAlarmBanner" type="button"><span class="sa-i">⚠</span><span><b>'+al.map(function(a){ return a.name; }).join('、')+'</b> 正在报警<br><span class="sa-s">请立即确认现场情况，已同步通知服务商</span></span><span class="chev">›</span></button>';
+    return '<button class="sh-alarm" id="shAlarmBanner" type="button"><span class="sa-i">⚠</span><span><b>'+al.map(function(a){ return a.name; }).join('、')+'</b> 正在报警<br><span class="sa-s">'+shAlarmStatusText()+'</span></span><span class="chev">›</span></button>';
   }
   function shHomeCard(){
     var s = shSummary();

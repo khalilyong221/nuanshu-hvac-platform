@@ -481,9 +481,6 @@
   .ck-left .kpi-card .value{ font-size:19px; margin-top:4px; }
   .ck-left .kpi-card .value small{ font-size:10.5px; }
   .ck-left .kpi-card .delta{ font-size:10px; margin-top:4px; }
-  .arch-links{ display:flex; gap:6px; }
-  .arch-links a{ display:inline-flex; align-items:center; gap:5px; padding:7px 11px; border-radius:999px; border:1px solid var(--border); background: var(--surface-raised); color: var(--ink-muted); font-size:12px; text-decoration:none; white-space:nowrap; }
-  .arch-links a:hover{ color: var(--ink); border-color: var(--border-strong); }
   @media (min-width: 1101px) and (min-height: 620px){
     .cockpit{ display:grid; grid-template-columns: minmax(270px, 20%) minmax(0, 1fr) minmax(380px, 27%); align-items:stretch; }
     .cockpit > .map-panel, .cockpit > .ck-right, .cockpit > .ck-left{ order:0; }
@@ -517,7 +514,7 @@
     html.is-cockpit .shell{ height: calc(100vh / var(--ui-scale)); display:flex; flex-direction:column; padding-bottom:16px; }
     html.is-cockpit .nameplate{ flex-shrink:0; }
     html.is-cockpit #sec-overview{ flex:1; min-height:0; }
-    html.is-cockpit .arch-nav, html.is-cockpit .footer-note{ display:none; }
+    html.is-cockpit .footer-note{ display:none; }
   }
   @media (min-width: 1101px) and (max-width: 1500px){ html.is-cockpit .nameplate .status-chip{ display:none; } }
   /* 屏幕较矮时，左栏指标卡省略环比行，保证一屏放下 */
@@ -607,10 +604,6 @@
     </div>
     <div class="nameplate-right">
       <div class="status-chip"><span class="dot pulse"></span> <span id="onlineChip">— 台设备在线中</span></div>
-      <nav class="arch-links" aria-label="其他两端">
-        <a href="app.html" target="_blank" rel="noopener">业主端 ↗</a>
-        <a href="panel.html" target="_blank" rel="noopener">面板 ↗</a>
-      </nav>
       <div class="theme-toggle" role="group" aria-label="主题切换">
         <button type="button" data-theme-btn="light" aria-label="浅色主题">☀</button>
         <button type="button" data-theme-btn="dark" aria-label="深色主题">☾</button>
@@ -778,22 +771,6 @@
     </div>
   </section>
 
-  <nav class="arch-nav" aria-label="暖枢三端架构">
-    <div class="arch-node current" aria-current="page">
-      <span class="idx">01</span>
-      <span class="txt"><span class="t1">服务商中控台</span><span class="t2">当前页面 · 独立部署</span></span>
-    </div>
-    <div class="arch-flow"><span class="arrow">⇄</span><small>指令下发<br>状态上报</small></div>
-    <a class="arch-node link" href="app.html" target="_blank" rel="noopener">
-      <span class="idx">02</span>
-      <span class="txt"><span class="t1">业主端小程序</span><span class="t2">独立页面 · 新窗口打开</span></span>
-    </a>
-    <div class="arch-flow"><span class="arrow">⇄</span><small>场景联动<br>数据同步</small></div>
-    <a class="arch-node link" href="panel.html" target="_blank" rel="noopener">
-      <span class="idx">03</span>
-      <span class="txt"><span class="t1">硬件中控面板</span><span class="t2">独立页面 · 新窗口打开</span></span>
-    </a>
-  </nav>
 
   <div class="footer-note">暖枢云控 NUANSHU CONSOLE — 三端中的服务商端，与「业主端小程序」「硬件中控面板」通过云端数据独立同步</div>
 </div>

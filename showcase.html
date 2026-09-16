@@ -122,6 +122,7 @@
   .sc-media{ background: linear-gradient(155deg, var(--surface-sunken), var(--surface-inset)); border:1px solid var(--border); border-radius: var(--radius-l); padding: 20px; box-shadow: var(--shadow-raised); display:flex; align-items:center; justify-content:center; }
   .sc-media img{ border-radius: var(--radius-s); width:100%; height:auto; box-shadow: 0 8px 24px -10px rgba(20,30,22,0.35); }
   .sc-media.tall{ padding: 26px 40px; }
+  .sc-media.tall img{ width:auto; max-width:100%; max-height:640px; }
   .sc-media.wide img{ box-shadow: 0 10px 30px -12px rgba(20,30,22,0.4); }
 
   /* ---------------- design system ---------------- */
@@ -204,6 +205,7 @@
       <h3>为经销商规模设计的运维后台</h3>
       <p class="sc-desc">面向大型经销商而非单一门店：经销商网络覆盖 6 大区、64 个项目、2,169 台设备，可逐层下钻至具体项目与设备。故障预警可一键发起服务工单，并与工单列表实时联动。</p>
       <div class="sc-feats">
+        <div class="sc-feat"><span class="fi">◆</span>全国项目运营大屏：完整省界地图 + 南海诸岛小图，按运行状态着色，大区与项目联动筛选</div>
         <div class="sc-feat"><span class="fi">◆</span>经销商网络 → 项目档案 → 设备监测三级下钻</div>
         <div class="sc-feat"><span class="fi">◆</span>多指标遥测曲线（室内 / 室外 / 设定 / 排气 / 冷凝温度）</div>
         <div class="sc-feat"><span class="fi">◆</span>故障预警一键建单，工单状态实时跟踪</div>
@@ -245,7 +247,7 @@
 
   <div class="dsys">
     <div class="section-kicker"><span class="num">04</span><h2>设计系统</h2></div>
-    <p class="sc-desc" style="max-width:70ch;">三端共享同一套设计令牌：深松石绿与黄铜色构成的工业质感配色，搭配 Oswald 数字与 IBM Plex 字族；深浅色主题均为独立定义的完整令牌集，而非简单反色。</p>
+    <p class="sc-desc" style="max-width:70ch;">业主端与硬件面板共享同一套设计令牌：深松石绿与黄铜色构成的工业质感配色，搭配 Oswald 数字与 IBM Plex 字族；服务商中控台作为运营大屏，单独采用深海军蓝数据大屏配色。深浅色主题均为独立定义的完整令牌集，而非简单反色。</p>
     <div class="dsys-grid">
       <div class="swatch-row">
         <div class="swatch"><div class="sw-chip" style="background:#16211c"></div><span class="sw-name">ink</span></div>

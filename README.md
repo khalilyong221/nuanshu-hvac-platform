@@ -7,7 +7,7 @@
 | 页面 | 说明 | 链接 |
 |---|---|---|
 | 作品集展示页 | 面向面试官 / 简历读者的整体案例介绍，含架构图、设计系统、三端截图 | https://khalilyong221.github.io/nuanshu-hvac-platform/showcase.html |
-| 服务商中控台（console.html） | 面向暖通服务商的大屏 SaaS 管理后台：多站点监控、工单、能耗、告警联动 | https://khalilyong221.github.io/nuanshu-hvac-platform/console.html |
+| 服务商中控台（console.html） | 面向暖通服务商的大屏 SaaS 管理后台：项目分布地图、多站点监控、工单、能耗、告警联动 | https://khalilyong221.github.io/nuanshu-hvac-platform/console.html |
 | 业主端小程序（app.html） | 面向终端业主的移动端小程序风格界面：设备控制、历史数据、用电量分析 | https://khalilyong221.github.io/nuanshu-hvac-platform/app.html |
 | 硬件中控面板（panel.html） | 模拟墙面硬件面板的深色触屏界面：本地控制、传感器数据、用电量分析 | https://khalilyong221.github.io/nuanshu-hvac-platform/panel.html |
 | 最初的三端合一原型（index.html） | 项目早期版本，三端整合在一个页面内，作为设计演进的起点保留 | https://khalilyong221.github.io/nuanshu-hvac-platform/index.html |
@@ -29,17 +29,20 @@
 
 ## 设计系统
 
-三端与展示页共用同一套设计 token（通过 CSS 自定义属性实现明暗双主题）：
+业主端小程序与硬件中控面板共用同一套设计 token（通过 CSS 自定义属性实现明暗双主题）；服务商中控台作为运营大屏，单独使用一套深蓝配色：
 
 - 字体：Oswald（展示型标题）+ IBM Plex Sans（正文）+ IBM Plex Mono（数据 / 代码感元素）
-- 语义色：brass（品牌强调色）、frost（冷色辅助）、good / warn / critical（状态色）
-- 图表分类色：`--cat1` ~ `--cat5`
-- 明暗主题：`:root` 定义浅色，`prefers-color-scheme: dark` 与 `[data-theme="dark"]` 分别覆盖，页面右上角提供手动切换
+- 业主端 / 硬件面板：暖米色底、黄铜色（brass）强调，`:root` 定义浅色，`prefers-color-scheme: dark` 与 `[data-theme="dark"]` 覆盖深色
+- 服务商中控台：深蓝数据大屏——深海军蓝底色，叠加顶部蓝色光晕与细网格，亮蓝强调；`[data-theme="light"]` 提供淡蓝浅色版
+- 语义色：good / warn / critical（状态色），图表分类色 `--cat1` ~ `--cat5`
+- 地图：省界与南海诸岛数据来自阿里云 DataV.GeoAtlas，主图右下角附南海诸岛小图；地图为示意用途
+- 页面右上角均提供主题手动切换
 
 ## 核心功能
 
 - **跨端联动叙事**：三端围绕同一套虚拟住宅的设备状态展开（同一地址、同一天气、同一批传感器读数），模拟真实场景下服务商后台、业主小程序、硬件面板三者数据同步的效果。
 - **用电量分析**：新增电表模块，支持"今日 / 近7天 / 近30天"三种周期的用电曲线，叠加峰 / 平 / 谷分时电价信息，并根据当前时间高亮所处电价时段（业主端小程序与硬件面板均实现，数据结构一致）。
+- **项目分布地图**：服务商中控台新增全国项目分布地图，16 个重点项目按运行状态（正常 / 预警 / 故障）着色、按设备规模定大小；点击大区或项目可与网点列表、项目详情联动，并显示大区运营中心到项目的服务连线。
 - **告警与工单联动**：服务商中控台模拟设备异常告警触发工单流转。
 - **响应式布局**：三端页面均适配手机宽度（~400px）及桌面宽度，暗色模式经过独立设计与校验。
 

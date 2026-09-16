@@ -426,7 +426,6 @@
   .map-tip{ position:absolute; pointer-events:none; background: var(--ink); color: var(--surface); border-radius: var(--radius-s); padding:8px 11px; font-size:12px; line-height:1.5; box-shadow: var(--shadow-raised); transform: translate(-50%, calc(-100% - 12px)); white-space:nowrap; z-index:5; }
   .map-tip .tn{ font-weight:600; }
   .map-tip .ts{ opacity:0.75; font-size:11px; }
-  .map-side{ display:flex; flex-direction:column; min-width:0; }
   .map-card{ padding: 14px 18px; border-bottom:1px solid var(--border); min-height: 136px; }
   .map-card .mc-empty{ color: var(--ink-faint); font-size:12.5px; line-height:1.6; }
   .map-card .mc-title{ font-size:15px; font-weight:600; font-family: var(--font-display); display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
@@ -454,28 +453,78 @@
   .nanhai-jd{ fill: var(--ink-muted); stroke: var(--ink-muted); stroke-width:1; stroke-linecap:round; }
   .nanhai-frame{ fill:none; stroke: var(--border-strong); stroke-width:1; }
   .nanhai-label{ font-size:9px; fill: var(--ink-muted); }
-  /* ===== 地图大屏化 ===== */
-  .map-panel{ overflow:hidden; }
+  /* ===== 驾驶舱：项目总览一屏放下（左栏指标 · 中间地图 · 右栏网点与项目） ===== */
+  .cockpit{ display:flex; flex-direction:column; gap:16px; }
+  .cockpit > .map-panel{ order:1; margin-bottom:0; }
+  .cockpit > .ck-right{ order:2; }
+  .cockpit > .ck-left{ order:3; }
+  .map-panel{ overflow:hidden; display:flex; flex-direction:column; min-width:0; }
   .map-panel .panel-head{ position:relative; z-index:3; }
-  .map-body{ position:relative; height: clamp(640px, calc(100vh / var(--ui-scale) - 200px), 1000px); }
-  .map-stage{ position:absolute; inset:0; padding: 44px 356px 30px 190px; border:none !important; display:flex; flex-direction:column; }
+  .map-body{ position:relative; height: clamp(420px, 62vw, 640px); }
+  .map-stage{ position:absolute; inset:0; padding: 40px 16px 30px; border:none !important; display:flex; flex-direction:column; }
   .map-stage svg{ flex:1; min-height:0; width:100%; height:100%; }
-  .map-legend{ position:absolute; top:12px; left:300px; right:360px; justify-content:center; padding:0; z-index:2; }
-  .map-note{ left:auto; right:360px; bottom:12px; }
-  .map-overlay{ position:absolute; top:14px; bottom:14px; z-index:2; display:flex; flex-direction:column; border:1px solid var(--border); border-radius: var(--radius-m); background: color-mix(in srgb, var(--surface-raised) 80%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: var(--shadow-soft); overflow:hidden; }
-  .map-overlay > *{ flex-shrink:0; }
-  .map-left{ left:14px; width:272px; padding:12px; gap:10px; overflow-y:auto; }
-  .map-side{ right:14px; width:330px; overflow-y:auto; }
+  .map-legend{ position:absolute; top:12px; left:16px; right:16px; justify-content:center; padding:0; z-index:2; }
+  .map-note{ left:auto; right:16px; bottom:10px; }
+  .ck-left{ display:flex; flex-direction:column; min-width:0; overflow:hidden; }
+  .ck-left > *{ flex-shrink:0; }
+  .ck-pad{ padding:12px; display:flex; flex-direction:column; gap:10px; }
+  .ck-left .map-card{ border-top:1px solid var(--border); }
+  .ck-right{ display:flex; flex-direction:column; gap:16px; min-width:0; min-height:0; }
+  .ck-dealers, .ck-projects{ display:flex; flex-direction:column; min-height:0; overflow:hidden; }
+  .ck-dealers > *, .ck-projects > *{ flex-shrink:0; }
   .ov-title{ font-size:12.5px; font-weight:600; color: var(--ink); display:flex; align-items:center; gap:7px; letter-spacing:0.3px; }
   .ov-title::before{ content:""; width:3px; height:12px; border-radius:2px; background: var(--brass); }
   .ov-pad{ padding: 12px 18px 6px; border-top:1px solid var(--border); }
-  .map-left .kpi-row{ grid-template-columns: 1fr 1fr; gap:8px; margin:0; }
-  .map-overlay .kpi-row .kpi-card{ padding:9px 10px 8px; border-radius: var(--radius-s); box-shadow:none; background: color-mix(in srgb, var(--surface-sunken) 85%, transparent); }
-  .map-overlay .kpi-card .label{ font-size:10.5px; }
-  .map-overlay .kpi-card .value{ font-size:19px; margin-top:4px; }
-  .map-overlay .kpi-card .value small{ font-size:10.5px; }
-  .map-overlay .kpi-card .delta{ font-size:10px; margin-top:4px; }
-  .map-side .map-card{ min-height:0; }
+  .ck-left .kpi-row{ grid-template-columns: 1fr 1fr; gap:8px; margin:0; }
+  .ck-left .kpi-row .kpi-card{ padding:9px 10px 8px; border-radius: var(--radius-s); box-shadow:none; background: color-mix(in srgb, var(--surface-sunken) 85%, transparent); }
+  .ck-left .kpi-card .label{ font-size:10.5px; }
+  .ck-left .kpi-card .value{ font-size:19px; margin-top:4px; }
+  .ck-left .kpi-card .value small{ font-size:10.5px; }
+  .ck-left .kpi-card .delta{ font-size:10px; margin-top:4px; }
+  .arch-links{ display:flex; gap:6px; }
+  .arch-links a{ display:inline-flex; align-items:center; gap:5px; padding:7px 11px; border-radius:999px; border:1px solid var(--border); background: var(--surface-raised); color: var(--ink-muted); font-size:12px; text-decoration:none; white-space:nowrap; }
+  .arch-links a:hover{ color: var(--ink); border-color: var(--border-strong); }
+  @media (min-width: 1101px) and (min-height: 620px){
+    .cockpit{ display:grid; grid-template-columns: minmax(270px, 20%) minmax(0, 1fr) minmax(380px, 27%); align-items:stretch; }
+    .cockpit > .map-panel, .cockpit > .ck-right, .cockpit > .ck-left{ order:0; }
+    .cockpit > .ck-left{ grid-column:1; grid-row:1; overflow-y:auto; }
+    .ck-left > #pendingList{ flex:1 1 auto; min-height:96px; overflow-y:auto; }
+    .ck-left .ck-pad{ gap:8px; padding:10px 12px; }
+    .ck-left .kpi-row .kpi-card{ padding:7px 9px 6px; }
+    .ck-left .kpi-card .value{ font-size:17px; margin-top:2px; }
+    .ck-left .kpi-card .delta{ margin-top:2px; }
+    .ck-left .tm-bars{ height:56px; }
+    .ck-left .map-card{ padding:10px 14px; }
+    .ck-left .map-card .mc-stats{ margin:8px 0 2px; }
+    .ck-left .map-card .mc-empty{ display:none; }
+    .ck-left .region-row, .ck-left .pend-row{ padding-top:6px; padding-bottom:6px; }
+    .ck-left .ov-pad{ padding-top:9px; padding-bottom:5px; }
+    .ck-left .tm-bars{ height:48px; }
+    .cockpit > .map-panel{ grid-column:2; grid-row:1; }
+    .cockpit > .ck-right{ grid-column:3; grid-row:1; }
+    .cockpit .map-body{ flex:1; min-height:0; height:auto; }
+    .ck-dealers{ flex:0 1 auto; max-height:54%; }
+    .ck-dealers .dealer-list{ flex:1 1 auto; min-height:0; max-height:none; }
+    .ck-projects{ flex:1 1 0; }
+    .ck-projects #projectPanelBody{ flex:1 1 auto; min-height:0; overflow-y:auto; }
+    .ck-projects .project-list{ max-height:none; overflow:visible; }
+    .ck-projects .project-row, .ck-projects .project-list-head{ grid-template-columns: minmax(0,1.5fr) minmax(0,1.1fr) 0.8fr 0.5fr 12px; padding-left:16px; padding-right:12px; }
+    .ck-projects .project-row .pn{ display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .ck-projects .project-row .pn .pill{ margin-left:4px; }
+    .ck-projects .project-row .psub{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    /* 仅在「项目总览」时整页锁定为一屏 */
+    html.is-cockpit, html.is-cockpit body{ overflow:hidden; }
+    html.is-cockpit .shell{ height: calc(100vh / var(--ui-scale)); display:flex; flex-direction:column; padding-bottom:16px; }
+    html.is-cockpit .nameplate{ flex-shrink:0; }
+    html.is-cockpit #sec-overview{ flex:1; min-height:0; }
+    html.is-cockpit .arch-nav, html.is-cockpit .footer-note{ display:none; }
+  }
+  @media (min-width: 1101px) and (max-width: 1500px){ html.is-cockpit .nameplate .status-chip{ display:none; } }
+  /* 屏幕较矮时，左栏指标卡省略环比行，保证一屏放下 */
+  @media (min-width: 1101px) and (min-height: 620px) and (max-height: 1150px){
+    .ck-left .kpi-card .delta{ display:none; }
+  }
+  .ck-left .map-card{ min-height:0; }
   .trend-mini{ background: color-mix(in srgb, var(--surface-sunken) 85%, transparent); border-radius: var(--radius-s); padding:10px 10px 6px; }
   .tm-bars{ display:flex; align-items:flex-end; gap:4px; height:92px; }
   .tm-col{ flex:1; height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:2px; }
@@ -501,9 +550,6 @@
     .map-stage svg{ flex:none; height:auto; }
     .map-legend{ position:static; justify-content:flex-start; padding-bottom:6px; }
     .map-note{ right:auto; left:14px; }
-    .map-overlay{ position:static; width:auto; border-radius:0; border-width:1px 0 0; backdrop-filter:none; -webkit-backdrop-filter:none; box-shadow:none; overflow:visible; }
-    .map-side{ order:2; }
-    .map-left{ order:3; }
     .map-legend{ left:auto; right:auto; }
   }
   .device-mini-row .btn{ white-space:nowrap; justify-self:end; }
@@ -561,6 +607,10 @@
     </div>
     <div class="nameplate-right">
       <div class="status-chip"><span class="dot pulse"></span> <span id="onlineChip">— 台设备在线中</span></div>
+      <nav class="arch-links" aria-label="其他两端">
+        <a href="app.html" target="_blank" rel="noopener">业主端 ↗</a>
+        <a href="panel.html" target="_blank" rel="noopener">面板 ↗</a>
+      </nav>
       <div class="theme-toggle" role="group" aria-label="主题切换">
         <button type="button" data-theme-btn="light" aria-label="浅色主题">☀</button>
         <button type="button" data-theme-btn="dark" aria-label="深色主题">☾</button>
@@ -570,10 +620,25 @@
   </div>
 
   <!-- ============ 01 项目总览 ============ -->
-  <section id="sec-overview">
+  <!-- 驾驶舱布局：左栏运营指标 · 中间全国地图 · 右栏经销商网络与项目列表 -->
+  <section id="sec-overview" class="cockpit">
+    <aside class="panel ck-left" aria-label="运营指标">
+      <div class="ck-pad">
+        <div class="ov-title">基础信息</div>
+        <div class="kpi-row" id="kpiRow"></div>
+        <div class="ov-title">近 12 个月新增项目</div>
+        <div class="trend-mini" id="mapTrend"></div>
+      </div>
+      <div class="map-card" id="mapCard"></div>
+      <div class="region-list-head"><span>大区</span><span>项目</span><span>运行状态</span></div>
+      <div id="regionList"></div>
+      <div class="ov-title ov-pad">待处理项目</div>
+      <div id="pendingList"></div>
+    </aside>
+
     <div class="panel map-panel">
       <div class="panel-head">
-        <div><h2>全国项目运营大屏</h2><div class="desc">重点项目分布 · 点击地图上的项目或区域，与下方网点、项目列表联动</div></div>
+        <div><h2>全国项目运营大屏</h2><div class="desc">重点项目分布 · 点击地图上的项目或区域，与右侧网点、项目列表联动</div></div>
         <div class="filter-row" style="padding:0;border:none;" role="group" aria-label="按运行状态筛选">
           <button class="chip" data-mfilter="all" aria-pressed="true">全部</button>
           <button class="chip" data-mfilter="good" aria-pressed="false">正常</button>
@@ -582,12 +647,6 @@
         </div>
       </div>
       <div class="map-body">
-        <aside class="map-overlay map-left" aria-label="基础信息">
-          <div class="ov-title">基础信息</div>
-          <div class="kpi-row" id="kpiRow"></div>
-          <div class="ov-title">近 12 个月新增项目</div>
-          <div class="trend-mini" id="mapTrend"></div>
-        </aside>
         <div class="map-stage" id="mapStage">
           <div class="map-legend">
             <span class="lg"><span class="lgdot" style="background:var(--good)"></span>✓ 运行正常</span>
@@ -600,28 +659,20 @@
           <div class="map-note">示意图，仅供演示 · 边界数据：DataV.GeoAtlas</div>
           <div class="map-tip" id="mapTip" hidden></div>
         </div>
-        <aside class="map-overlay map-side">
-          <div class="map-card" id="mapCard"></div>
-          <div class="region-list-head"><span>大区</span><span>项目</span><span>运行状态</span></div>
-          <div id="regionList"></div>
-          <div class="ov-title ov-pad">待处理项目</div>
-          <div id="pendingList"></div>
-        </aside>
       </div>
     </div>
 
-
-    <div class="grid-2">
-      <div class="panel">
+    <div class="ck-right">
+      <div class="panel ck-dealers">
         <div class="panel-head">
-          <div><h2>经销商网络</h2><div class="desc">6 大区运营中心 · 点击筛选右侧项目</div></div>
+          <div><h2>经销商网络</h2><div class="desc">6 大区运营中心 · 点击筛选下方项目</div></div>
           <span class="pill neutral" id="dealerCountPill"></span>
         </div>
         <div class="dealer-list-head"><span>网点</span><span>项目</span><span>设备</span><span>在线率</span></div>
         <div class="dealer-list" id="dealerList"></div>
       </div>
 
-      <div class="panel">
+      <div class="panel ck-projects" id="projectPanel">
         <div class="breadcrumb" id="projectBreadcrumb"></div>
         <div id="projectPanelBody"></div>
       </div>
@@ -907,7 +958,11 @@
     ['overview','monitor','faults','orders'].forEach(function(k){
       document.getElementById('sec-'+k).hidden = (k !== key);
     });
+    // 项目总览为驾驶舱一屏布局，其余分区保持正常滚动
+    document.documentElement.classList.toggle('is-cockpit', key === 'overview');
+    if(key === 'overview') window.scrollTo(0, 0);
   }
+  document.documentElement.classList.add('is-cockpit');
 
   /* ============================================================ */
   /* 01 项目总览：经销商 → 项目 → 项目详情                              */
@@ -1478,7 +1533,9 @@
     selectedProject = m.projectId;
     mapSelected = m.id;
     renderDealerList(); renderProjectPanel();
-    document.getElementById('projectBreadcrumb').scrollIntoView({ behavior:'smooth', block:'start' });
+    var pb = document.getElementById('projectPanelBody');
+    if(pb.scrollHeight > pb.clientHeight){ pb.scrollTop = 0; } // 驾驶舱内：项目详情在右栏内滚动
+    else { document.getElementById('projectBreadcrumb').scrollIntoView({ behavior:'smooth', block:'start' }); }
   }
 
   function renderMapCard(){

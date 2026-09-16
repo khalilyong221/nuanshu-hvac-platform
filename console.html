@@ -1,3 +1,5 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>暖枢云控</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -93,7 +95,11 @@
   [hidden]{ display:none !important; }
   @media (prefers-reduced-motion: reduce){ *{ animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; } }
 
-  .shell{ max-width: 1280px; margin: 0 auto; padding: 20px 16px 64px; }
+  /* 大屏铺满整个窗口；宽屏下整体等比放大，避免内容显得过小 */
+  .shell{ --ui-scale: 1; width:100%; margin: 0 auto; padding: 20px clamp(16px, 1.8vw, 36px) 64px; zoom: var(--ui-scale); }
+  @media (min-width: 1800px){ .shell{ --ui-scale: 1.12; } }
+  @media (min-width: 2400px){ .shell{ --ui-scale: 1.3; } }
+  @media (min-width: 3200px){ .shell{ --ui-scale: 1.6; } }
 
   .nameplate{
     display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap: wrap;
@@ -451,7 +457,7 @@
   /* ===== 地图大屏化 ===== */
   .map-panel{ overflow:hidden; }
   .map-panel .panel-head{ position:relative; z-index:3; }
-  .map-body{ position:relative; height: clamp(640px, calc(100vh - 150px), 880px); }
+  .map-body{ position:relative; height: clamp(640px, calc(100vh / var(--ui-scale) - 200px), 1000px); }
   .map-stage{ position:absolute; inset:0; padding: 44px 356px 30px 190px; border:none !important; display:flex; flex-direction:column; }
   .map-stage svg{ flex:1; min-height:0; width:100%; height:100%; }
   .map-legend{ position:absolute; top:12px; left:300px; right:360px; justify-content:center; padding:0; z-index:2; }
@@ -1446,8 +1452,9 @@
     mapTip.innerHTML = '<div class="tn">' + mapStatusMeta[m.status].icon + ' ' + m.name + '</div>'
       + '<div class="ts">' + m.city + ' · ' + m.devices + ' 台设备 · 在线 ' + Math.round(m.online*100) + '%</div>'
       + (m.note ? '<div class="ts">' + m.note + '</div>' : '');
-    mapTip.style.left = (box.left - stageBox.left + ox + xy[0]*s) + 'px';
-    mapTip.style.top = (box.top - stageBox.top + oy + (xy[1]-pinRadius(m.devices))*s) + 'px';
+    var z = (stageBox.width / mapStage.offsetWidth) || 1; // 宽屏 zoom 放大时，屏幕坐标换算回布局坐标
+    mapTip.style.left = ((box.left - stageBox.left + ox + xy[0]*s) / z) + 'px';
+    mapTip.style.top = ((box.top - stageBox.top + oy + (xy[1]-pinRadius(m.devices))*s) / z) + 'px';
     mapTip.hidden = false;
   }
   function hideMapTip(){ mapTip.hidden = true; }

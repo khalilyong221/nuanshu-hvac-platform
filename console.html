@@ -1375,8 +1375,9 @@
     });
   });
 
-  function showOrderDetail(id){
+  function showOrderDetail(id, silent){
     var o = orders.filter(function(x){ return x.id===id; })[0];
+    document.getElementById('orderDetailPanel').dataset.order = id;
     var d = deviceById[o.deviceId];
     var steps = ['创建','已接单','上门中','已完成'];
     var stageIndex = { pending:0, progress:2, done:3 }[o.status];
@@ -1391,7 +1392,26 @@
       ['工单类型', o.type], ['负责技师', o.tech], ['创建时间', o.createdAt], ['当前状态', statusLabel[o.status]],
       ['关联设备', d.name], ['问题描述', o.faultText]
     ].map(function(c){ return '<div class="info-cell"><div class="l">'+c[0]+'</div><div class="v">'+c[1]+'</div></div>'; }).join('');
-    document.getElementById('orderDetailPanel').scrollIntoView({behavior:'smooth', block:'nearest'});
+    // 业主预约的工单：确认预约并派技师，结果同步回业主端
+    var grid = document.getElementById('orderInfoGrid');
+    var act = document.getElementById('orderBookingActions');
+    if(!act){ act = document.createElement('div'); act.id = 'orderBookingActions'; act.className = 'hb-actions'; act.style.padding = '4px 0 0'; act.style.justifyContent = 'flex-start'; grid.parentNode.insertBefore(act, grid.nextSibling); }
+    act.innerHTML = '';
+    if(o.booking){
+      var b = HM.bookings.filter(function(x){ return x.id === o.booking; })[0];
+      act.innerHTML = b && b.status === 'pending'
+        ? '<button class="btn primary sm" id="bkConfirm">确认预约并派技师</button><span class="hb-note" style="padding:0;">业主通过暖枢管家小程序一键预约，确认后同步通知业主</span>'
+        : '<span class="hb-note" style="padding:0;">已于 ' + (b && b.confirmedAt) + ' 确认预约并通知业主</span>';
+      var cf = document.getElementById('bkConfirm');
+      if(cf) cf.addEventListener('click', function(){
+        HM = hmLoad();
+        var bk = HM.bookings.filter(function(x){ return x.id === o.booking; })[0];
+        if(!bk || bk.status !== 'pending'){ hmRefresh(); return; }
+        bk.status = 'confirmed'; bk.tech = techs[Math.floor(Math.random() * techs.length)]; bk.confirmedAt = hmNow();
+        hmCommit('已确认预约，' + bk.tech + ' 将于 ' + bk.dateLabel + ' ' + bk.slot.split(' ')[0] + ' 上门');
+      });
+    }
+    if(!silent) document.getElementById('orderDetailPanel').scrollIntoView({behavior:'smooth', block:'nearest'});
   }
   document.getElementById('orderDetailClose').addEventListener('click', function(){ document.getElementById('orderDetailPanel').hidden = true; });
 
@@ -1638,9 +1658,16 @@
     }).sort(function(a, b){ return (a.status === 'critical' ? 0 : 1) - (b.status === 'critical' ? 0 : 1); });
     // 业主提交的增删家庭申请排在最前
     var reqs = HM.requests.filter(function(r){ return r.status === 'pending' && (!selectedDealer || hmDealerOf(r.province) === selectedDealer); });
+    var bks = HM.bookings.filter(function(b){ var h = hmHome(b.homeId); return b.status === 'pending' && h && (!selectedDealer || h.dealer === selectedDealer); });
     var el = document.getElementById('pendingList');
-    if(!list.length && !reqs.length){ el.innerHTML = '<div class="pend-empty">✓ 当前范围内没有待处理项目</div>'; return; }
-    el.innerHTML = reqs.map(function(r){
+    if(!list.length && !reqs.length && !bks.length){ el.innerHTML = '<div class="pend-empty">✓ 当前范围内没有待处理项目</div>'; return; }
+    el.innerHTML = bks.map(function(b){
+      var h = hmHome(b.homeId);
+      return '<div class="pend-row" data-bkid="' + b.id + '" tabindex="0" role="button">'
+        + '<span class="pend-icon req">约</span>'
+        + '<span class="pend-txt"><span class="pn1">业主预约 · ' + b.type + '</span><span class="pn2">' + hmEsc(h.name) + ' · ' + b.dateLabel + ' ' + b.slot.split(' ')[0] + '</span></span>'
+        + '<span class="pend-city">' + h.city + '</span></div>';
+    }).join('') + reqs.map(function(r){
       return '<div class="pend-row' + (r.id === selectedRequest ? ' selected' : '') + '" data-rid="' + r.id + '" tabindex="0" role="button">'
         + '<span class="pend-icon req">申</span>'
         + '<span class="pend-txt"><span class="pn1">' + (r.kind === 'add' ? '申请添加家庭' : '申请移除「' + hmEsc(r.homeName) + '」') + '</span><span class="pn2">业主 ' + hmMask(r.phone) + ' · ' + hmEsc(r.address) + '</span></span>'
@@ -1655,6 +1682,16 @@
     el.querySelectorAll('.pend-row[data-pid]').forEach(function(row){
       row.addEventListener('click', function(){ selectedRequest = null; selectMapProject(row.getAttribute('data-pid')); });
       row.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ selectedRequest = null; selectMapProject(row.getAttribute('data-pid')); } });
+    });
+    el.querySelectorAll('.pend-row[data-bkid]').forEach(function(row){
+      function open(){
+        var b = HM.bookings.filter(function(x){ return x.id === row.getAttribute('data-bkid'); })[0];
+        activateSection('orders');
+        sectionTabs.forEach(function(t){ t.setAttribute('aria-selected', t.getAttribute('data-section')==='orders'?'true':'false'); });
+        showOrderDetail(bookingOrderId(b));
+      }
+      row.addEventListener('click', open);
+      row.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ open(); } });
     });
     el.querySelectorAll('.pend-row[data-rid]').forEach(function(row){
       function open(){ selectedRequest = row.getAttribute('data-rid'); selectedProject = null; renderProjectPanel(); }
@@ -1930,6 +1967,7 @@
     o.homes.forEach(function(h){ h.bindings = h.bindings.map(function(p){ return p === OLD_DEMO_PHONE ? '18888888888' : p; }); });
     o.requests.forEach(function(r){ if(r.phone === OLD_DEMO_PHONE) r.phone = '18888888888'; });
     o.homes.forEach(ensureAccess);
+    if(!o.bookings) o.bookings = []; // 业主预约上门服务（type/date/slot/status pending→confirmed / cancelled）
     return o;
   }
   // 业主对服务商的访问授权：full 持续监测+远程调节 / monitor 仅监测（远程调节需临时授权 2 小时）/ none 不共享数据
@@ -2002,14 +2040,25 @@
     var thisMonth = hmNow().slice(0, 7);
     dealers.forEach(function(d){ d.projects = d.baseProjects + standalone.filter(function(h){ return h.dealer === d.id; }).length; });
     monthlyNew[monthlyNew.length - 1][1] = baseMonthlyNew + standalone.filter(function(h){ return h.createdAt.slice(0, 7) === thisMonth; }).length;
+    // 业主预约 → 服务工单（工单号由预约 id 推导，多个中控台窗口保持一致）
+    orders = orders.filter(function(o){ return !o.booking; });
+    HM.bookings.filter(function(b){ return b.status !== 'cancelled'; }).forEach(function(b){
+      var h = hmHome(b.homeId); if(!h) return;
+      deviceById['bk-' + b.id] = { id:'bk-' + b.id, name:'预约上门 · ' + h.name, type:'上门服务', status:'online', temp:0, power:0 };
+      orders.unshift({ id:bookingOrderId(b), booking:b.id, projectId:h.projectId || h.id, deviceId:'bk-' + b.id, type:b.type + '（业主预约）', tech:b.tech || '—',
+        status:b.status === 'confirmed' ? 'progress' : (b.status === 'done' ? 'done' : 'pending'), createdAt:b.createdAt, faultText:b.dateLabel + ' ' + b.slot + (b.note ? ' · ' + b.note : '') });
+    });
     if(selectedProject && !projects.some(function(p){ return p.id === selectedProject; })){ selectedProject = null; }
     if(mapSelected && !mapProjects.some(function(m){ return m.id === mapSelected; })){ mapSelected = null; }
     if(selectedRequest && selectedRequest !== 'new' && !HM.requests.some(function(r){ return r.id === selectedRequest; })){ selectedRequest = null; }
   }
   function hmRefresh(){
     hmApply();
-    renderKpis(); renderMapTrend(); renderDealerList(); renderProjectPanel();
+    renderKpis(); renderMapTrend(); renderDealerList(); renderProjectPanel(); renderOrderList();
+    var od = document.getElementById('orderDetailPanel');
+    if(od && !od.hidden && od.dataset.order){ var still = orders.some(function(o){ return o.id === od.dataset.order; }); if(still) showOrderDetail(od.dataset.order, true); else od.hidden = true; }
   }
+  function bookingOrderId(b){ return 'BK-' + b.id.slice(-4).toUpperCase(); }
   function hmCommit(msg){ hmSave(); hmRefresh(); if(msg) toast(msg); }
   window.addEventListener('storage', function(e){
     if(e.key !== HM_KEY) return;
@@ -2027,6 +2076,10 @@
       else if(o.access.request && !h.access.request) accessMsg = '业主拒绝了「' + h.name + '」的远程调节申请';
       else if(o.access.until && !h.access.until) accessMsg = '业主结束了「' + h.name + '」的远程调节授权';
     });
+    var newBk = HM.bookings.filter(function(b){ return b.status === 'pending' && !before.bookings.some(function(x){ return x.id === b.id; }); })[0];
+    var cancelledBk = HM.bookings.filter(function(b){ var o = before.bookings.filter(function(x){ return x.id === b.id; })[0]; return o && o.status !== 'cancelled' && b.status === 'cancelled'; })[0];
+    if(newBk){ var nbh = hmHome(newBk.homeId); accessMsg = accessMsg || ('业主预约：' + newBk.type + '（' + (nbh ? nbh.name : '') + ' · ' + newBk.dateLabel + ' ' + newBk.slot.split(' ')[0] + '），请在待处理项目中确认'); }
+    else if(cancelledBk) accessMsg = accessMsg || '业主取消了预约：' + cancelledBk.type + '（' + cancelledBk.dateLabel + '）';
     hmRefresh();
     if(accessMsg) toast(accessMsg);
     else if(newReqs.length) toast('业主申请：' + (newReqs[0].kind === 'add' ? '添加家庭（' + newReqs[0].city + '）' : '移除「' + newReqs[0].homeName + '」') + '，请在待处理项目中处理');

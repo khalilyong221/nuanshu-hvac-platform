@@ -267,6 +267,46 @@
   .tag.crit{ background: var(--critical-soft); color: var(--critical); }
   .tag.muted{ background: var(--surface-sunken); color: var(--ink-faint); }
   .np-intro{ font-size:11.5px; color: var(--ink-muted); line-height:1.6; margin:-4px 2px 12px; }
+  /* 我的服务商 · 预约 · 月度报告 */
+  .dl-card{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:12px; }
+  .dl-top{ display:flex; align-items:center; gap:10px; }
+  .dl-logo{ width:40px; height:40px; flex:none; border-radius:12px; display:flex; align-items:center; justify-content:center; font-family: var(--font-display); font-size:14px; font-weight:600; letter-spacing:1px; color: var(--surface-raised); background: linear-gradient(135deg, var(--frost), var(--brass)); }
+  .dl-info{ min-width:0; display:flex; flex-direction:column; gap:2px; }
+  .dl-info b{ font-size:13px; font-weight:600; }
+  .dl-info span{ font-size:10.5px; color: var(--ink-faint); line-height:1.45; }
+  .dl-booking{ display:flex; align-items:center; gap:8px; margin-top:10px; padding:8px 10px; border-radius: var(--radius-s); background: var(--surface-sunken); font-size:11.5px; }
+  .dl-booking > span:nth-child(2){ flex:1; min-width:0; }
+  .dl-cancel{ flex:none; background:none; border:none; color: var(--ink-faint); font-size:11px; font-family:inherit; cursor:pointer; padding:0; }
+  .dl-actions{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+  .rp-card{ width:100%; display:flex; align-items:center; gap:12px; margin-top:10px; background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:10px 12px; font-family:inherit; color: var(--ink); text-align:left; cursor:pointer; }
+  .rp-score{ flex:none; width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family: var(--font-display); font-size:18px; font-weight:600; border:3px solid currentColor; }
+  .rp-score small{ font-size:9px; margin-left:1px; }
+  .rp-score.good{ color: var(--good); } .rp-score.warn{ color: var(--warn); } .rp-score.crit{ color: var(--critical); }
+  .rp-t{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+  .rp-t b{ font-size:13px; font-weight:600; }
+  .rp-t span{ font-size:10.5px; color: var(--ink-faint); }
+  .rp-card .chev{ color: var(--ink-faint); }
+  .rp-hero{ display:flex; align-items:center; gap:14px; background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:12px 14px; }
+  .rp-hero b{ display:block; font-size:14px; }
+  .rp-hero span{ font-size:10.5px; color: var(--ink-faint); }
+  .rp-arc.good{ stroke: var(--good); } .rp-arc.warn{ stroke: var(--warn); } .rp-arc.crit{ stroke: var(--critical); }
+  .rp-num{ font-family: var(--font-display); font-size:22px; font-weight:600; fill: var(--ink); }
+  .rp-counts{ display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
+  .rp-list{ padding:4px 12px; }
+  .rp-g{ font-size:11px; font-weight:600; color: var(--ink-faint); letter-spacing:0.4px; padding:8px 0 2px; }
+  .rp-row{ display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); }
+  .rp-row:last-child{ border-bottom:none; }
+  .rp-row .btn{ flex:none; }
+  .rp-dot{ flex:none; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; }
+  .rp-dot.ok{ background: var(--good-soft); color: var(--good); }
+  .rp-dot.warn{ background: var(--warn-soft); color: var(--warn); }
+  .rp-dot.fail{ background: var(--critical-soft); color: var(--critical); }
+  .rp-rt{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+  .rp-rt b{ font-size:12px; font-weight:600; }
+  .rp-rt span{ font-size:10.5px; color: var(--ink-muted); line-height:1.5; }
+  .rp-energy{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .rp-energy b{ display:block; font-size:20px; }
+  .rp-energy span{ font-size:10.5px; color: var(--ink-faint); }
   /* 服务商访问权限 */
   .ac-banner{ width:100%; display:flex; align-items:center; gap:10px; text-align:left; font-family:inherit; background: var(--brass-soft); color: var(--brass-soft-ink); border:1px solid var(--brass); border-radius: var(--radius-m); padding:10px 12px; margin:0 0 10px; cursor:pointer; font-size:12px; line-height:1.45; }
   .ac-banner.live{ background: var(--frost-soft); color: var(--frost); border-color: var(--frost); }
@@ -907,6 +947,7 @@
     o.homes.forEach(function(h){ h.bindings = h.bindings.map(function(p){ return p === OLD_DEMO_PHONE ? '18888888888' : p; }); });
     o.requests.forEach(function(r){ if(r.phone === OLD_DEMO_PHONE) r.phone = '18888888888'; });
     o.homes.forEach(ensureAccess);
+    if(!o.bookings) o.bookings = []; // 业主预约上门服务（type/date/slot/status pending→confirmed / cancelled）
     return o;
   }
   // 业主对服务商的访问授权：full 持续监测+远程调节 / monitor 仅监测（远程调节需临时授权 2 小时）/ none 不共享数据
@@ -953,8 +994,11 @@
     var beforeHomes = myHomes().map(function(h){ return h.id; });
     var beforeReq = {}; myRequests().forEach(function(r){ beforeReq[r.id] = r.status; });
     var beforeAccessReq = {}; myHomes().forEach(function(h){ beforeAccessReq[h.id] = !!h.access.request; });
+    var beforeBk = {}; HM.bookings.forEach(function(b){ beforeBk[b.id] = b.status; });
     HM = hmLoad();
     if(!session) return;
+    var confirmedBk = HM.bookings.filter(function(b){ return b.phone === session.phone && beforeBk[b.id] === 'pending' && b.status === 'confirmed'; })[0];
+    if(confirmedBk){ var cbh = HM.homes.filter(function(x){ return x.id === confirmedBk.homeId; })[0]; toast(dealerNames[cbh.dealer] + ' 已确认预约：' + confirmedBk.dateLabel + ' ' + confirmedBk.slot.split(' ')[0] + ' · 技师 ' + confirmedBk.tech); }
     var added = myHomes().filter(function(h){ return beforeHomes.indexOf(h.id) === -1; });
     var removedCount = beforeHomes.filter(function(id){ return !myHomes().some(function(h){ return h.id === id; }); }).length;
     var handled = myRequests().filter(function(r){ return beforeReq[r.id] === 'pending' && r.status !== 'pending'; });
@@ -1408,6 +1452,196 @@
     if(expired && session) keepScroll(render);
   }, 15000);
 
+  /* ---------- 我的服务商 · 一键预约（参考 Resideo Pro-IQ 的服务商品牌露出） ---------- */
+  var dealerInfo = {
+    'dl-hd':{ short:'华东', manager:'陈海' }, 'dl-hn':{ short:'华南', manager:'林芳' }, 'dl-hb':{ short:'华北', manager:'王强' },
+    'dl-hz':{ short:'华中', manager:'赵敏' }, 'dl-xn':{ short:'西南', manager:'刘洋' }, 'dl-db':{ short:'东北', manager:'孙磊' }
+  };
+  var bookingTypes = ['年度保养', '故障维修', '滤网更换', '设备咨询'];
+  var bookingSlots = ['上午 9:00–12:00', '下午 14:00–18:00'];
+  var weekNames = ['周日','周一','周二','周三','周四','周五','周六'];
+  function activeBooking(h){
+    return HM.bookings.filter(function(b){ return b.homeId === h.id && b.phone === session.phone && b.status !== 'cancelled' && b.status !== 'done'; }).slice(-1)[0] || null;
+  }
+  function dealerCardHtml(h){
+    var d = dealerInfo[h.dealer], b = activeBooking(h);
+    return '<div class="section-label">我的服务商</div>'
+      + '<div class="dl-card"><div class="dl-top"><span class="dl-logo">' + d.short + '</span>'
+      + '<span class="dl-info"><b>' + dealerNames[h.dealer] + '</b><span>专属服务商 · 负责人 ' + d.manager + ' · 服务时间 8:00–20:00</span></span></div>'
+      + (b ? '<div class="dl-booking"><span class="tag ' + (b.status === 'confirmed' ? 'good' : 'warn') + '">' + (b.status === 'confirmed' ? '已确认' : '待确认') + '</span>'
+          + '<span>' + b.type + ' · ' + b.dateLabel + ' ' + b.slot.split(' ')[0] + (b.tech ? ' · 技师 ' + b.tech : '') + '</span>'
+          + '<button type="button" class="dl-cancel" data-bk-cancel="' + b.id + '">取消</button></div>' : '')
+      + '<div class="dl-actions"><button type="button" class="btn primary sm" data-bk-open="' + h.id + '">' + (b ? '再约一次' : '一键预约') + '</button>'
+      + '<button type="button" class="btn sm" data-dl-call="' + h.id + '">联系负责人</button></div></div>';
+  }
+  function bindDealerCard(){
+    document.querySelectorAll('[data-bk-open]').forEach(function(b){
+      if(b.dataset.bound) return; b.dataset.bound = '1';
+      b.addEventListener('click', function(){ openBooking(b.getAttribute('data-bk-open'), '年度保养'); });
+    });
+    document.querySelectorAll('[data-dl-call]').forEach(function(b){
+      if(b.dataset.bound) return; b.dataset.bound = '1';
+      b.addEventListener('click', function(){ var h = HM.homes.filter(function(x){ return x.id === b.getAttribute('data-dl-call'); })[0]; toast('演示环境：正在为您接通 ' + dealerNames[h.dealer] + ' ' + dealerInfo[h.dealer].manager); });
+    });
+    document.querySelectorAll('[data-bk-cancel]').forEach(function(b){
+      if(b.dataset.bound) return; b.dataset.bound = '1';
+      b.addEventListener('click', function(){
+        if(!window.confirm('取消这次预约？')) return;
+        HM = hmLoad();
+        var bk = HM.bookings.filter(function(x){ return x.id === b.getAttribute('data-bk-cancel'); })[0];
+        if(bk && bk.status !== 'cancelled'){ bk.status = 'cancelled'; hmSave(); }
+        keepScroll(render);
+        toast('已取消预约，服务商端同步更新');
+      });
+    });
+  }
+
+  var bk = null, bkErrs = {}, bkReturn = 'list';
+  function nextDays(n){
+    var out = [], d = new Date();
+    for(var i = 1; i <= n; i++){
+      var x = new Date(d.getFullYear(), d.getMonth(), d.getDate() + i);
+      out.push({ value: x.getFullYear() + '-' + pad(x.getMonth()+1) + '-' + pad(x.getDate()), label: (x.getMonth()+1) + '月' + x.getDate() + '日 ' + weekNames[x.getDay()] });
+    }
+    return out;
+  }
+  function openBooking(homeId, type){
+    bkReturn = homeView === 'report' ? 'report' : 'list';
+    var days = nextDays(6);
+    bk = { homeId:homeId, type:type || '年度保养', date:days[0].value, slot:bookingSlots[0], note:'' };
+    bkErrs = {};
+    currentHomeId = homeId;
+    goHomeView('booking');
+  }
+  function bookingHtml(){
+    var h = HM.homes.filter(function(x){ return x.id === bk.homeId; })[0], days = nextDays(6);
+    function chips(list, cur, attr){
+      return '<div class="np-chips">' + list.map(function(o){ var v = o.value || o, l = o.label || o; return '<button type="button" class="np-chip" ' + attr + '="' + v + '" aria-pressed="' + (v === cur) + '">' + l + '</button>'; }).join('') + '</div>';
+    }
+    return '<div class="rd-head"><button class="backbtn" id="bkBack" aria-label="返回">‹</button><div class="rd-title">预约上门服务</div></div>'
+      + '<div class="dl-card" style="margin-bottom:10px;"><div class="dl-top"><span class="dl-logo">' + dealerInfo[h.dealer].short + '</span><span class="dl-info"><b>' + dealerNames[h.dealer] + '</b><span>' + esc(h.name) + ' · ' + esc(h.address) + '</span></span></div></div>'
+      + '<div class="np-group">'
+      + '<div class="np-field"><span class="np-l">服务类型</span>' + chips(bookingTypes, bk.type, 'data-bk-type') + '</div>'
+      + '<div class="np-field"><span class="np-l">上门日期</span>' + chips(days, bk.date, 'data-bk-date') + '</div>'
+      + '<div class="np-field"><span class="np-l">时间段</span>' + chips(bookingSlots, bk.slot, 'data-bk-slot') + '</div>'
+      + '<div class="np-field"><label for="bkNote">问题描述</label><textarea id="bkNote" maxlength="80" placeholder="选填，例如：书房比其他房间热">' + esc(bk.note) + '</textarea></div>'
+      + '<div class="np-field"><span class="np-l">联系方式</span><div class="np-hint">' + maskPhone(session.phone) + '（当前账号）· 服务商确认后技师会提前电话联系</div></div>'
+      + '</div>'
+      + '<div class="np-actions"><button type="button" class="btn ghost" id="bkCancel">取消</button><button type="button" class="btn primary" id="bkSubmit">提交预约</button></div>';
+  }
+  function bindBooking(){
+    bindInputs({ bkNote:'note' }, bk);
+    function back(){ homeView = bkReturn; render(); }
+    document.getElementById('bkBack').addEventListener('click', back);
+    document.getElementById('bkCancel').addEventListener('click', back);
+    [['data-bk-type','type'], ['data-bk-date','date'], ['data-bk-slot','slot']].forEach(function(p){
+      document.querySelectorAll('[' + p[0] + ']').forEach(function(b){ b.addEventListener('click', function(){ bk[p[1]] = b.getAttribute(p[0]); keepScroll(render); }); });
+    });
+    document.getElementById('bkSubmit').addEventListener('click', function(){
+      var day = nextDays(6).filter(function(d){ return d.value === bk.date; })[0];
+      HM = hmLoad();
+      var h = HM.homes.filter(function(x){ return x.id === bk.homeId; })[0];
+      HM.bookings.push({ id:'b' + Date.now().toString(36), homeId:h.id, phone:session.phone, type:bk.type, date:bk.date, dateLabel:day.label, slot:bk.slot,
+        note:bk.note.trim(), source:'业主端', status:'pending', tech:null, createdAt:nowStr(), confirmedAt:null });
+      hmSave();
+      homeView = bkReturn; render();
+      toast('预约已提交，' + dealerNames[h.dealer] + ' 会尽快确认');
+    });
+  }
+
+  /* ---------- 月度系统健康报告（参考 Sensi Predict 的每月报告） ---------- */
+  function logHas(h, text){ return h.access.log.some(function(l){ return l.text.indexOf(text) !== -1; }); }
+  function reportGroups(h){
+    if(isFlagship(h)){
+      var f1 = logHas(h, '下调地暖供水温度'), f6 = logHas(h, '校准书房风机盘管');
+      var smokeAlarm = SH.smoke.some(function(d){ return d.alarm; }), gasAlarm = SH.gas.some(function(d){ return d.alarm; });
+      var camsOn = SH.cameras.filter(function(c){ return c.on; }).length;
+      return [
+        { name:'暖通系统', items:[
+          ['空气源热泵主机', 'ok', '制冷 / 制热性能正常，COP 3.8'],
+          ['地暖供水温度', f1 ? 'ok' : 'fail', f1 ? '服务商已远程下调设定并复位，恢复正常' : '31.2℃，超过上限 30℃', f1 ? null : 'access'],
+          ['书房风机盘管', f6 ? 'ok' : 'warn', f6 ? '服务商已远程校准水阀，恢复正常' : '室温高于设定 3.8℃，疑似水阀卡滞', f6 ? null : 'access'],
+          ['压缩机启停', 'warn', '近 7 天启停次数偏多，建议保养时检查', '年度保养'],
+          ['循环水泵 / 生活热水', 'ok', '运行正常'],
+          ['新风滤网', 'warn', '已使用 86 天，建议 90 天内更换', '滤网更换']
+        ]},
+        { name:'室内空气', items:[
+          ['PM2.5', 'ok', '35 μg/m³，优'], ['CO₂', 'ok', '550 ppm'], ['TVOC', 'ok', '0.2 mg/m³'], ['湿度', 'ok', '52%']
+        ]},
+        { name:'安防与智能家居', items:[
+          ['烟雾报警器 × ' + SH.smoke.length, smokeAlarm ? 'fail' : 'ok', smokeAlarm ? '正在报警，请立即确认现场' : '自检通过'],
+          ['燃气探测器 × ' + SH.gas.length, gasAlarm ? 'fail' : 'ok', gasAlarm ? '正在报警，请立即确认现场' : '自检通过'],
+          ['入户智能门锁', SH.lock.battery < 20 ? 'warn' : 'ok', '电量 ' + SH.lock.battery + '%'],
+          ['分区摄像头', 'ok', camsOn + ' / ' + SH.cameras.length + ' 在线' + (camsOn < SH.cameras.length ? '（其余为隐私模式）' : '')]
+        ]},
+        { name:'通讯', items:[ ['硬件中控面板', 'ok', '在线，信号良好'], ['家庭网络', 'ok', 'Wi-Fi 连接稳定'] ]}
+      ];
+    }
+    return [
+      { name:'暖通设备', items: h.devices.length ? h.devices.map(function(d){ return [d.type + ' · ' + d.room, 'ok', devOn[d.id] === false ? '已关闭，未发现异常' : '运行正常']; }) : [['设备', 'ok', '服务商尚未录入设备']] },
+      { name:'维护', items:[ ['滤网', 'ok', '上次更换 2026 年 7 月'], ['年度保养', 'warn', '距上次保养已 11 个月，建议预约', '年度保养'] ] }
+    ];
+  }
+  function reportSummary(h){
+    var groups = reportGroups(h), ok = 0, warn = 0, fail = 0;
+    groups.forEach(function(g){ g.items.forEach(function(it){ if(it[1] === 'ok') ok++; else if(it[1] === 'warn') warn++; else fail++; }); });
+    return { groups:groups, ok:ok, warn:warn, fail:fail, total:ok + warn + fail, score:Math.max(60, 100 - fail * 10 - warn * 3) };
+  }
+  function reportTitle(){ var d = new Date(); return (d.getMonth() + 1) + ' 月系统健康报告'; }
+  function reportCardHtml(h){
+    var s = reportSummary(h), cls = s.fail ? 'crit' : (s.warn ? 'warn' : 'good');
+    return '<button type="button" class="rp-card" data-rp-open="' + h.id + '"><span class="rp-score ' + cls + '">' + s.score + '<small>分</small></span>'
+      + '<span class="rp-t"><b>' + reportTitle() + '</b><span>' + s.total + ' 项检查 · ' + (s.fail ? s.fail + ' 项异常 · ' : '') + (s.warn ? s.warn + ' 项需关注' : '全部正常') + '</span></span><span class="chev">›</span></button>';
+  }
+  function bindReportCard(){
+    document.querySelectorAll('[data-rp-open]').forEach(function(b){
+      if(b.dataset.bound) return; b.dataset.bound = '1';
+      b.addEventListener('click', function(){ currentHomeId = b.getAttribute('data-rp-open'); goHomeView('report'); });
+    });
+  }
+  function reportHtml(){
+    var h = currentHome(), s = reportSummary(h), now = new Date();
+    var r = 34, circ = 2 * Math.PI * r, cls = s.fail ? 'crit' : (s.warn ? 'warn' : 'good');
+    var attention = [];
+    s.groups.forEach(function(g){ g.items.forEach(function(it){ if(it[1] !== 'ok') attention.push(it); }); });
+    attention.sort(function(a, b){ return (a[1] === 'fail' ? 0 : 1) - (b[1] === 'fail' ? 0 : 1); });
+    var services = h.access.log.filter(function(l){ return l.text.indexOf('远程完成') === 0; }).map(function(l){ return [l.t, l.text.replace('远程完成：', '远程处理：'), l.by]; })
+      .concat(HM.bookings.filter(function(b){ return b.homeId === h.id && b.status !== 'cancelled'; }).map(function(b){ return [b.createdAt, '预约' + b.type + '（' + b.dateLabel + ' ' + b.slot.split(' ')[0] + '）' + (b.status === 'confirmed' ? ' · 已确认' : ' · 待确认'), '业主']; }))
+      .sort(function(a, b){ return a[0] < b[0] ? 1 : -1; });
+    var energy = isFlagship(h)
+      ? '<div class="rp-energy"><div><b class="mono">' + genEnergySeries('month').total.toFixed(0) + '</b><span>近 30 天用电 kWh · 较上期 −6.2%</span></div><div><b class="mono">' + genGasSeries('month').total.toFixed(1) + '</b><span>近 30 天用气 m³ · 较上期 +3.1%</span></div></div>'
+      : '<div class="np-hint" style="padding:4px 2px;">该家庭未接入电表 / 燃气表，暂无能耗统计。</div>';
+    return '<div class="rd-head"><button class="backbtn" id="rpBack" aria-label="返回">‹</button><div class="rd-title">' + reportTitle() + '</div></div>'
+      + '<div class="rp-hero"><svg viewBox="0 0 80 80" width="80" height="80" aria-hidden="true"><circle cx="40" cy="40" r="' + r + '" fill="none" stroke="var(--surface-sunken)" stroke-width="7"/>'
+      + '<circle cx="40" cy="40" r="' + r + '" fill="none" class="rp-arc ' + cls + '" stroke-width="7" stroke-linecap="round" transform="rotate(-90 40 40)" stroke-dasharray="' + (s.score / 100 * circ).toFixed(1) + ' ' + circ.toFixed(1) + '"/>'
+      + '<text x="40" y="46" text-anchor="middle" class="rp-num">' + s.score + '</text></svg>'
+      + '<div><b>' + esc(h.name) + '</b><span>统计至 ' + (now.getMonth() + 1) + ' 月 ' + now.getDate() + ' 日 · ' + dealerNames[h.dealer] + '</span>'
+      + '<div class="rp-counts"><span class="tag good">' + s.ok + ' 正常</span>' + (s.warn ? '<span class="tag warn">' + s.warn + ' 需关注</span>' : '') + (s.fail ? '<span class="tag crit">' + s.fail + ' 异常</span>' : '') + '</div></div></div>'
+      + '<div class="section-label">需要处理</div>'
+      + (attention.length ? '<div class="np-card rp-list">' + attention.map(function(it){
+          var btn = it[3] === 'access' ? '<button type="button" class="btn sm" data-rp-access="' + h.id + '">授权远程处理</button>'
+            : (it[3] ? '<button type="button" class="btn sm" data-rp-book="' + it[3] + '">预约' + it[3] + '</button>' : '');
+          return '<div class="rp-row"><span class="rp-dot ' + it[1] + '">' + (it[1] === 'fail' ? '✕' : '!') + '</span><span class="rp-rt"><b>' + it[0] + '</b><span>' + it[2] + '</span></span>' + btn + '</div>';
+        }).join('') + '</div>' : '<div class="np-card"><div class="np-hint">本月没有需要处理的事项。</div></div>')
+      + '<div class="section-label">本月能耗</div><div class="np-card">' + energy + '</div>'
+      + '<div class="section-label">服务记录</div><div class="np-card rp-list">' + (services.length ? services.slice(0, 6).map(function(x){
+          return '<div class="rp-row"><span class="rp-rt"><b>' + esc(x[1]) + '</b><span>' + x[0] + ' · ' + x[2] + '</span></span></div>';
+        }).join('') : '<div class="np-hint">本月暂无服务记录。</div>') + '</div>'
+      + '<div class="section-label">检查明细 <span class="mono" style="font-weight:400;color:var(--ink-faint);">共 ' + s.total + ' 项</span></div>'
+      + s.groups.map(function(g){
+          return '<div class="np-card rp-list"><div class="rp-g">' + g.name + '</div>' + g.items.map(function(it){
+            return '<div class="rp-row"><span class="rp-dot ' + it[1] + '">' + (it[1] === 'ok' ? '✓' : it[1] === 'fail' ? '✕' : '!') + '</span><span class="rp-rt"><b>' + it[0] + '</b><span>' + it[2] + '</span></span></div>';
+          }).join('') + '</div>';
+        }).join('')
+      + '<div class="np-actions"><button type="button" class="btn primary" data-rp-book="年度保养">一键预约年度保养</button></div>'
+      + '<div class="np-hint" style="text-align:center;margin-bottom:8px;">每月 1 日推送上月完整报告；故障与安防报警会实时通知您' + (h.access.level === 'none' ? '' : '和服务商') + '。</div>';
+  }
+  function bindReport(){
+    document.getElementById('rpBack').addEventListener('click', function(){ homeView = 'list'; render(); });
+    document.querySelectorAll('[data-rp-access]').forEach(function(b){ b.addEventListener('click', function(){ openAccess(b.getAttribute('data-rp-access')); }); });
+    document.querySelectorAll('[data-rp-book]').forEach(function(b){ b.addEventListener('click', function(){ openBooking(currentHome().id, b.getAttribute('data-rp-book')); }); });
+  }
+
   var lastViewKey = '';
   function render(){
     var body = document.getElementById('screenBody');
@@ -1424,9 +1658,11 @@
       else if(homeView==='homeEdit' && editHomeId){ body.innerHTML = homeEditHtml(); bindHomeEdit(); }
       else if(homeView==='reqAdd' && ra){ body.innerHTML = reqAddHtml(); bindReqAdd(); }
       else if(homeView==='reqRemove' && rr){ body.innerHTML = reqRemoveHtml(); bindReqRemove(); }
+      else if(homeView==='booking' && bk && home){ body.innerHTML = bookingHtml(); bindBooking(); }
+      else if(homeView==='report' && home){ body.innerHTML = reportHtml(); bindReport(); }
       else if(homeView==='access' && accessHomeId && myHomes().some(function(x){ return x.id === accessHomeId; })){ body.innerHTML = accessHtml(); bindAccess(); }
       else if(!home){ homeView = 'list'; body.innerHTML = noHomeHtml(); var b = document.getElementById('hmReqAdd'); if(b) b.addEventListener('click', openReqAdd); }
-      else if(!isFlagship(home)){ homeView = 'list'; body.innerHTML = homeBarHtml(home) + accessBannerHtml(home) + simpleHomeHtml(home); bindHomeBar(); bindAccessBanner(); bindSimpleHome(); }
+      else if(!isFlagship(home)){ homeView = 'list'; body.innerHTML = homeBarHtml(home) + accessBannerHtml(home) + reportCardHtml(home) + simpleHomeHtml(home) + dealerCardHtml(home); bindHomeBar(); bindAccessBanner(); bindReportCard(); bindDealerCard(); bindSimpleHome(); }
       else if(homeView==='smart'){ body.innerHTML = smartHtml(); bindSmart(); }
       else { body.innerHTML = homeView==='list' ? homeListHtml() : roomDetailHtml(homeView); bindHome(); }
     }
@@ -1462,6 +1698,7 @@
       + '</div>'
       + '<div class="mode-row" id="modeRow"></div>'
       + '</div>'
+      + reportCardHtml(home)
       + foldSection('scenes', '一键场景', activeScene ? '当前：'+scenes.filter(function(s){ return s.key===activeScene; })[0].label : scenes.length+' 个场景',
           '<div class="scene-grid" id="sceneGridHome"></div>')
       + foldSection('rooms', '房间设备', rooms.filter(function(r){return r.on;}).length+' / '+rooms.length+' 间运行中',
@@ -1470,7 +1707,8 @@
       + foldSection('energy', '今日能耗', '电 7.8 kWh · 气 '+genGasSeries('day').total.toFixed(1)+' m³',
           '<div class="energy-mini" id="energyMini"></div>'
           + '<button type="button" class="fold-link" id="energyJump"><span>今日用电 7.8 kWh</span><span class="mono">查看电表 ›</span></button>'
-          + '<button type="button" class="fold-link" id="gasJump"><span>今日用气 '+genGasSeries('day').total.toFixed(1)+' m³</span><span class="mono">查看燃气表 ›</span></button>');
+          + '<button type="button" class="fold-link" id="gasJump"><span>今日用气 '+genGasSeries('day').total.toFixed(1)+' m³</span><span class="mono">查看燃气表 ›</span></button>')
+      + dealerCardHtml(home);
   }
 
   /* 首页折叠分组：默认只展开「一键场景」，其余收起并在标题行显示摘要 */
@@ -1498,6 +1736,8 @@
     bindFolds();
     bindHomeBar();
     bindAccessBanner();
+    bindReportCard();
+    bindDealerCard();
 
     var modeRowEl = document.getElementById('modeRow');
     if(modeRowEl){
@@ -1830,9 +2070,11 @@
     } else {
       body = messages.map(function(m){ return '<div class="msg-card"><span class="avatar">'+(m.who==='系统'?'⚙':'王')+'</span><span><div class="m1">'+(m.who==='服务商'?'服务商发来的消息：':'')+m.text+'</div><div class="m2">'+m.time+'</div></span></div>'; }).join('');
     }
-    return '<div class="section-label" style="margin-top:2px;">服务</div>' + tabsHtml + body;
+    var home = currentHome();
+    return (home ? dealerCardHtml(home) : '') + '<div class="section-label">服务</div>' + tabsHtml + body;
   }
   function bindService(){
+    bindDealerCard();
     document.querySelectorAll('[data-svc]').forEach(function(b){ b.addEventListener('click', function(){ svcTab = b.getAttribute('data-svc'); render(); }); });
   }
 

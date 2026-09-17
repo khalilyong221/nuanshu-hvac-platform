@@ -272,6 +272,10 @@
   .hp-faq{ border:1px solid rgba(255,255,255,0.08); border-radius:12px; margin-bottom:8px; overflow:hidden; }
   .hp-faq-q{ width:100%; text-align:left; background:#132119; border:none; color:#dce6e0; padding:12px 14px; font-size:12px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:10px; }
   .hp-faq-a{ padding:0 14px 13px; font-size:11.5px; color:#a9b8b0; line-height:1.6; }
+  .hp-dealer{ display:flex; align-items:center; gap:12px; background:#132119; border:1px solid rgba(214,169,95,0.35); border-radius:16px; padding:14px 16px; margin-bottom:16px; }
+  .hp-dlogo{ flex:none; width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:700; letter-spacing:1px; color:#0d1a15; background: linear-gradient(135deg, #7fc2d6, #d6a95f); }
+  .hp-dn{ font-size:14px; font-weight:600; color:#f0d9ab; }
+  .hp-ds{ font-size:11px; color:#8fa39a; margin-top:3px; line-height:1.5; }
   .hp-escalate{ background:#132119; border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:16px; margin-top:14px; }
   .hp-escalate textarea{ width:100%; background:#0d1a15; border:1px solid rgba(255,255,255,0.14); border-radius:10px; color:#eef2ec; font-family:inherit; font-size:12px; padding:10px; resize:vertical; min-height:56px; }
   .hp-escalate input[type="tel"]{ width:100%; background:#0d1a15; border:1px solid rgba(255,255,255,0.14); border-radius:10px; color:#eef2ec; font-family:inherit; font-size:12px; padding:9px 10px; margin-top:8px; }
@@ -584,7 +588,7 @@
     }).join('');
 
     return ''+
-    '<div class="hp-topbar"><div><div class="home-name">'+hmEsc(panelHome().name)+'</div><div class="home-sub">'+hmEsc(panelHome().address)+'</div></div>'+
+    '<div class="hp-topbar"><div><div class="home-name">'+hmEsc(panelHome().name)+'</div><div class="home-sub">'+hmEsc(panelHome().address)+' · 服务商 '+panelDealer()[0]+'</div></div>'+
       '<div class="hp-bell">🔔<span class="bd"></span></div></div>'+
     hpAlarmStrip()+
 
@@ -887,7 +891,9 @@
         '<button type="button" class="hp-submitbtn" id="hpSubmitRepair">立即预约</button>'
       : '<button type="button" class="hp-submitbtn" id="hpEscalateBtn">仍无法解决，我要求助</button>';
 
-    return '<div class="hp-sectitle"><h3>一键求助 · 常见问题</h3></div>'+
+    var dl = panelDealer();
+    return '<div class="hp-dealer"><span class="hp-dlogo">'+dl[1]+'</span><div><div class="hp-dn">'+dl[0]+'</div><div class="hp-ds">您的专属服务商 · 负责人 '+dl[2]+' · 服务时间 8:00–20:00 · 预约保养请使用暖枢管家小程序</div></div></div>'+
+      '<div class="hp-sectitle"><h3>一键求助 · 常见问题</h3></div>'+
       list+
       '<div class="hp-escalate">'+escalateBody+'</div>';
   }
@@ -943,6 +949,9 @@
     try{ var o = JSON.parse(localStorage.getItem(HM_KEY)); var h = o && o.homes && o.homes.filter(function(x){ return x.id === 'h-xh'; })[0]; if(h) return h; }catch(e){}
     return { name:'我的一号家', address:'星海国际公寓 3栋 2703' };
   }
+  // 服务商品牌露出：面板上显示负责该家庭的运营中心
+  var panelDealers = { 'dl-hd':['华东运营中心','华东','陈海'], 'dl-hn':['华南运营中心','华南','林芳'], 'dl-hb':['华北运营中心','华北','王强'], 'dl-hz':['华中运营中心','华中','赵敏'], 'dl-xn':['西南运营中心','西南','刘洋'], 'dl-db':['东北运营中心','东北','孙磊'] };
+  function panelDealer(){ return panelDealers[panelHome().dealer] || panelDealers['dl-hd']; }
   function hmEsc(s){ return String(s).replace(/[&<>"]/g, function(ch){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[ch]; }); }
   window.addEventListener('storage', function(e){ if(e.key === HM_KEY) render(); });
 

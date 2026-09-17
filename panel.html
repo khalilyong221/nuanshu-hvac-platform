@@ -332,6 +332,40 @@
   .hs-pill.crit{ background:rgba(229,122,92,0.2); color:#f2a488; }
   .hs-mini{ border:1px solid rgba(255,255,255,0.18); background:transparent; color:#8fa39a; border-radius:999px; padding:4px 11px; font-size:10.5px; cursor:pointer; font-family:inherit; }
   .hs-mini.solid{ background:#e57a5c; border-color:#e57a5c; color:#fff; }
+  /* ---------- 锁屏（无操作一段时间后显示，轻触进入首页） ---------- */
+  .hp-idle{ position:absolute; inset:0; z-index:40; display:flex; flex-direction:column; padding:34px 40px 26px; cursor:pointer; color:#eef2ec; overflow:hidden; isolation:isolate;
+    background: radial-gradient(ellipse at 18% 12%, rgba(214,169,95,0.20), transparent 55%), radial-gradient(ellipse at 88% 92%, rgba(127,194,214,0.16), transparent 55%), #081310;
+    animation: hpIdleIn 0.6s ease both; }
+  .hp-idle[hidden]{ display:none; }
+  .hl-bg{ position:absolute; inset:0; width:100%; height:100%; z-index:-2; }
+  .hl-scrim{ position:absolute; inset:0; z-index:-1; background: linear-gradient(180deg, rgba(6,14,11,0.30), rgba(6,14,11,0.08) 38%, rgba(6,14,11,0.60) 76%, rgba(6,14,11,0.80)); }
+  .hl-lampglow{ transform-origin:190px 330px; animation: hlLamp 6s ease-in-out infinite; }
+  @keyframes hlLamp{ 0%,100%{ opacity:0.85; } 50%{ opacity:1; } }
+  @keyframes hpIdleIn{ from{ opacity:0; } to{ opacity:1; } }
+  .hp-idle:focus-visible{ outline:2px solid #7fc2d6; outline-offset:-6px; }
+  .hl-top{ display:flex; flex-direction:column; gap:4px; }
+  .hl-brand{ font-family: var(--font-display); font-size:15px; letter-spacing:4px; color:#d6a95f; }
+  .hl-home{ font-size:24px; font-weight:600; color:#f5efe2; }
+  .hl-mid{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; }
+  .hl-time{ font-family: var(--font-display); font-size:clamp(64px, 13vw, 120px); font-weight:500; line-height:1; letter-spacing:2px; color:#fbf7ee; text-shadow:0 2px 24px rgba(0,0,0,0.45); }
+  .hl-date{ font-size:16px; color:#b8c7bf; letter-spacing:1px; }
+  .hl-bottom{ display:grid; grid-template-columns: minmax(0,0.9fr) minmax(0,1.1fr); gap:14px; }
+  .hl-card{ background: rgba(8,18,14,0.58); border:1px solid rgba(255,255,255,0.10); border-radius:18px; padding:14px 16px; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+  .hl-wx{ display:flex; align-items:center; gap:14px; }
+  .hl-wi{ font-size:40px; line-height:1; }
+  .hl-wx b{ display:block; font-size:18px; font-weight:600; }
+  .hl-wx span{ display:block; font-size:11.5px; color:#9fb0a7; margin-top:4px; line-height:1.5; }
+  .hl-tips{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+  .hl-tips li{ display:flex; gap:10px; align-items:flex-start; font-size:13px; line-height:1.45; color:#e4ebe6; }
+  .hl-tips li span:first-child{ flex:none; width:22px; text-align:center; }
+  .hl-foot{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:14px; font-size:12px; color:#9fb0a7; }
+  .hl-foot .alarm{ color:#ff8a70; font-weight:600; }
+  .hl-hint{ animation: hpHint 2.4s ease-in-out infinite; }
+  @keyframes hpHint{ 0%,100%{ opacity:0.45; } 50%{ opacity:1; } }
+  @media (prefers-reduced-motion: reduce){ .hp-idle, .hl-hint, .hl-lampglow{ animation:none; } }
+  @media (max-width:680px){ .hp-idle{ padding:22px 18px 16px; } .hl-bottom{ grid-template-columns:1fr; } .hl-home{ font-size:20px; } .hl-wi{ font-size:30px; } }
+  .hl-opts{ display:flex; gap:6px; }
+  .hs-mini[aria-pressed="true"]{ background:#d6a95f; border-color:#d6a95f; color:#20160a; font-weight:600; }
   .hs-camgrid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
   .hs-cam{ position:relative; aspect-ratio:16/9; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background: radial-gradient(ellipse at 30% 70%, #3b4a44, #111a16 70%); color:#e8efe9; cursor:pointer; overflow:hidden; font-family:inherit; }
   .hs-cam::before{ content:""; position:absolute; left:14%; right:14%; bottom:18%; height:30%; border-radius:4px 4px 0 0; background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.02)); }
@@ -395,6 +429,7 @@
       <div class="hp-screen">
         <nav class="hp-sidebar" id="hpNav" aria-label="面板导航"></nav>
         <div class="hp-content" id="hpContent"></div>
+        <div class="hp-idle" id="hpIdle" role="button" tabindex="0" aria-label="锁屏，轻触进入首页" hidden></div>
       </div>
     </div>
   </div>
@@ -593,11 +628,11 @@
     '<div class="hp-row2">'+
       '<div class="hp-card">'+
         '<div class="hp-clock mono" id="hpClock">09:41</div><div class="hp-date" id="hpDate"></div>'+
-        '<div class="hp-loc">📍 浙江杭州 · 室外</div>'+
+        '<div class="hp-loc">📍 '+weatherCity()+' · 室外 · '+panelWeather.icon+' '+panelWeather.cond+'</div>'+
         '<div class="hp-wxrow">'+
-          '<div><div class="wi">温度</div><div class="wv">12℃</div></div>'+
-          '<div><div class="wi">湿度</div><div class="wv">79%</div></div>'+
-          '<div><div class="wi">PM2.5</div><div class="wv">142</div><span class="hp-pill crit">中度污染</span></div>'+
+          '<div><div class="wi">温度</div><div class="wv">'+panelWeather.temp+'℃</div></div>'+
+          '<div><div class="wi">湿度</div><div class="wv">'+panelWeather.humidity+'%</div></div>'+
+          '<div><div class="wi">PM2.5</div><div class="wv">'+panelWeather.pm25+'</div><span class="hp-pill crit">'+pm25Label(panelWeather.pm25)+'</span></div>'+
         '</div>'+
       '</div>'+
       '<div class="hp-card">'+
@@ -927,6 +962,10 @@
         '<div class="hp-setrow"><span>屏幕亮度</span><input type="range" id="hpBright" min="20" max="100" value="'+brightness+'"></div>'+
         '<div class="hp-setrow"><span>提示音量</span><input type="range" id="hpVol" min="0" max="100" value="'+volume+'"></div>'+
         '<div class="hp-setrow"><span>儿童锁</span><button type="button" class="hp-switch" id="hpLock" aria-pressed="'+childLock+'"></button></div>'+
+        '<div class="hp-setrow"><span>自动锁屏<br><small style="color:#8fa39a;">无操作后显示锁屏，轻触进入首页</small></span><span class="hl-opts" role="group" aria-label="自动锁屏时间">'+
+          [[10,'10 分钟'],[20,'20 分钟'],[0,'从不']].map(function(o){ return '<button type="button" class="hs-mini" data-idle="'+o[0]+'" aria-pressed="'+(idleMinutes===o[0])+'">'+o[1]+'</button>'; }).join('')+
+        '</span></div>'+
+        '<div class="hp-setrow"><span>锁屏预览</span><button type="button" class="hs-mini" id="hpLockNow">立即锁屏</button></div>'+
       '</div>'+
       '<div class="hp-maint"><div class="hp-sectitle"><h3>维保与报修记录</h3></div>'+maint+'</div>';
   }
@@ -935,6 +974,15 @@
     br.addEventListener('input', function(e){ brightness = +e.target.value; document.querySelector('.hp-screen').style.filter = 'brightness('+(0.55+brightness/100*0.55)+')'; });
     document.getElementById('hpVol').addEventListener('input', function(e){ volume = +e.target.value; });
     document.getElementById('hpLock').addEventListener('click', function(){ childLock = !childLock; toast(childLock?'儿童锁已开启':'儿童锁已关闭'); render(); });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-idle]'), function(b){
+      b.addEventListener('click', function(){
+        idleMinutes = +b.getAttribute('data-idle');
+        try{ localStorage.setItem(IDLE_KEY, String(idleMinutes)); }catch(e){}
+        toast(idleMinutes ? idleMinutes + ' 分钟无操作后自动锁屏' : '已关闭自动锁屏');
+        render();
+      });
+    });
+    document.getElementById('hpLockNow').addEventListener('click', function(){ lockScreen(); });
   }
 
   /* ============================================================ */
@@ -1192,7 +1240,11 @@
       if(attr){ var el = document.querySelector('[' + attr + '="' + val + '"]'); if(el) el.focus({ preventScroll:true }); }
     }
     else renderNav();
-    if(raised) toast('⚠ 安防报警：' + shAlarms().map(function(a){ return a.name; }).join('、'));
+    if(raised){
+      if(idleLocked) unlockScreen(); // 报警时自动亮屏回到首页
+      toast('⚠ 安防报警：' + shAlarms().map(function(a){ return a.name; }).join('、'));
+    }
+    else if(idleLocked) idleEl.innerHTML = idleHtml();
   });
 
   /* ---------------- root render ---------------- */
@@ -1219,12 +1271,105 @@
   }
 
   function pad(n){ return n<10 ? '0'+n : ''+n; }
+  /* ============================================================ */
+  /* 锁屏：无操作一段时间后显示，轻触进入首页（无密码）                         */
+  /* ============================================================ */
+  // 今日天气（演示数据），首页天气卡片与锁屏共用
+  var panelWeather = { icon:'🌦', cond:'多云转小雨', temp:12, lo:9, hi:15, humidity:79, pm25:142, rainProb:70, uv:2 };
+  function weatherCity(){ var h = panelHome(); return h.city || '上海'; }
+  function pm25Label(v){ return v <= 35 ? '优' : v <= 75 ? '良' : v <= 115 ? '轻度污染' : v <= 150 ? '中度污染' : '重度污染'; }
+  // 根据天气生成生活提醒：下雨带伞、紫外线强防晒、污染戴口罩、气温低添衣、湿度高除湿
+  function weatherTips(w){
+    var tips = [];
+    if(w.rainProb >= 50) tips.push(['☂', '今天可能下雨（降水概率 ' + w.rainProb + '%），出门记得带伞']);
+    if(w.uv >= 6) tips.push(['🧴', '紫外线较强，外出注意防晒']);
+    if(w.pm25 > 115) tips.push(['😷', '空气' + pm25Label(w.pm25) + '，外出建议佩戴口罩，回家后开启新风']);
+    if(w.lo <= 10) tips.push(['🧥', '早晚最低 ' + w.lo + '℃，出门注意添衣']);
+    else if(w.hi >= 33) tips.push(['🥤', '最高 ' + w.hi + '℃，注意防暑补水']);
+    if(tips.length < 3 && w.humidity >= 75) tips.push(['💧', '室外湿度较高，可开启除湿模式']);
+    return tips.slice(0, 3);
+  }
+  var IDLE_KEY = 'nuanshu-panel-idle-minutes'; // 面板本机设置：10 / 20 / 0（从不）
+  var idleMinutes = 10;
+  try{ var savedIdle = localStorage.getItem(IDLE_KEY); if(savedIdle !== null && [0, 10, 20].indexOf(+savedIdle) !== -1) idleMinutes = +savedIdle; }catch(e){}
+  var lastActive = Date.now(), idleLocked = false;
+  var idleEl = document.getElementById('hpIdle');
+  ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach(function(ev){
+    document.addEventListener(ev, function(){ lastActive = Date.now(); }, { capture:true, passive:true });
+  });
+  // 锁屏背景「窗边暖光」：落地灯暖光、沙发、窗外夜色与绿植（内联 SVG，随屏幕比例裁切铺满）
+  var LOCK_BG = '<svg class="hl-bg" viewBox="0 0 1000 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><defs>'
+    + '<linearGradient id="lk-wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0c1a15"/><stop offset="1" stop-color="#12211b"/></linearGradient>'
+    + '<linearGradient id="lk-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e2a33"/><stop offset="0.65" stop-color="#1d3a3a"/><stop offset="1" stop-color="#6a5334"/></linearGradient>'
+    + '<radialGradient id="lk-glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#f6c878" stop-opacity="0.55"/><stop offset="0.45" stop-color="#d6a95f" stop-opacity="0.18"/><stop offset="1" stop-color="#d6a95f" stop-opacity="0"/></radialGradient>'
+    + '</defs>'
+    + '<rect width="1000" height="800" fill="url(#lk-wall)"/>'
+    + '<rect x="585" y="95" width="330" height="430" rx="8" fill="url(#lk-sky)"/>'
+    + '<g fill="#f3e3b5"><circle cx="840" cy="170" r="16" opacity="0.85"/><circle cx="660" cy="150" r="2" opacity="0.6"/><circle cx="720" cy="215" r="1.6" opacity="0.5"/><circle cx="880" cy="260" r="1.8" opacity="0.5"/><circle cx="630" cy="300" r="1.4" opacity="0.4"/></g>'
+    + '<path d="M585 470 L640 430 L690 452 L745 410 L800 445 L850 420 L915 455 L915 525 L585 525Z" fill="#132a26" opacity="0.9"/>'
+    + '<g stroke="#0a1511" stroke-width="12" fill="none"><rect x="585" y="95" width="330" height="430" rx="8"/><line x1="750" y1="95" x2="750" y2="525"/><line x1="585" y1="310" x2="915" y2="310"/></g>'
+    + '<path d="M560 70 C600 250 560 420 590 560 L535 560 C520 400 545 230 520 70Z" fill="#1c2f26"/>'
+    + '<path d="M940 70 C905 250 945 420 915 560 L965 560 C980 400 955 230 980 70Z" fill="#1c2f26"/>'
+    + '<rect x="0" y="690" width="1000" height="110" fill="#0a1411"/>'
+    + '<circle class="hl-lampglow" cx="190" cy="330" r="300" fill="url(#lk-glow)"/>'
+    + '<line x1="190" y1="340" x2="190" y2="690" stroke="#2b3b33" stroke-width="7"/><path d="M150 690 h80" stroke="#2b3b33" stroke-width="8" stroke-linecap="round"/>'
+    + '<path d="M130 340 L250 340 L220 262 L160 262Z" fill="#d6a95f"/><path d="M135 340 L245 340" stroke="#f6d493" stroke-width="3"/>'
+    + '<path d="M300 690 L300 590 Q300 548 344 548 L596 548 Q640 548 640 590 L640 690Z" fill="#152820"/>'
+    + '<path d="M272 690 L272 620 Q272 598 296 598 Q320 598 320 620 L320 690Z M620 690 L620 620 Q620 598 644 598 Q668 598 668 620 L668 690Z" fill="#1a3027"/>'
+    + '<rect x="360" y="592" width="90" height="56" rx="14" fill="#8a6a3c" opacity="0.55"/>'
+    + '<g fill="#21402f"><path d="M850 690 Q845 640 872 600 Q880 650 850 690Z"/><path d="M858 690 Q880 630 925 612 Q905 660 858 690Z"/><path d="M846 690 Q815 640 790 628 Q810 668 846 690Z"/></g>'
+    + '<path d="M832 690 L840 650 L880 650 L888 690Z" fill="#3a3024"/>'
+    + '</svg><div class="hl-scrim"></div>';
+  function idleHtml(){
+    var d = new Date(), w = panelWeather, days = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+    var alarms = shAlarms();
+    var status = alarms.length
+      ? '<span class="alarm">⚠ ' + alarms.map(function(a){ return a.name; }).join('、') + ' 正在报警</span>'
+      : '<span>' + (SH.lock.locked ? '🔒 入户门已上锁' : '🔓 入户门未上锁') + ' · 安防正常 · ' + SH.lights.filter(function(l){ return l.on; }).length + ' 盏灯开着</span>';
+    // 竖屏（手机宽度）时按屏幕比例取景：落地灯靠左边缘，不压住中间的时间和日期
+    var scr = idleEl.parentNode, bg = LOCK_BG;
+    if(scr.clientWidth < scr.clientHeight){
+      var vbW = Math.round(800 * scr.clientWidth / scr.clientHeight), vbX = Math.max(0, Math.min(1000 - vbW, Math.round(190 - vbW * 0.14)));
+      bg = LOCK_BG.replace('viewBox="0 0 1000 800"', 'viewBox="' + vbX + ' 0 ' + vbW + ' 800"');
+    }
+    return bg + '<div class="hl-top"><div class="hl-brand">暖枢面板</div><div class="hl-home">' + hmEsc(panelHome().name) + '</div></div>'
+      + '<div class="hl-mid"><div class="hl-time" id="hlTime">' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + '</div>'
+      + '<div class="hl-date">' + (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + days[d.getDay()] + '</div></div>'
+      + '<div class="hl-bottom">'
+      + '<div class="hl-card hl-wx"><span class="hl-wi" aria-hidden="true">' + w.icon + '</span><div><b>' + w.temp + '℃ ' + w.cond + '</b>'
+      + '<span>' + weatherCity() + ' · ' + w.lo + '–' + w.hi + '℃ · 湿度 ' + w.humidity + '%<br>PM2.5 ' + w.pm25 + ' ' + pm25Label(w.pm25) + '</span></div></div>'
+      + '<div class="hl-card"><ul class="hl-tips">' + weatherTips(w).map(function(t){ return '<li><span aria-hidden="true">' + t[0] + '</span><span>' + t[1] + '</span></li>'; }).join('') + '</ul></div>'
+      + '</div>'
+      + '<div class="hl-foot">' + status + '<span class="hl-hint">轻触屏幕进入首页</span></div>';
+  }
+  function lockScreen(){
+    idleLocked = true;
+    idleEl.innerHTML = idleHtml();
+    idleEl.hidden = false;
+    idleEl.focus({ preventScroll:true });
+  }
+  function unlockScreen(){
+    if(!idleLocked) return;
+    idleLocked = false;
+    idleEl.hidden = true;
+    lastActive = Date.now();
+    view.tab = 'home'; view.roomKey = null;
+    render();
+  }
+  idleEl.addEventListener('click', unlockScreen);
+  idleEl.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); unlockScreen(); } });
+  setInterval(function(){
+    if(!idleLocked && idleMinutes > 0 && Date.now() - lastActive >= idleMinutes * 60000) lockScreen();
+  }, 5000);
+
   function tickClock(){
     var d = new Date();
     var c = document.getElementById('hpClock');
     if(c) c.textContent = pad(d.getHours())+':'+pad(d.getMinutes());
     var dd = document.getElementById('hpDate');
-    if(dd){ var days=['周日','周一','周二','周三','周四','周五','周六']; dd.textContent = '2026年9月15日 · '+days[d.getDay()]; }
+    if(dd){ var days=['周日','周一','周二','周三','周四','周五','周六']; dd.textContent = d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 · '+days[d.getDay()]; }
+    var lt = document.getElementById('hlTime');
+    if(lt) lt.textContent = pad(d.getHours())+':'+pad(d.getMinutes());
   }
   setInterval(tickClock, 15000);
 

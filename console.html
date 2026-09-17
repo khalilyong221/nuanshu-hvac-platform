@@ -1765,7 +1765,7 @@
   var SH_KEY = 'nuanshu-smarthome-v1';
   function shDefault(){
     return {
-      v: 1,
+      v: 2,
       lock: { name:'入户智能门锁', locked:true, doorClosed:true, battery:82 },
       cameras: [
         { id:'cam1', zone:'入户门', on:true },
@@ -1775,7 +1775,8 @@
       ],
       smoke: [ { id:'sm1', zone:'客厅', alarm:false }, { id:'sm2', zone:'厨房', alarm:false }, { id:'sm3', zone:'主卧', alarm:false } ],
       gas: [ { id:'gd1', zone:'厨房', alarm:false } ],
-      curtains: [ { id:'ct1', zone:'客厅', open:true, pct:60 }, { id:'ct2', zone:'主卧', open:false, pct:40 }, { id:'ct3', zone:'书房', open:true, pct:30 } ],
+      // 窗帘开合度 pct 0–100（0 即关闭，页面不显示数值）；last 记住最近一次打开的开合度，开关一键恢复
+      curtains: [ { id:'ct1', zone:'客厅', open:true, pct:60, last:60 }, { id:'ct2', zone:'主卧', open:false, pct:0, last:40 }, { id:'ct3', zone:'书房', open:true, pct:30, last:30 } ],
       lights: [
         { id:'lt1', zone:'客厅', kind:'灯带', on:true }, { id:'lt2', zone:'客厅', kind:'筒灯', on:true },
         { id:'lt3', zone:'餐厅', kind:'筒灯', on:false }, { id:'lt4', zone:'主卧', kind:'灯带', on:false },
@@ -1784,12 +1785,20 @@
       events: [
         { t:'08:13', dev:'入户智能门锁', act:'检测到关门，已自动上锁', src:'门锁', lvl:'info' },
         { t:'08:12', dev:'入户智能门锁', act:'检测到开门（指纹 · 王先生）', src:'门锁', lvl:'warn' },
-        { t:'07:30', dev:'客厅窗帘', act:'打开至 60%', src:'场景', lvl:'info' }
+        { t:'07:30', dev:'客厅窗帘', act:'打开', src:'场景', lvl:'info' }
       ]
     };
   }
   function shLoad(){
-    try{ var raw = localStorage.getItem(SH_KEY); if(raw){ var o = JSON.parse(raw); if(o && o.v === 1) return o; } }catch(e){}
+    try{
+      var raw = localStorage.getItem(SH_KEY);
+      if(raw){
+        var o = JSON.parse(raw);
+        // v1 → v2：窗帘开合度由 10–90 档位改为 0–100 连续值，关闭即 0
+        if(o && o.v === 1){ o.curtains.forEach(function(c){ c.last = c.pct || 60; if(!c.open) c.pct = 0; }); o.v = 2; }
+        if(o && o.v === 2) return o;
+      }
+    }catch(e){}
     return shDefault();
   }
   var SH = shLoad();
@@ -1823,11 +1832,18 @@
     if(SH.lock.doorClosed){ SH.lock.locked = false; SH.lock.doorClosed = false; shCommit(SH.lock.name, '检测到开门', src, 'warn'); }
     else { SH.lock.doorClosed = true; SH.lock.locked = true; shCommit(SH.lock.name, '检测到关门，已自动上锁', src, 'info'); }
   }
-  function shSetCurtain(id, open, pct, src){
+  // 滑动即控制：开合度为 0 自动视为关闭，大于 0 自动视为打开
+  function shSetCurtainPct(id, pct, src){
+    var c = shFind(SH.curtains, id), wasOpen = c.open;
+    pct = Math.max(0, Math.min(100, Math.round(pct)));
+    c.pct = pct; c.open = pct > 0;
+    if(pct > 0) c.last = pct;
+    shCommit(c.zone+'窗帘', pct === 0 ? '关闭' : (pct === 100 ? '完全打开' : (wasOpen ? '调整开合' : '打开')), src);
+  }
+  // 开关：关闭时记住开合度，再次打开恢复到上次的位置
+  function shToggleCurtain(id, src){
     var c = shFind(SH.curtains, id);
-    c.open = open;
-    if(pct != null){ c.pct = Math.max(10, Math.min(90, Math.round(pct/10)*10)); }
-    shCommit(c.zone+'窗帘', c.open ? ('打开至 '+c.pct+'%') : '关闭', src);
+    shSetCurtainPct(id, c.open ? 0 : (c.last || 100), src);
   }
   function shToggleLight(id, src){
     var l = shFind(SH.lights, id); l.on = !l.on;
@@ -1875,7 +1891,7 @@
     ['分区摄像头', 'NS-CM4', '1080P，支持隐私关闭', function(){ return SH.cameras.length; }],
     ['烟雾报警器', 'NS-SD2', '光电式，报警 / 未报警', function(){ return SH.smoke.length; }],
     ['燃气探测器', 'NS-GD2', '天然气泄漏检测，报警 / 未报警', function(){ return SH.gas.length; }],
-    ['智能窗帘', 'NS-CT1', '开关 + 开合比例 10%–90%', function(){ return SH.curtains.length; }],
+    ['智能窗帘', 'NS-CT1', '开合度无级调节（0–100）', function(){ return SH.curtains.length; }],
     ['灯带 / 筒灯', 'NS-LT3', '分区开关', function(){ return SH.lights.length; }]
   ];
   // 让报警工单能在工单列表中显示设备名称

@@ -1906,20 +1906,26 @@
   function hmDefault(){
     return { v:1, homes:[
       { id:'h-xh', code:'HM-20230120-01', name:'我的一号家', province:'上海', city:'上海', lon:121.60, lat:31.20, dealer:'dl-hd',
-        address:'星海国际公寓 3栋 2703', houseType:'公寓', area:168, rooms:4, projectId:'p1', devices:[], bindings:['13800002703'], createdAt:'2023-01-20', updatedAt:null },
+        address:'星海国际公寓 3栋 2703', houseType:'公寓', area:168, rooms:4, projectId:'p1', devices:[], bindings:['18888888888'], createdAt:'2023-01-20', updatedAt:null },
       { id:'h-bj', code:'HM-20251108-02', name:'滨江花园的家', province:'浙江', city:'杭州', lon:120.10, lat:30.30, dealer:'dl-hd',
         address:'滨江花园 5栋 1202', houseType:'叠墅 / 复式', area:138, rooms:4, projectId:null,
         devices:[ {id:'bj1',type:'空调主机',room:'全屋'}, {id:'bj2',type:'地暖主机',room:'全屋'}, {id:'bj3',type:'新风机组',room:'全屋'}, {id:'bj4',type:'风机盘管',room:'客厅'}, {id:'bj5',type:'风机盘管',room:'主卧'} ],
-        bindings:['13800002703'], createdAt:'2025-11-08', updatedAt:null },
+        bindings:['18888888888'], createdAt:'2025-11-08', updatedAt:null },
       { id:'h-jl', code:'HM-20260315-03', name:'锦里新居', province:'四川', city:'成都', lon:104.02, lat:30.68, dealer:'dl-xn',
         address:'锦里花园 2栋 801', houseType:'公寓', area:96, rooms:3, projectId:null,
         devices:[ {id:'jl1',type:'空调主机',room:'客厅'}, {id:'jl2',type:'风机盘管',room:'主卧'}, {id:'jl3',type:'生活热水机',room:'厨房'}, {id:'jl4',type:'除湿机',room:'卫生间'} ],
-        bindings:['13800002703'], createdAt:'2026-03-15', updatedAt:null }
+        bindings:['18888888888'], createdAt:'2026-03-15', updatedAt:null }
     ], requests:[] };
   }
   function hmLoad(){
-    try{ var raw = localStorage.getItem(HM_KEY); if(raw){ var o = JSON.parse(raw); if(o && o.v === 1 && o.homes && o.requests) return o; } }catch(e){}
+    try{ var raw = localStorage.getItem(HM_KEY); if(raw){ var o = JSON.parse(raw); if(o && o.v === 1 && o.homes && o.requests) { hmMigrate(o); return o; } } }catch(e){}
     return hmDefault();
+  }
+  // 演示账号手机号由 13800002703 改为 18888888888：迁移浏览器里已保存的绑定与申请
+  var OLD_DEMO_PHONE = '13800002703';
+  function hmMigrate(o){
+    o.homes.forEach(function(h){ h.bindings = h.bindings.map(function(p){ return p === OLD_DEMO_PHONE ? '18888888888' : p; }); });
+    o.requests.forEach(function(r){ if(r.phone === OLD_DEMO_PHONE) r.phone = '18888888888'; });
   }
   function hmSave(){ try{ localStorage.setItem(HM_KEY, JSON.stringify(HM)); }catch(e){} }
   var HM = hmLoad();

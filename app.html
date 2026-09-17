@@ -267,6 +267,29 @@
   .tag.crit{ background: var(--critical-soft); color: var(--critical); }
   .tag.muted{ background: var(--surface-sunken); color: var(--ink-faint); }
   .np-intro{ font-size:11.5px; color: var(--ink-muted); line-height:1.6; margin:-4px 2px 12px; }
+  /* 服务商访问权限 */
+  .ac-banner{ width:100%; display:flex; align-items:center; gap:10px; text-align:left; font-family:inherit; background: var(--brass-soft); color: var(--brass-soft-ink); border:1px solid var(--brass); border-radius: var(--radius-m); padding:10px 12px; margin:0 0 10px; cursor:pointer; font-size:12px; line-height:1.45; }
+  .ac-banner.live{ background: var(--frost-soft); color: var(--frost); border-color: var(--frost); }
+  .ac-banner .ai{ font-size:18px; flex:none; }
+  .ac-banner .as{ font-size:10.5px; opacity:0.9; }
+  .ac-banner .chev{ margin-left:auto; flex:none; font-size:11px; font-weight:600; white-space:nowrap; }
+  .ac-req{ background: var(--brass-soft); border:1px solid var(--brass); border-radius: var(--radius-m); padding:12px; margin-bottom:12px; color: var(--brass-soft-ink); }
+  .ac-req.live{ background: var(--frost-soft); border-color: var(--frost); color: var(--frost); }
+  .ac-rt{ font-size:13px; }
+  .ac-rd{ font-size:11.5px; line-height:1.6; margin-top:4px; }
+  .ac-opts{ display:flex; flex-direction:column; gap:8px; }
+  .ac-opt{ display:flex; gap:10px; align-items:flex-start; text-align:left; font-family:inherit; color: var(--ink); background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:11px 12px; cursor:pointer; }
+  .ac-opt .hm-radio{ margin-top:2px; }
+  .ac-opt b{ display:block; font-size:12.5px; font-weight:600; }
+  .ac-opt span span{ display:block; font-size:11px; color: var(--ink-muted); line-height:1.5; margin-top:3px; }
+  .ac-opt[aria-checked="true"]{ border-color: var(--brass); background: color-mix(in srgb, var(--brass-soft) 45%, var(--surface-raised)); }
+  .ac-opt[aria-checked="true"] .hm-radio{ border-color: var(--brass); }
+  .ac-opt[aria-checked="true"] .hm-radio::after{ content:""; position:absolute; inset:2px; border-radius:50%; background: var(--brass); }
+  .ac-log{ padding:4px 12px; }
+  .ac-li{ display:grid; grid-template-columns: 74px 1fr auto; gap:8px; align-items:baseline; padding:8px 0; border-bottom:1px solid var(--border); font-size:11.5px; line-height:1.5; }
+  .ac-li:last-child{ border-bottom:none; }
+  .ac-li .mono{ font-size:10px; color: var(--ink-faint); }
+  .hm-item .hm-edit + .hm-edit{ margin-left:-4px; }
   .np-group{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:4px 12px; margin-bottom:10px; }
   .np-gt{ font-size:11px; font-weight:600; color: var(--ink-faint); letter-spacing:0.4px; margin:12px 2px 6px; }
   .np-field{ display:flex; flex-direction:column; gap:5px; padding:10px 0; border-bottom:1px solid var(--border); }
@@ -745,6 +768,8 @@
   var SRC_APP = '业主端';
   function shAlarmStatusText(){
     var ids = shOrderIds();
+    var home = currentHome();
+    if(home && home.access.level === 'none') return '您已关闭服务商数据共享，服务商未收到报警，请立即确认现场情况';
     if(!ids.length) return '请立即确认现场情况，已同步通知服务商';
     return '服务商已派单 ' + ids.join('、') + '，技师正在赶来';
   }
@@ -874,13 +899,33 @@
   }
   function hmLoad(){
     try{ var raw = localStorage.getItem(HM_KEY); if(raw){ var o = JSON.parse(raw); if(o && o.v === 1 && o.homes && o.requests) { hmMigrate(o); return o; } } }catch(e){}
-    return hmDefault();
+    return hmMigrate(hmDefault());
   }
   // 演示账号手机号由 13800002703 改为 18888888888：迁移浏览器里已保存的绑定与申请
   var OLD_DEMO_PHONE = '13800002703';
   function hmMigrate(o){
     o.homes.forEach(function(h){ h.bindings = h.bindings.map(function(p){ return p === OLD_DEMO_PHONE ? '18888888888' : p; }); });
     o.requests.forEach(function(r){ if(r.phone === OLD_DEMO_PHONE) r.phone = '18888888888'; });
+    o.homes.forEach(ensureAccess);
+    return o;
+  }
+  // 业主对服务商的访问授权：full 持续监测+远程调节 / monitor 仅监测（远程调节需临时授权 2 小时）/ none 不共享数据
+  var ACCESS_WINDOW_MS = 2 * 60 * 60 * 1000;
+  function ensureAccess(h){
+    if(!h.access) h.access = { level:'monitor', until:null, request:null, log:[{ t:h.createdAt, text:'开通服务商数据共享：仅监测，远程调节需临时授权', by:'业主' }] };
+    return h;
+  }
+  function accessState(h){
+    var a = h.access;
+    if(a.level === 'none') return 'none';
+    if(a.level === 'full') return 'full';
+    if(a.until && a.until > Date.now()) return 'window';
+    if(a.request) return 'pending';
+    return 'monitor';
+  }
+  function accessRemain(until){
+    var m = Math.max(0, Math.ceil((until - Date.now()) / 60000)), hh = Math.floor(m / 60), mm = m % 60;
+    return (hh ? hh + ' 小时 ' : '') + mm + ' 分钟';
   }
   function hmSave(){ try{ localStorage.setItem(HM_KEY, JSON.stringify(HM)); }catch(e){} }
   var HM = hmLoad();
@@ -907,12 +952,15 @@
     if(e.key !== HM_KEY) return;
     var beforeHomes = myHomes().map(function(h){ return h.id; });
     var beforeReq = {}; myRequests().forEach(function(r){ beforeReq[r.id] = r.status; });
+    var beforeAccessReq = {}; myHomes().forEach(function(h){ beforeAccessReq[h.id] = !!h.access.request; });
     HM = hmLoad();
     if(!session) return;
     var added = myHomes().filter(function(h){ return beforeHomes.indexOf(h.id) === -1; });
     var removedCount = beforeHomes.filter(function(id){ return !myHomes().some(function(h){ return h.id === id; }); }).length;
     var handled = myRequests().filter(function(r){ return beforeReq[r.id] === 'pending' && r.status !== 'pending'; });
-    if(added.length) toast('服务商已为您绑定新家庭：' + added.map(function(h){ return h.name; }).join('、'));
+    var newAccessReq = myHomes().filter(function(h){ return h.access.request && beforeAccessReq[h.id] === false; });
+    if(newAccessReq.length) toast(dealerNames[newAccessReq[0].dealer] + ' 申请远程调节「' + newAccessReq[0].name + '」，请在首页处理');
+    else if(added.length) toast('服务商已为您绑定新家庭：' + added.map(function(h){ return h.name; }).join('、'));
     else if(removedCount) toast('服务商已移除 ' + removedCount + ' 个家庭');
     else if(handled.length) toast('您的申请已处理：' + (handled[0].status === 'done' ? '已完成' : '未通过'));
     if(editHomeId && !myHomes().some(function(h){ return h.id === editHomeId; })){ editHomeId = null; if(homeView === 'homeEdit') homeView = 'homes'; }
@@ -1065,6 +1113,7 @@
           var n = isFlagship(h) ? '12 台暖通设备 · 17 个智能家居设备' : h.devices.length + ' 台设备';
           return '<div class="hm-item' + (cur && h.id === cur.id ? ' current' : '') + '">'
             + '<button type="button" class="hm-pick" data-hm-pick="' + h.id + '"><span class="hm-radio"></span><span class="hm-info"><b>' + esc(h.name) + '</b><span>' + cityText(h) + ' · ' + esc(h.address) + '<br>' + n + '</span></span></button>'
+            + '<button type="button" class="hm-edit" data-hm-access="' + h.id + '">权限</button>'
             + '<button type="button" class="hm-edit" data-hm-edit="' + h.id + '">编辑</button></div>';
         }).join('') + '</div>' : '<div class="hm-empty"><div class="ei">🏠</div><b>暂未绑定家庭</b><p>家庭需由服务商上门安装后为您绑定</p></div>')
       + '<div class="hm-actions"><button type="button" id="hmReqAdd">＋ 申请添加家庭</button><button type="button" id="hmReqRemove"' + (list.length ? '' : ' disabled') + '>申请移除家庭</button></div>'
@@ -1079,6 +1128,7 @@
       });
     });
     document.querySelectorAll('[data-hm-edit]').forEach(function(b){ b.addEventListener('click', function(){ openHomeEdit(b.getAttribute('data-hm-edit')); }); });
+    document.querySelectorAll('[data-hm-access]').forEach(function(b){ b.addEventListener('click', function(){ openAccess(b.getAttribute('data-hm-access')); }); });
     document.getElementById('hmReqAdd').addEventListener('click', openReqAdd);
     var rm = document.getElementById('hmReqRemove'); if(rm) rm.addEventListener('click', openReqRemove);
   }
@@ -1243,6 +1293,121 @@
       + '<p>演示中只有「星海国际公寓 3栋 2703」接入了完整的' + tabName + '数据，可在首页顶部切换家庭查看。</p></div>';
   }
 
+  /* ---------- 服务商访问权限（业主授权，参考 Trane / Daikin 的业主授权机制） ---------- */
+  var accessLevels = [
+    { key:'full', title:'持续监测 + 远程调节', desc:'服务商可随时查看运行数据和告警，需要时直接远程调参、复位故障，无需每次询问您' },
+    { key:'monitor', title:'仅监测（推荐）', desc:'服务商可查看运行数据和告警；需要远程调节时向您申请，每次授权 2 小时，到期自动关闭' },
+    { key:'none', title:'不共享数据', desc:'服务商看不到运行数据、智能家居状态和安防报警，只保留家庭档案；需要维修请主动联系' }
+  ];
+  function accessLabel(level){ return accessLevels.filter(function(x){ return x.key === level; })[0].title.replace('（推荐）', ''); }
+  function logAccess(h, text, by){ h.access.log.unshift({ t:nowStr(), text:text, by:by }); h.access.log = h.access.log.slice(0, 20); }
+  var accessHomeId = null;
+  function openAccess(id){ accessHomeId = id; goHomeView('access'); }
+  function accessBannerHtml(h){
+    var st = accessState(h), dn = dealerNames[h.dealer];
+    if(st === 'pending') return '<button type="button" class="ac-banner" data-ac-open="' + h.id + '"><span class="ai">🔑</span><span><b>' + dn + ' 申请远程调节</b><br><span class="as">' + esc(h.access.request.reason) + '</span></span><span class="chev">去处理 ›</span></button>';
+    if(st === 'window') return '<button type="button" class="ac-banner live" data-ac-open="' + h.id + '"><span class="ai">🔧</span><span><b>服务商远程调节中</b><br><span class="as">剩余 <span data-until="' + h.access.until + '">' + accessRemain(h.access.until) + '</span>，可随时结束</span></span><span class="chev">›</span></button>';
+    return '';
+  }
+  function bindAccessBanner(){
+    document.querySelectorAll('[data-ac-open]').forEach(function(b){
+      if(b.dataset.bound) return; b.dataset.bound = '1';
+      b.addEventListener('click', function(){ openAccess(b.getAttribute('data-ac-open')); });
+    });
+  }
+  function accessHtml(){
+    var h = myHomes().filter(function(x){ return x.id === accessHomeId; })[0];
+    var a = h.access, st = accessState(h), dn = dealerNames[h.dealer];
+    var status = '';
+    if(st === 'pending'){
+      status = '<div class="ac-req"><div class="ac-rt">🔑 <b>' + dn + '</b> 申请远程调节 2 小时</div>'
+        + '<div class="ac-rd">' + esc(a.request.reason) + '<br><span class="mono">' + a.request.requestedAt + '</span></div>'
+        + '<div class="np-actions" style="margin:10px 0 0;"><button type="button" class="btn ghost" id="acDeny">拒绝</button><button type="button" class="btn primary" id="acApprove">允许 2 小时</button></div></div>';
+    } else if(st === 'window'){
+      status = '<div class="ac-req live"><div class="ac-rt">🔧 远程调节已开放</div><div class="ac-rd">' + dn + ' 可在剩余 <b data-until="' + a.until + '">' + accessRemain(a.until) + '</b> 内远程调参、复位故障，到期自动关闭。</div>'
+        + '<div class="np-actions" style="margin:10px 0 0;"><button type="button" class="btn ghost" id="acEnd">立即结束授权</button></div></div>';
+    }
+    return '<div class="rd-head"><button class="backbtn" id="acBack" aria-label="返回">‹</button><div class="rd-title">服务商访问权限</div></div>'
+      + '<p class="np-intro">「' + esc(h.name) + '」的服务网点是 <b>' + dn + '</b>。您可以决定服务商能看到哪些数据，以及是否允许远程调节设备。</p>'
+      + status
+      + '<div class="section-label">授权级别</div>'
+      + '<div class="ac-opts" role="radiogroup" aria-label="授权级别">' + accessLevels.map(function(o){
+          return '<button type="button" class="ac-opt" role="radio" aria-checked="' + (a.level === o.key) + '" data-ac-level="' + o.key + '"><span class="hm-radio"></span><span><b>' + o.title + '</b><span>' + o.desc + '</span></span></button>';
+        }).join('') + '</div>'
+      + '<div class="section-label">服务商能看到什么</div>'
+      + '<div class="np-card"><dl class="np-kv">'
+      + '<dt>可以看到</dt><dd>' + (a.level === 'none' ? '仅家庭档案（地址、房屋信息、已安装设备）' : '暖通设备运行数据与故障告警、智能家居设备状态、烟感与燃气报警') + '</dd>'
+      + '<dt>远程调节</dt><dd>' + (a.level === 'full' ? '随时可以：调整设定、复位故障、校准设备参数' : a.level === 'monitor' ? '每次需您授权，开放 2 小时' : '不允许') + '</dd>'
+      + '<dt>始终看不到</dt><dd>摄像头画面与录像、账号以外的个人信息</dd>'
+      + '</dl></div>'
+      + '<div class="section-label">授权记录</div>'
+      + '<div class="np-card ac-log">' + a.log.slice(0, 8).map(function(l){
+          return '<div class="ac-li"><span class="mono">' + l.t + '</span><span>' + esc(l.text) + '</span><span class="tag muted">' + l.by + '</span></div>';
+        }).join('') + '</div>';
+  }
+  function bindAccess(){
+    document.getElementById('acBack').addEventListener('click', function(){ accessHomeId = null; homeView = 'list'; render(); });
+    function update(fn){
+      HM = hmLoad();
+      var h = HM.homes.filter(function(x){ return x.id === accessHomeId; })[0];
+      if(!h) return;
+      var msg = fn(h);
+      hmSave();
+      keepScroll(render);
+      if(msg) toast(msg);
+    }
+    document.querySelectorAll('[data-ac-level]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var level = b.getAttribute('data-ac-level');
+        if(level === 'none' && !window.confirm('关闭数据共享后，服务商将收不到您家的故障告警和安防报警，确定吗？')) return;
+        update(function(h){
+          if(h.access.level === level) return '';
+          h.access.level = level;
+          if(level !== 'monitor'){ h.access.until = null; }
+          if(h.access.request){ logAccess(h, level === 'full' ? '改为持续授权，服务商的远程调节申请自动通过' : '服务商的远程调节申请已失效', '系统'); h.access.request = null; }
+          logAccess(h, '授权级别改为：' + accessLabel(level), '业主');
+          return '已改为「' + accessLabel(level) + '」，服务商端同步生效';
+        });
+      });
+    });
+    var ap = document.getElementById('acApprove');
+    if(ap) ap.addEventListener('click', function(){
+      update(function(h){
+        if(!h.access.request) return '';
+        h.access.until = Date.now() + ACCESS_WINDOW_MS;
+        logAccess(h, '允许' + dealerNames[h.dealer] + '远程调节 2 小时：' + h.access.request.reason, '业主');
+        h.access.request = null;
+        return '已授权 2 小时，到期自动关闭';
+      });
+    });
+    var dn = document.getElementById('acDeny');
+    if(dn) dn.addEventListener('click', function(){
+      update(function(h){
+        if(!h.access.request) return '';
+        logAccess(h, '拒绝了' + dealerNames[h.dealer] + '的远程调节申请', '业主');
+        h.access.request = null;
+        return '已拒绝，服务商如需上门会联系您';
+      });
+    });
+    var en = document.getElementById('acEnd');
+    if(en) en.addEventListener('click', function(){
+      update(function(h){
+        h.access.until = null;
+        logAccess(h, '提前结束远程调节授权', '业主');
+        return '已结束远程调节授权';
+      });
+    });
+  }
+  // 倒计时刷新；授权到期后重绘
+  setInterval(function(){
+    var expired = false;
+    document.querySelectorAll('[data-until]').forEach(function(el){
+      var u = +el.getAttribute('data-until');
+      if(u <= Date.now()) expired = true; else el.textContent = accessRemain(u);
+    });
+    if(expired && session) keepScroll(render);
+  }, 15000);
+
   var lastViewKey = '';
   function render(){
     var body = document.getElementById('screenBody');
@@ -1259,8 +1424,9 @@
       else if(homeView==='homeEdit' && editHomeId){ body.innerHTML = homeEditHtml(); bindHomeEdit(); }
       else if(homeView==='reqAdd' && ra){ body.innerHTML = reqAddHtml(); bindReqAdd(); }
       else if(homeView==='reqRemove' && rr){ body.innerHTML = reqRemoveHtml(); bindReqRemove(); }
+      else if(homeView==='access' && accessHomeId && myHomes().some(function(x){ return x.id === accessHomeId; })){ body.innerHTML = accessHtml(); bindAccess(); }
       else if(!home){ homeView = 'list'; body.innerHTML = noHomeHtml(); var b = document.getElementById('hmReqAdd'); if(b) b.addEventListener('click', openReqAdd); }
-      else if(!isFlagship(home)){ homeView = 'list'; body.innerHTML = homeBarHtml(home) + simpleHomeHtml(home); bindHomeBar(); bindSimpleHome(); }
+      else if(!isFlagship(home)){ homeView = 'list'; body.innerHTML = homeBarHtml(home) + accessBannerHtml(home) + simpleHomeHtml(home); bindHomeBar(); bindAccessBanner(); bindSimpleHome(); }
       else if(homeView==='smart'){ body.innerHTML = smartHtml(); bindSmart(); }
       else { body.innerHTML = homeView==='list' ? homeListHtml() : roomDetailHtml(homeView); bindHome(); }
     }
@@ -1281,7 +1447,7 @@
     var home = currentHome();
     var loc = home.city;
     var room = rooms[0];
-    return homeBarHtml(home) + shAlarmBanner()
+    return homeBarHtml(home) + accessBannerHtml(home) + shAlarmBanner()
       + '<div class="weather-card"><div><div class="wloc">室外气象 · '+loc+'</div>'
       + '<div class="wvals"><span><b>12</b>℃</span><span>湿度 79%</span><span class="tag warn">PM2.5 142 中度污染</span></div></div></div>'
       + '<div class="home-hero">'
@@ -1331,6 +1497,7 @@
   function bindHome(){
     bindFolds();
     bindHomeBar();
+    bindAccessBanner();
 
     var modeRowEl = document.getElementById('modeRow');
     if(modeRowEl){
@@ -1678,6 +1845,7 @@
     return '<div class="profile-card"><div class="profile-avatar"></div><div><div class="profile-name">业主 · ' + maskPhone(session.phone) + '</div>'
       + '<div class="profile-sub">' + ({ wechat:'微信登录', demo:'演示项目', sms:'手机号登录' }[session.via] || '手机号登录') + (home ? ' · 当前家庭：' + esc(home.name) : ' · 暂未绑定家庭') + '</div></div></div>'
       + '<button type="button" class="settings-row" id="meHomes"' + rowBtn + '><span>我的家庭</span><span class="rl">' + myHomes().length + ' 个' + (pending ? ' · ' + pending + ' 个申请处理中' : '') + ' ›</span></button>'
+      + (home ? '<button type="button" class="settings-row" id="meAccess"' + rowBtn + '><span>服务商访问权限</span><span class="rl">' + accessLabel(home.access.level) + ' ›</span></button>' : '')
       + '<div class="settings-row"><span>消息通知</span><span class="switch" role="switch" aria-checked="true" id="notifSwitch"></span></div>'
       + '<div class="settings-row"><span>账户与安全</span><span class="rl">›</span></div>'
       + '<div class="settings-row"><span>关于暖枢</span><span class="rl">v2.4.1</span></div>'
@@ -1686,6 +1854,7 @@
   function bindMe(){
     document.getElementById('meHomes').addEventListener('click', function(){ goHomeView(myHomes().length ? 'homes' : 'list'); });
     document.getElementById('meLogout').addEventListener('click', logout);
+    var ma = document.getElementById('meAccess'); if(ma) ma.addEventListener('click', function(){ openAccess(currentHome().id); });
     var sw = document.getElementById('notifSwitch');
     if(sw) sw.addEventListener('click', function(){ var on = sw.getAttribute('aria-checked')!=='true'; sw.setAttribute('aria-checked', on); });
   }

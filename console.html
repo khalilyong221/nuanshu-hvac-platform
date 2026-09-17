@@ -558,6 +558,9 @@
   .hb-actions{ display:flex; gap:8px; justify-content:flex-end; padding: 0 18px 16px; flex-wrap:wrap; }
   .hb-note{ padding: 0 18px 12px; font-size:12px; color: var(--ink-muted); line-height:1.6; }
   @media (max-width: 640px){ .hb-form{ grid-template-columns: 1fr; } }
+  .ac-actions{ display:flex; flex-direction:column; align-items:flex-start; gap:6px; padding: 0 18px 12px; }
+  .ac-actions .btn{ text-align:left; }
+  .ac-log .hb-row{ padding:6px 0; font-size:12px; }
   .pend-txt{ display:flex; flex-direction:column; min-width:0; }
   .pn1{ font-size:12.5px; font-weight:600; }
   .pn2{ font-size:11px; color: var(--ink-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -1051,11 +1054,11 @@
         + '<div class="info-grid">'+infoCells.map(function(c){ return '<div class="info-cell"><div class="l">'+c[0]+'</div><div class="v">'+c[1]+'</div></div>'; }).join('')+'</div>'
         + unitBindingsHtml(p.id)
         + configTable
-        + (p.focus ? smartProjectHtml() : '')
+        + (p.focus ? (xhShared() ? smartProjectHtml() : '<div class="cfg-title">智能家居与安防</div><div class="hb-note">3栋 2703 的业主已关闭数据共享，不显示智能家居状态与安防报警。</div>') : '')
         + '<div class="cfg-title">暖通设备清单</div>'
         + '<div class="device-mini">'+devRows+'</div>';
 
-      if(p.focus) bindSmartProject(p);
+      if(p.focus && xhShared()) bindSmartProject(p);
       bindBindingControls();
       body.querySelectorAll('[data-goto-device]').forEach(function(btn){
         btn.addEventListener('click', function(){
@@ -1275,7 +1278,7 @@
   function renderFaultList(){
     var el = document.getElementById('faultList');
     // 星海国际公寓的实时安防报警排在最前
-    var live = shAlarms().map(function(a){
+    var live = (xhShared() ? shAlarms() : []).map(function(a){
       return '<div class="fault-row">'
         + '<span class="sev critical">⚠</span>'
         + '<span>'+projName('p1')+'</span>'
@@ -1892,7 +1895,7 @@
   shOn(function(remote, raised){
     if(selectedProject === 'p1') renderProjectPanel();
     renderFaultList();
-    if(raised) toast('⚠ 星海国际公寓：' + shAlarms().map(function(a){ return a.name; }).join('、') + ' 报警');
+    if(raised && xhShared()) toast('⚠ 星海国际公寓：' + shAlarms().map(function(a){ return a.name; }).join('、') + ' 报警');
   });
 
   /* ============================================================ */
@@ -1919,13 +1922,33 @@
   }
   function hmLoad(){
     try{ var raw = localStorage.getItem(HM_KEY); if(raw){ var o = JSON.parse(raw); if(o && o.v === 1 && o.homes && o.requests) { hmMigrate(o); return o; } } }catch(e){}
-    return hmDefault();
+    return hmMigrate(hmDefault());
   }
   // 演示账号手机号由 13800002703 改为 18888888888：迁移浏览器里已保存的绑定与申请
   var OLD_DEMO_PHONE = '13800002703';
   function hmMigrate(o){
     o.homes.forEach(function(h){ h.bindings = h.bindings.map(function(p){ return p === OLD_DEMO_PHONE ? '18888888888' : p; }); });
     o.requests.forEach(function(r){ if(r.phone === OLD_DEMO_PHONE) r.phone = '18888888888'; });
+    o.homes.forEach(ensureAccess);
+    return o;
+  }
+  // 业主对服务商的访问授权：full 持续监测+远程调节 / monitor 仅监测（远程调节需临时授权 2 小时）/ none 不共享数据
+  var ACCESS_WINDOW_MS = 2 * 60 * 60 * 1000;
+  function ensureAccess(h){
+    if(!h.access) h.access = { level:'monitor', until:null, request:null, log:[{ t:h.createdAt, text:'开通服务商数据共享：仅监测，远程调节需临时授权', by:'业主' }] };
+    return h;
+  }
+  function accessState(h){
+    var a = h.access;
+    if(a.level === 'none') return 'none';
+    if(a.level === 'full') return 'full';
+    if(a.until && a.until > Date.now()) return 'window';
+    if(a.request) return 'pending';
+    return 'monitor';
+  }
+  function accessRemain(until){
+    var m = Math.max(0, Math.ceil((until - Date.now()) / 60000)), hh = Math.floor(m / 60), mm = m % 60;
+    return (hh ? hh + ' 小时 ' : '') + mm + ' 分钟';
   }
   function hmSave(){ try{ localStorage.setItem(HM_KEY, JSON.stringify(HM)); }catch(e){} }
   var HM = hmLoad();
@@ -1994,8 +2017,19 @@
     HM = hmLoad();
     var newReqs = HM.requests.filter(function(r){ return r.status === 'pending' && !before.requests.some(function(x){ return x.id === r.id; }); });
     var edited = HM.homes.filter(function(h){ var o = before.homes.filter(function(x){ return x.id === h.id; })[0]; return o && h.updatedAt && h.updatedAt !== o.updatedAt; });
+    // 业主对远程访问的操作
+    var accessMsg = '';
+    HM.homes.forEach(function(h){
+      var o = before.homes.filter(function(x){ return x.id === h.id; })[0];
+      if(!o || accessMsg) return;
+      if(o.access.level !== h.access.level) accessMsg = '业主将「' + h.name + '」的授权改为：' + accessLabels[h.access.level];
+      else if(o.access.request && !h.access.request && h.access.until && h.access.until > Date.now()) accessMsg = '业主已允许远程调节「' + h.name + '」2 小时';
+      else if(o.access.request && !h.access.request) accessMsg = '业主拒绝了「' + h.name + '」的远程调节申请';
+      else if(o.access.until && !h.access.until) accessMsg = '业主结束了「' + h.name + '」的远程调节授权';
+    });
     hmRefresh();
-    if(newReqs.length) toast('业主申请：' + (newReqs[0].kind === 'add' ? '添加家庭（' + newReqs[0].city + '）' : '移除「' + newReqs[0].homeName + '」') + '，请在待处理项目中处理');
+    if(accessMsg) toast(accessMsg);
+    else if(newReqs.length) toast('业主申请：' + (newReqs[0].kind === 'add' ? '添加家庭（' + newReqs[0].city + '）' : '移除「' + newReqs[0].homeName + '」') + '，请在待处理项目中处理');
     else if(edited.length) toast('业主更新了家庭信息：' + edited.map(function(h){ return h.name; }).join('、'));
   });
 
@@ -2016,7 +2050,8 @@
     return units.map(function(h){
       return '<div class="cfg-title">业主家庭 · ' + hmEsc(h.address) + '</div>'
         + '<div class="hb-note">业主命名「' + hmEsc(h.name) + '」 · ' + hmCityText(h) + (h.updatedAt ? ' · 业主于 ' + h.updatedAt + ' 修改了名称或地址' : '') + '</div>'
-        + bindingsBlock(h);
+        + bindingsBlock(h)
+        + accessBlock(h);
     }).join('');
   }
   function homeDetailHtml(h, dealer){
@@ -2029,6 +2064,7 @@
       + '<div class="desc">' + h.devices.length + ' 台设备 · 绑定 ' + h.bindings.length + ' 个业主账号 · 名称与地址由业主维护</div></div></div>'
       + '<div class="info-grid">' + cells.map(function(c){ return '<div class="info-cell"><div class="l">' + c[0] + '</div><div class="v">' + c[1] + '</div></div>'; }).join('') + '</div>'
       + '<div class="cfg-title">绑定业主账号</div>' + bindingsBlock(h)
+      + accessBlock(h)
       + '<div class="cfg-title">设备清单 · 后台录入</div>'
       + '<div class="hb-list">' + (h.devices.length ? h.devices.map(function(d){
           return '<div class="hb-row"><span class="hb-main">' + d.type + '<div class="hb-sub">' + hmEsc(d.room) + '</div></span><button class="btn ghost sm" data-hb-deldev="' + h.id + '|' + d.id + '">移除</button></div>';
@@ -2038,8 +2074,123 @@
       + '<button class="btn primary sm" data-hb-adddev="' + h.id + '">录入设备</button></div>';
   }
   function hmHome(id){ return HM.homes.filter(function(h){ return h.id === id; })[0]; }
+
+  /* ---------- 业主授权 · 远程访问（服务商侧） ---------- */
+  var accessLabels = { full:'持续监测 + 远程调节', monitor:'仅监测', none:'不共享数据' };
+  function hmLog(h, text, by){ h.access.log.unshift({ t:hmNow(), text:text, by:by }); h.access.log = h.access.log.slice(0, 20); }
+  // 星海国际公寓 3栋 2703 的业主是否共享数据（决定中控台能否看到智能家居状态与安防报警）
+  function xhShared(){ var h = HM && hmHome('h-xh'); return !h || h.access.level !== 'none'; }
+  function faultById(id){ return faults.filter(function(f){ return f.id === id; })[0]; }
+  function refreshXinghaiStatus(){
+    var fs = faults.filter(function(f){ return f.projectId === 'p1'; });
+    var m = mapProjects.filter(function(x){ return x.id === 'm1'; })[0];
+    m.status = fs.some(function(f){ return f.sev === 'critical'; }) ? 'critical' : (fs.length ? 'warn' : 'good');
+    m.note = fs.length ? fs[0].text : '运行正常';
+  }
+  // 远程可处理的事项：星海国际公寓按当前故障给出，其他家庭提供通用检查
+  function remoteActionsFor(h){
+    var list = [];
+    if(h.projectId === 'p1'){
+      if(faultById('f1')) list.push({ id:'f1', label:'下调地暖供水温度设定（30℃ → 28℃）并复位告警', run:function(){
+        faults = faults.filter(function(f){ return f.id !== 'f1'; });
+        var d = deviceById['d3']; d.status = 'online'; d.temp = 28.0;
+        orders.forEach(function(o){ if(o.deviceId === 'd3' && o.status !== 'done'){ o.status = 'done'; o.tech = '远程处理'; o.faultText += '（已远程下调设定并复位，无需上门）'; } });
+      }});
+      if(faultById('f6')) list.push({ id:'f6', label:'远程校准书房风机盘管水阀开度', run:function(){
+        faults = faults.filter(function(f){ return f.id !== 'f6'; });
+        var d = deviceById['x7']; d.status = 'online'; d.temp = 24.3;
+      }});
+    }
+    list.push({ id:'check', label:'远程检查全部设备运行参数', run:function(){} });
+    return list;
+  }
+  function defaultAccessReason(h){
+    if(h.projectId === 'p1' && faultById('f1')) return '地暖分集水器供水温度超上限，需远程下调设定并复位告警';
+    if(h.projectId === 'p1' && faultById('f6')) return '书房风机盘管疑似水阀卡滞，需远程校准';
+    return '年度保养前远程检查设备运行参数';
+  }
+  function accessBlock(h){
+    var a = h.access, st = accessState(h);
+    var pill = { none:['不共享数据','neutral'], monitor:['仅监测','good'], pending:['仅监测 · 申请中','warn'], window:['临时远程调节中','home'], full:['持续监测 + 远程调节','home'] }[st];
+    var body;
+    if(st === 'none'){
+      body = '<div class="hb-note">业主已关闭数据共享：看不到该家庭的运行数据、智能家居状态和安防报警，也无法发起远程调节。需要维修时由业主主动联系。</div>';
+    } else if(st === 'pending'){
+      body = '<div class="hb-note">已于 ' + a.request.requestedAt + ' 申请远程调节 2 小时：' + hmEsc(a.request.reason) + '。等待业主在小程序中确认。</div>'
+        + '<div class="hb-actions" style="justify-content:flex-start;"><button class="btn ghost sm" data-ac-cancel="' + h.id + '">撤回申请</button></div>';
+    } else if(st === 'monitor'){
+      body = '<div class="hb-note">可以查看运行数据与告警。远程调节需业主在小程序中授权，每次 2 小时，到期自动关闭。</div>'
+        + '<div class="hb-add"><input type="text" maxlength="40" id="acReason-' + h.id + '" value="' + hmEsc(defaultAccessReason(h)) + '" aria-label="申请原因">'
+        + '<button class="btn primary sm" data-ac-request="' + h.id + '">申请远程调节 2 小时</button></div>';
+    } else {
+      body = '<div class="hb-note">' + (st === 'window' ? '业主已授权远程调节，剩余 <b data-until="' + a.until + '">' + accessRemain(a.until) + '</b>，到期自动关闭。' : '业主已开启持续远程调节，可直接处理。') + '处理结果会记录并同步给业主。</div>'
+        + '<div class="ac-actions">' + remoteActionsFor(h).map(function(x){ return '<button class="btn sm" data-ac-act="' + h.id + '|' + x.id + '">🔧 ' + x.label + '</button>'; }).join('') + '</div>';
+    }
+    return '<div class="cfg-title">业主授权 · 远程访问 <span class="pill ' + pill[1] + '" style="font-size:10.5px;margin-left:6px;">' + pill[0] + '</span></div>'
+      + body
+      + '<div class="hb-list ac-log">' + a.log.slice(0, 3).map(function(l){
+          return '<div class="hb-row"><span class="hb-main">' + hmEsc(l.text) + '<div class="hb-sub">' + l.t + ' · ' + l.by + '</div></span></div>';
+        }).join('') + '</div>';
+  }
+  function bindAccessControls(){
+    var body = document.getElementById('projectPanelBody');
+    function update(id, fn){
+      HM = hmLoad();
+      var h = hmHome(id); if(!h) return;
+      var msg = fn(h);
+      if(msg === false){ hmRefresh(); return; }
+      hmCommit(msg);
+    }
+    body.querySelectorAll('[data-ac-request]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var id = b.getAttribute('data-ac-request'), reason = document.getElementById('acReason-' + id).value.trim();
+        if(!reason){ toast('请填写申请原因，业主会看到'); return; }
+        update(id, function(h){
+          if(accessState(h) !== 'monitor') return false;
+          h.access.request = { reason:reason, requestedAt:hmNow(), by:dealerName(h.dealer) };
+          hmLog(h, '申请远程调节 2 小时：' + reason, dealerName(h.dealer));
+          return '已向业主发送授权申请，业主在小程序中确认后即可远程调节';
+        });
+      });
+    });
+    body.querySelectorAll('[data-ac-cancel]').forEach(function(b){
+      b.addEventListener('click', function(){
+        update(b.getAttribute('data-ac-cancel'), function(h){
+          if(!h.access.request) return false;
+          h.access.request = null;
+          hmLog(h, '撤回了远程调节申请', dealerName(h.dealer));
+          return '已撤回申请';
+        });
+      });
+    });
+    body.querySelectorAll('[data-ac-act]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var p = b.getAttribute('data-ac-act').split('|');
+        update(p[0], function(h){
+          var st = accessState(h);
+          if(st !== 'window' && st !== 'full'){ toast('授权已到期或被业主收回，需重新申请'); return false; }
+          var act = remoteActionsFor(h).filter(function(x){ return x.id === p[1]; })[0];
+          if(!act) return false;
+          act.run();
+          if(h.projectId === 'p1'){ refreshXinghaiStatus(); renderFaultList(); renderOrderList(); renderDeviceList(); }
+          hmLog(h, '远程完成：' + act.label + (act.id === 'check' ? '，未发现异常' : '，无需上门'), dealerName(h.dealer));
+          return '已远程完成：' + act.label;
+        });
+      });
+    });
+  }
+  // 倒计时刷新；授权到期后重绘详情
+  setInterval(function(){
+    var expired = false;
+    document.querySelectorAll('[data-until]').forEach(function(el){
+      var u = +el.getAttribute('data-until');
+      if(u <= Date.now()) expired = true; else el.textContent = accessRemain(u);
+    });
+    if(expired) renderProjectPanel();
+  }, 15000);
   function bindBindingControls(){
     var body = document.getElementById('projectPanelBody');
+    bindAccessControls();
     body.querySelectorAll('[data-hb-bind]').forEach(function(b){
       b.addEventListener('click', function(){
         var id = b.getAttribute('data-hb-bind'), ph = document.getElementById('hbPhone-' + id).value.trim();
@@ -2124,6 +2275,7 @@
     var h = { id:'h' + Date.now().toString(36), code:'HM-' + now.slice(0,10).replace(/-/g,'') + '-' + (seq < 10 ? '0' : '') + seq, name:f.name,
       province:c[0], city:c[1], lon:c[2], lat:c[3], dealer:c[4], address:f.address, houseType:f.houseType, area:f.area, rooms:f.rooms,
       projectId:null, devices:f.devices, bindings:[phone], createdAt:now.slice(0,10), updatedAt:null };
+    ensureAccess(h);
     HM.homes.push(h);
     return h;
   }

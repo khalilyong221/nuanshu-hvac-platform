@@ -1057,7 +1057,7 @@
   function hpAlarmStrip(){
     var al = shAlarms();
     if(!al.length) return '';
-    return '<button type="button" class="hs-alarm" id="hsAlarm"><span class="ai">⚠</span><span><b>'+al.map(function(a){ return a.name; }).join('、')+'</b> 正在报警 · '+(shOrderIds().length ? '服务商已派单 '+shOrderIds().join('、')+'，技师正在赶来' : '已同步通知物业与服务商')+'</span><span class="ago">'+(view.tab==='smart' ? '' : '查看 ›')+'</span></button>';
+    return '<button type="button" class="hs-alarm" id="hsAlarm"><span class="ai">⚠</span><span><b>'+al.map(function(a){ return a.name; }).join('、')+'</b> 正在报警 · '+(shOrderIds().length ? '服务商已派单 '+shOrderIds().join('、')+'，技师正在赶来' : (panelHome().access && panelHome().access.level === 'none' ? '业主未向服务商共享数据，请立即确认现场' : '已同步通知物业与服务商'))+'</span><span class="ago">'+(view.tab==='smart' ? '' : '查看 ›')+'</span></button>';
   }
   function smartPanelHtml(){
     var lk = SH.lock;

@@ -355,13 +355,7 @@
   .hs-slider input[type="range"]::-moz-range-thumb{ width:22px; height:22px; border-radius:50%; background:#eef2ec; border:3px solid #d6a95f; }
   .hs-slider input[type="range"]::-moz-range-track{ background: transparent; }
   .hs-slider input[type="range"]:focus-visible{ outline:2px solid #7fc2d6; outline-offset:4px; }
-  .hs-lightgrid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
-  .hs-light{ display:flex; flex-direction:column; align-items:flex-start; gap:3px; background:#132119; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:9px 11px; color:#8fa39a; cursor:pointer; font-family:inherit; text-align:left; }
-  .hs-light .li{ font-size:15px; }
-  .hs-light .ln{ font-size:11px; color:#dce6e0; }
-  .hs-light .ls{ font-size:9px; font-family: var(--font-mono); }
-  .hs-light[aria-pressed="true"]{ border-color:#d6a95f; background:rgba(214,169,95,0.12); }
-  .hs-light[aria-pressed="true"] .ls{ color:#f0d9ab; }
+  .hs-slider.lt input[type="range"]{ background: linear-gradient(90deg, rgba(214,169,95,0.35) 0, #d6a95f var(--v, 0%), rgba(255,255,255,0.1) var(--v, 0%) 100%); }
   .hs-evt{ display:grid; grid-template-columns:38px 1fr auto; gap:8px; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.07); font-size:10.5px; color:#c9d4cd; align-items:baseline; }
   .hs-evt:last-child{ border-bottom:none; }
   .hs-evt .et{ font-family: var(--font-mono); color:#7f9189; font-size:10px; }
@@ -962,7 +956,7 @@
   var SH_KEY = 'nuanshu-smarthome-v1';
   function shDefault(){
     return {
-      v: 2,
+      v: 3,
       lock: { name:'入户智能门锁', locked:true, doorClosed:true, battery:82 },
       cameras: [
         { id:'cam1', zone:'入户门', on:true },
@@ -974,10 +968,11 @@
       gas: [ { id:'gd1', zone:'厨房', alarm:false } ],
       // 窗帘开合度 pct 0–100（0 即关闭，页面不显示数值）；last 记住最近一次打开的开合度，开关一键恢复
       curtains: [ { id:'ct1', zone:'客厅', open:true, pct:60, last:60 }, { id:'ct2', zone:'主卧', open:false, pct:0, last:40 }, { id:'ct3', zone:'书房', open:true, pct:30, last:30 } ],
+      // 灯光亮度 bright 0–100（0 即关闭，页面不显示数值）；last 记住最近一次打开的亮度，开关一键恢复
       lights: [
-        { id:'lt1', zone:'客厅', kind:'灯带', on:true }, { id:'lt2', zone:'客厅', kind:'筒灯', on:true },
-        { id:'lt3', zone:'餐厅', kind:'筒灯', on:false }, { id:'lt4', zone:'主卧', kind:'灯带', on:false },
-        { id:'lt5', zone:'走廊', kind:'筒灯', on:true }
+        { id:'lt1', zone:'客厅', kind:'灯带', on:true, bright:60, last:60 }, { id:'lt2', zone:'客厅', kind:'筒灯', on:true, bright:100, last:100 },
+        { id:'lt3', zone:'餐厅', kind:'筒灯', on:false, bright:0, last:80 }, { id:'lt4', zone:'主卧', kind:'灯带', on:false, bright:0, last:30 },
+        { id:'lt5', zone:'走廊', kind:'筒灯', on:true, bright:40, last:40 }
       ],
       events: [
         { t:'08:13', dev:'入户智能门锁', act:'检测到关门，已自动上锁', src:'门锁', lvl:'info' },
@@ -993,7 +988,9 @@
         var o = JSON.parse(raw);
         // v1 → v2：窗帘开合度由 10–90 档位改为 0–100 连续值，关闭即 0
         if(o && o.v === 1){ o.curtains.forEach(function(c){ c.last = c.pct || 60; if(!c.open) c.pct = 0; }); o.v = 2; }
-        if(o && o.v === 2) return o;
+        // v2 → v3：灯光由开关改为亮度 0–100，关闭即 0
+        if(o && o.v === 2){ o.lights.forEach(function(l){ l.last = l.last || 80; l.bright = l.on ? l.last : 0; }); o.v = 3; }
+        if(o && o.v === 3) return o;
       }
     }catch(e){}
     return shDefault();
@@ -1042,12 +1039,21 @@
     var c = shFind(SH.curtains, id);
     shSetCurtainPct(id, c.open ? 0 : (c.last || 100), src);
   }
+  // 滑动即控制：亮度为 0 自动视为关闭，大于 0 自动视为打开
+  function shSetLightBright(id, v, src){
+    var l = shFind(SH.lights, id), wasOn = l.on, before = l.bright;
+    v = Math.max(0, Math.min(100, Math.round(v)));
+    l.bright = v; l.on = v > 0;
+    if(v > 0) l.last = v;
+    shCommit(l.zone+l.kind, v === 0 ? '关闭' : (v === 100 ? '调到最亮' : (!wasOn ? '打开' : (v > before ? '调亮' : '调暗'))), src);
+  }
+  // 开关：关闭时记住亮度，再次打开恢复到上次的亮度
   function shToggleLight(id, src){
-    var l = shFind(SH.lights, id); l.on = !l.on;
-    shCommit(l.zone+l.kind, l.on ? '打开' : '关闭', src);
+    var l = shFind(SH.lights, id);
+    shSetLightBright(id, l.on ? 0 : (l.last || 100), src);
   }
   function shAllLights(on, src){
-    SH.lights.forEach(function(l){ l.on = on; });
+    SH.lights.forEach(function(l){ if(on){ l.bright = l.bright || l.last || 100; l.last = l.bright; } else { l.bright = 0; } l.on = on; });
     shCommit('分区灯光', on ? '全部打开' : '全部关闭', src);
   }
   function shToggleCamera(id, src){
@@ -1108,7 +1114,9 @@
         + '<div class="hs-slider"><span aria-hidden="true">关</span><input type="range" min="0" max="100" step="1" value="'+c.pct+'" data-hs-pct="'+c.id+'" aria-label="'+c.zone+'窗帘开合" style="--v:'+c.pct+'%"><span aria-hidden="true">开</span></div></div>';
     }).join('');
     var lights = SH.lights.map(function(l){
-      return '<button type="button" class="hs-light" data-hs-lt="'+l.id+'" aria-pressed="'+l.on+'"><span class="li">'+(l.kind==='灯带' ? '〰' : '◉')+'</span><span class="ln">'+l.zone+l.kind+'</span><span class="ls">'+(l.on ? 'ON' : 'OFF')+'</span></button>';
+      return '<div class="hs-ct"><div class="hs-cthead"><span>'+(l.kind==='灯带' ? '〰' : '◉')+' '+l.zone+l.kind+'</span>'
+        + '<button type="button" class="hs-tog" data-hs-lt="'+l.id+'" aria-pressed="'+l.on+'">'+(l.on ? '已开' : '已关')+'</button></div>'
+        + '<div class="hs-slider lt"><span aria-hidden="true">关</span><input type="range" min="0" max="100" step="1" value="'+l.bright+'" data-hs-bright="'+l.id+'" aria-label="'+l.zone+l.kind+'亮度" style="--v:'+l.bright+'%"><span aria-hidden="true">亮</span></div></div>';
     }).join('');
     var evts = SH.events.slice(0, 6).map(function(e){
       return '<div class="hs-evt '+e.lvl+'"><span class="et">'+e.t+'</span><span class="eb"><b>'+e.dev+'</b> '+e.act+'</span><span class="es">'+e.src+'</span></div>';
@@ -1127,7 +1135,7 @@
       +   '<div class="hs-col">'
       +     '<div class="hp-sectitle"><h3>分区摄像头</h3><span class="hs-subt">点击画面开 / 关</span></div><div class="hs-camgrid">'+cams+'</div>'
       +     '<div class="hp-sectitle"><h3>智能窗帘</h3><span class="hs-subt">滑动调节开合</span></div><div class="hp-card hs-list">'+curtains+'</div>'
-      +     '<div class="hp-sectitle"><h3>分区灯光</h3><span><button type="button" class="hs-mini" id="hsAllOn">全开</button> <button type="button" class="hs-mini" id="hsAllOff">全关</button></span></div><div class="hs-lightgrid">'+lights+'</div>'
+      +     '<div class="hp-sectitle"><h3>分区灯光</h3><span><button type="button" class="hs-mini" id="hsAllOn">全开</button> <button type="button" class="hs-mini" id="hsAllOff">全关</button></span></div><div class="hp-card hs-list">'+lights+'</div>'
       +   '</div>'
       + '</div>';
   }
@@ -1153,16 +1161,36 @@
       });
       r.addEventListener('change', function(){ shSetCurtainPct(id, +r.value, SRC_PANEL); });
     });
+    // 灯光亮度长条：同窗帘，亮度为 0 自动关闭，大于 0 自动打开
+    Array.prototype.forEach.call(document.querySelectorAll('[data-hs-bright]'), function(r){
+      var id = r.getAttribute('data-hs-bright');
+      r.addEventListener('input', function(){
+        var v = +r.value;
+        r.style.setProperty('--v', v + '%');
+        var t = document.querySelector('[data-hs-lt="'+id+'"]');
+        if(t){ t.setAttribute('aria-pressed', v > 0); t.textContent = v > 0 ? '已开' : '已关'; }
+      });
+      r.addEventListener('change', function(){ shSetLightBright(id, +r.value, SRC_PANEL); });
+    });
     each('[data-hs-alarm]', function(b){ var p = b.getAttribute('data-hs-alarm').split(':'); var d = shFind(p[0]==='smoke' ? SH.smoke : SH.gas, p[1]); shSetAlarm(p[0], p[1], !d.alarm, SRC_PANEL); });
   }
   function bindAlarmStrip(){
     var a = document.getElementById('hsAlarm');
     if(a) a.addEventListener('click', function(){ view.tab = 'smart'; view.roomKey = null; render(); });
   }
+  var hsSliderDragging = false;
+  document.addEventListener('pointerdown', function(e){ if(e.target.matches && e.target.matches('[data-hs-pct],[data-hs-bright]')) hsSliderDragging = true; }, true);
+  document.addEventListener('pointerup', function(){ hsSliderDragging = false; }, true);
+  document.addEventListener('pointercancel', function(){ hsSliderDragging = false; }, true);
   shOn(function(remote, raised){
-    var active = document.activeElement;
-    var dragging = active && active.getAttribute && active.getAttribute('data-hs-pct'); // 拖动窗帘长条时不打断
-    if((view.tab === 'home' || view.tab === 'smart') && !dragging) render();
+    // 按住拖动窗帘或灯光长条时不打断（hsSliderDragging）；重绘后把键盘焦点还给原来的长条
+    if((view.tab === 'home' || view.tab === 'smart') && !hsSliderDragging){
+      var a = document.activeElement, attr = null;
+      if(a && a.hasAttribute){ attr = a.hasAttribute('data-hs-pct') ? 'data-hs-pct' : (a.hasAttribute('data-hs-bright') ? 'data-hs-bright' : null); }
+      var val = attr ? a.getAttribute(attr) : null;
+      render();
+      if(attr){ var el = document.querySelector('[' + attr + '="' + val + '"]'); if(el) el.focus({ preventScroll:true }); }
+    }
     else renderNav();
     if(raised) toast('⚠ 安防报警：' + shAlarms().map(function(a){ return a.name; }).join('、'));
   });

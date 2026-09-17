@@ -1765,7 +1765,7 @@
   var SH_KEY = 'nuanshu-smarthome-v1';
   function shDefault(){
     return {
-      v: 2,
+      v: 3,
       lock: { name:'入户智能门锁', locked:true, doorClosed:true, battery:82 },
       cameras: [
         { id:'cam1', zone:'入户门', on:true },
@@ -1777,10 +1777,11 @@
       gas: [ { id:'gd1', zone:'厨房', alarm:false } ],
       // 窗帘开合度 pct 0–100（0 即关闭，页面不显示数值）；last 记住最近一次打开的开合度，开关一键恢复
       curtains: [ { id:'ct1', zone:'客厅', open:true, pct:60, last:60 }, { id:'ct2', zone:'主卧', open:false, pct:0, last:40 }, { id:'ct3', zone:'书房', open:true, pct:30, last:30 } ],
+      // 灯光亮度 bright 0–100（0 即关闭，页面不显示数值）；last 记住最近一次打开的亮度，开关一键恢复
       lights: [
-        { id:'lt1', zone:'客厅', kind:'灯带', on:true }, { id:'lt2', zone:'客厅', kind:'筒灯', on:true },
-        { id:'lt3', zone:'餐厅', kind:'筒灯', on:false }, { id:'lt4', zone:'主卧', kind:'灯带', on:false },
-        { id:'lt5', zone:'走廊', kind:'筒灯', on:true }
+        { id:'lt1', zone:'客厅', kind:'灯带', on:true, bright:60, last:60 }, { id:'lt2', zone:'客厅', kind:'筒灯', on:true, bright:100, last:100 },
+        { id:'lt3', zone:'餐厅', kind:'筒灯', on:false, bright:0, last:80 }, { id:'lt4', zone:'主卧', kind:'灯带', on:false, bright:0, last:30 },
+        { id:'lt5', zone:'走廊', kind:'筒灯', on:true, bright:40, last:40 }
       ],
       events: [
         { t:'08:13', dev:'入户智能门锁', act:'检测到关门，已自动上锁', src:'门锁', lvl:'info' },
@@ -1796,7 +1797,9 @@
         var o = JSON.parse(raw);
         // v1 → v2：窗帘开合度由 10–90 档位改为 0–100 连续值，关闭即 0
         if(o && o.v === 1){ o.curtains.forEach(function(c){ c.last = c.pct || 60; if(!c.open) c.pct = 0; }); o.v = 2; }
-        if(o && o.v === 2) return o;
+        // v2 → v3：灯光由开关改为亮度 0–100，关闭即 0
+        if(o && o.v === 2){ o.lights.forEach(function(l){ l.last = l.last || 80; l.bright = l.on ? l.last : 0; }); o.v = 3; }
+        if(o && o.v === 3) return o;
       }
     }catch(e){}
     return shDefault();
@@ -1845,12 +1848,21 @@
     var c = shFind(SH.curtains, id);
     shSetCurtainPct(id, c.open ? 0 : (c.last || 100), src);
   }
+  // 滑动即控制：亮度为 0 自动视为关闭，大于 0 自动视为打开
+  function shSetLightBright(id, v, src){
+    var l = shFind(SH.lights, id), wasOn = l.on, before = l.bright;
+    v = Math.max(0, Math.min(100, Math.round(v)));
+    l.bright = v; l.on = v > 0;
+    if(v > 0) l.last = v;
+    shCommit(l.zone+l.kind, v === 0 ? '关闭' : (v === 100 ? '调到最亮' : (!wasOn ? '打开' : (v > before ? '调亮' : '调暗'))), src);
+  }
+  // 开关：关闭时记住亮度，再次打开恢复到上次的亮度
   function shToggleLight(id, src){
-    var l = shFind(SH.lights, id); l.on = !l.on;
-    shCommit(l.zone+l.kind, l.on ? '打开' : '关闭', src);
+    var l = shFind(SH.lights, id);
+    shSetLightBright(id, l.on ? 0 : (l.last || 100), src);
   }
   function shAllLights(on, src){
-    SH.lights.forEach(function(l){ l.on = on; });
+    SH.lights.forEach(function(l){ if(on){ l.bright = l.bright || l.last || 100; l.last = l.bright; } else { l.bright = 0; } l.on = on; });
     shCommit('分区灯光', on ? '全部打开' : '全部关闭', src);
   }
   function shToggleCamera(id, src){
@@ -1892,7 +1904,7 @@
     ['烟雾报警器', 'NS-SD2', '光电式，报警 / 未报警', function(){ return SH.smoke.length; }],
     ['燃气探测器', 'NS-GD2', '天然气泄漏检测，报警 / 未报警', function(){ return SH.gas.length; }],
     ['智能窗帘', 'NS-CT1', '开合度无级调节（0–100）', function(){ return SH.curtains.length; }],
-    ['灯带 / 筒灯', 'NS-LT3', '分区开关', function(){ return SH.lights.length; }]
+    ['灯带 / 筒灯', 'NS-LT3', '分区开关 + 亮度无级调节（0–100）', function(){ return SH.lights.length; }]
   ];
   // 让报警工单能在工单列表中显示设备名称
   SH.smoke.concat(SH.gas).forEach(function(d, i){
@@ -1915,7 +1927,7 @@
       .concat(SH.gas.map(function(d){ return chip(d.zone+'燃气 · '+(d.alarm?'报警':'正常'), d.alarm?'crit':'ok'); })).join('');
     var camChips = SH.cameras.map(function(c){ return chip(c.zone+' · '+(c.on?'在线':'已关闭'), c.on?'ok':''); }).join('');
     var ctChips = SH.curtains.map(function(c){ return chip(c.zone+' · '+(c.open?'开 '+c.pct+'%':'关'), c.open?'on':''); }).join('');
-    var ltChips = SH.lights.map(function(l){ return chip(l.zone+l.kind+' · '+(l.on?'开':'关'), l.on?'on':''); }).join('');
+    var ltChips = SH.lights.map(function(l){ return chip(l.zone+l.kind+' · '+(l.on?'开 '+l.bright+'%':'关'), l.on?'on':''); }).join('');
     var evts = SH.events.slice(0, 6).map(function(e){
       return '<div class="shc-evt '+e.lvl+'"><span class="mono">'+e.t+'</span><span><b>'+e.dev+'</b> '+e.act+'</span><span class="shc-src">'+e.src+'</span></div>';
     }).join('');

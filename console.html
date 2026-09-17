@@ -415,6 +415,8 @@
   .pin .core{ stroke: var(--surface-raised); stroke-width:2; }
   .pin.good .core{ fill: var(--good); }
   .pin.warn .core{ fill: var(--warn); }
+  .pin.new .core{ fill: var(--cat3); }
+  .pin.new .core{ stroke-dasharray: 3 2; }
   .pin.critical .core{ fill: var(--critical); }
   .pin .ring{ fill:none; stroke: var(--critical); stroke-width:1.5; opacity:0; }
   .pin.critical .ring{ animation: pinpulse 2s ease-out infinite; }
@@ -442,6 +444,7 @@
   .status-bar{ display:flex; height:8px; border-radius:4px; overflow:hidden; gap:2px; background: var(--surface-sunken); }
   .status-bar span{ display:block; height:100%; }
   .status-bar .sb-good{ background: var(--good); }
+  .status-bar .sb-new{ background: var(--cat3); }
   .status-bar .sb-warn{ background: var(--warn); }
   .status-bar .sb-critical{ background: var(--critical); }
 
@@ -536,6 +539,13 @@
   .pend-icon{ width:22px; height:22px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; }
   .pend-icon.critical{ background: var(--critical-soft); color: var(--critical); }
   .pend-icon.warn{ background: var(--warn-soft); color: var(--warn); }
+  .pend-icon.new{ background: color-mix(in srgb, var(--cat3) 22%, transparent); color: var(--cat3); }
+  .pill.new{ background: color-mix(in srgb, var(--cat3) 20%, transparent); color: var(--cat3); }
+  .up-needs{ display:flex; flex-wrap:wrap; gap:6px; padding: 0 18px 12px; }
+  .up-needs span{ font-size:11.5px; padding:3px 10px; border-radius:999px; border:1px solid var(--border); color: var(--ink-muted); }
+  .up-accept{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin: 4px 18px 14px; padding:10px 12px; border-radius: var(--radius-s); background: color-mix(in srgb, var(--cat3) 12%, transparent); border:1px solid color-mix(in srgb, var(--cat3) 45%, transparent); font-size:12px; color: var(--ink-muted); }
+  .up-accept .btn{ margin-left:auto; }
+  .up-note{ padding: 0 18px 14px; font-size:12px; color: var(--ink-muted); line-height:1.6; }
   .pend-txt{ display:flex; flex-direction:column; min-width:0; }
   .pn1{ font-size:12.5px; font-weight:600; }
   .pn2{ font-size:11px; color: var(--ink-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -645,6 +655,7 @@
             <span class="lg"><span class="lgdot" style="background:var(--good)"></span>✓ 运行正常</span>
             <span class="lg"><span class="lgdot" style="background:var(--warn)"></span>! 有预警</span>
             <span class="lg"><span class="lgdot" style="background:var(--critical)"></span>✕ 有故障</span>
+            <span class="lg"><span class="lgdot" style="background:var(--cat3)"></span>＋ 业主新建</span>
             <span class="lg"><span class="lghub"></span>大区运营中心</span>
             <span class="lg" style="color:var(--ink-faint);">圆点大小 = 接入设备数</span>
           </div>
@@ -980,8 +991,9 @@
     if(selectedProject){
       var p = projects.filter(function(x){ return x.id===selectedProject; })[0];
       var dealer = dealers.filter(function(x){ return x.id===p.dealer; })[0];
-      crumb.innerHTML = '<button id="crumbBack">‹ 返回项目列表</button><span>/</span><span class="cur">'+p.name+'</span>';
+      crumb.innerHTML = '<button id="crumbBack">‹ 返回项目列表</button><span>/</span><span class="cur">'+upEsc(p.name)+'</span>';
       document.getElementById('crumbBack').addEventListener('click', function(){ selectedProject = null; mapSelected = null; renderProjectPanel(); });
+      if(p.userCreated){ body.innerHTML = userProjectDetailHtml(p, dealer); bindUserProjectDetail(p); return; }
 
       var infoCells = [
         ['所属网点', dealer ? dealer.name : '—'], ['客户单位', p.customer], ['项目编号', p.code],
@@ -1036,10 +1048,10 @@
     body.innerHTML = '<div class="project-list-head"><span>项目</span><span>客户</span><span>面积</span><span>设备</span><span></span></div>'
       + '<div class="project-list">' + list.map(function(p){
         return '<div class="project-row" data-id="'+p.id+'">'
-          + '<span class="pn">'+(p.star?'<span class="star">★</span>':'')+p.name+(p.focus?' <span class="pill warn" style="font-size:10px;padding:1px 7px;">重点</span>':'')+'<div class="psub" style="font-weight:400;">'+p.code+'</div></span>'
-          + '<span class="psub">'+p.customer+'</span>'
+          + '<span class="pn">'+(p.star?'<span class="star">★</span>':'')+upEsc(p.name)+(p.focus?' <span class="pill warn" style="font-size:10px;padding:1px 7px;">重点</span>':'')+(p.userCreated?' <span class="pill new" style="font-size:10px;padding:1px 7px;">'+(p.rec.status==='accepted'?'已受理':'待受理')+'</span>':'')+'<div class="psub" style="font-weight:400;">'+p.code+'</div></span>'
+          + '<span class="psub">'+upEsc(p.customer)+'</span>'
           + '<span class="dval">'+p.area.toLocaleString()+'m²</span>'
-          + '<span class="dval">'+p.deviceIds.length+' 台</span>'
+          + '<span class="dval">'+(p.userCreated ? '待安装' : p.deviceIds.length+' 台')+'</span>'
           + '<span class="chev">›</span></div>';
       }).join('') + '</div>';
     body.querySelectorAll('.project-row').forEach(function(row){
@@ -1400,7 +1412,8 @@
   var mapStatusMeta = {
     good:{ label:'运行正常', icon:'✓', pill:'good' },
     warn:{ label:'有预警', icon:'!', pill:'warn' },
-    critical:{ label:'有故障', icon:'✕', pill:'critical' }
+    critical:{ label:'有故障', icon:'✕', pill:'critical' },
+    new:{ label:'业主新建', icon:'＋', pill:'new' }
   };
   var mapFilter = 'all';
   var mapSelected = null;
@@ -1458,7 +1471,8 @@
   });
 
   var pinEls = {};
-  mapProjects.forEach(function(m){
+  mapProjects.forEach(addPin);
+  function addPin(m){
     var xy = mapProject(m.lon, m.lat), r = pinRadius(m.devices);
     var g = svgEl('g', { 'class':'pin '+m.status, tabindex:'0', role:'button', 'aria-label': m.name + '，' + mapStatusMeta[m.status].label });
     g.appendChild(svgEl('circle', { cx:xy[0], cy:xy[1], r:Math.max(r+6, 13), 'class':'hit' }));
@@ -1472,7 +1486,7 @@
     g.addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); selectMapProject(m.id); } });
     gPins.appendChild(g);
     pinEls[m.id] = g;
-  });
+  }
   // 故障点绘制在最上层
   mapProjects.filter(function(m){ return m.status==='critical'; }).forEach(function(m){ gPins.appendChild(pinEls[m.id]); });
 
@@ -1482,7 +1496,7 @@
     var s = Math.min(box.width / 772, box.height / 548);
     var ox = (box.width - 772*s) / 2, oy = (box.height - 548*s) / 2;
     mapTip.innerHTML = '<div class="tn">' + mapStatusMeta[m.status].icon + ' ' + m.name + '</div>'
-      + '<div class="ts">' + m.city + ' · ' + m.devices + ' 台设备 · 在线 ' + Math.round(m.online*100) + '%</div>'
+      + '<div class="ts">' + m.city + ' · ' + (m.user ? '待安装' : m.devices + ' 台设备 · 在线 ' + Math.round(m.online*100) + '%') + '</div>'
       + (m.note ? '<div class="ts">' + m.note + '</div>' : '');
     var z = (stageBox.width / mapStage.offsetWidth) || 1; // 宽屏 zoom 放大时，屏幕坐标换算回布局坐标
     mapTip.style.left = ((box.left - stageBox.left + ox + xy[0]*s) / z) + 'px';
@@ -1520,7 +1534,7 @@
     var m = mapSelected ? mapProjects.filter(function(x){ return x.id===mapSelected; })[0] : null;
     if(!m){
       var pool = selectedDealer ? mapProjects.filter(function(x){ return x.dealer===selectedDealer; }) : mapProjects;
-      var c = { good:0, warn:0, critical:0 }, dev = 0;
+      var c = { good:0, warn:0, critical:0, new:0 }, dev = 0;
       pool.forEach(function(x){ c[x.status]++; dev += x.devices; });
       el.innerHTML = '<div class="mc-title">' + (selectedDealer ? dealerName(selectedDealer) : '全国重点项目') + '</div>'
         + '<div class="mc-sub">' + pool.length + ' 个重点项目 · ' + dev.toLocaleString() + ' 台接入设备</div>'
@@ -1535,14 +1549,14 @@
     var meta = mapStatusMeta[m.status];
     var actions = '';
     if(m.projectId){ actions += '<button class="btn primary sm" id="mcDetail">查看项目详情 →</button>'; }
-    if(m.status !== 'good'){ actions += '<button class="btn sm" id="mcFaults">查看故障预警</button>'; }
+    if(m.status === 'warn' || m.status === 'critical'){ actions += '<button class="btn sm" id="mcFaults">查看故障预警</button>'; }
     actions += '<button class="btn ghost sm" id="mcClear">清除选择</button>';
     el.innerHTML = '<div class="mc-title">' + m.name + ' <span class="pill ' + meta.pill + '"><span class="pdot"></span>' + meta.icon + ' ' + meta.label + '</span></div>'
       + '<div class="mc-sub">' + m.city + ' · ' + dealerName(m.dealer) + '</div>'
       + (m.note ? '<div class="mc-sub" style="color:var(--ink-muted);margin-top:6px;">' + m.note + '</div>' : '')
       + '<div class="mc-stats">'
-      + '<div class="drawer-stat"><div class="v">' + m.devices + '</div><div class="l">接入设备</div></div>'
-      + '<div class="drawer-stat"><div class="v">' + Math.round(m.online*100) + '%</div><div class="l">在线率</div></div>'
+      + '<div class="drawer-stat"><div class="v">' + (m.user ? '—' : m.devices) + '</div><div class="l">接入设备</div></div>'
+      + '<div class="drawer-stat"><div class="v">' + (m.user ? '—' : Math.round(m.online*100) + '%') + '</div><div class="l">在线率</div></div>'
       + '<div class="drawer-stat"><div class="v">' + (m.area/10000).toFixed(1) + '</div><div class="l">面积 万m²</div></div>'
       + '</div>'
       + '<div class="mc-actions">' + actions + '</div>';
@@ -1556,9 +1570,9 @@
   function renderRegionList(){
     document.getElementById('regionList').innerHTML = dealers.map(function(d){
       var pool = mapProjects.filter(function(x){ return x.dealer===d.id; });
-      var c = { good:0, warn:0, critical:0 };
+      var c = { good:0, warn:0, critical:0, new:0 };
       pool.forEach(function(x){ c[x.status]++; });
-      var bar = ['good','warn','critical'].map(function(k){
+      var bar = ['good','warn','critical','new'].map(function(k){
         return c[k] ? '<span class="sb-' + k + '" style="flex:' + c[k] + '" title="' + mapStatusMeta[k].label + ' ' + c[k] + '"></span>' : '';
       }).join('');
       return '<div class="region-row' + (d.id===selectedDealer ? ' selected' : '') + '" data-region="' + d.id + '" tabindex="0" role="button">'
@@ -1842,8 +1856,114 @@
   });
 
   /* ============================================================ */
+  /* 新建项目 · 业主端与服务商中控台共享                                   */
+  /* 项目只能由业主在小程序中创建；中控台读取后受理并派单勘测                   */
+  /* 同一浏览器内通过 localStorage（nuanshu-projects-v1）实时同步（演示用）    */
+  /* ============================================================ */
+  var UP_KEY = 'nuanshu-projects-v1';
+  function upLoad(){
+    try{ var raw = localStorage.getItem(UP_KEY); if(raw){ var o = JSON.parse(raw); if(o && o.v === 1 && o.list) return o.list; } }catch(e){}
+    return [];
+  }
+  function upSave(list){
+    try{ localStorage.setItem(UP_KEY, JSON.stringify({ v:1, list:list })); }catch(e){}
+  }
+  function upEsc(s){ return String(s).replace(/[&<>"]/g, function(ch){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[ch]; }); }
+  dealers.forEach(function(d){ d.baseProjects = d.projects; });
+  var baseMonthlyNew = monthlyNew[monthlyNew.length - 1][1];
+
+  // 把业主新建的项目并入项目列表、地图、大区统计与工单
+  function upApply(){
+    var list = upLoad();
+    projects = projects.filter(function(p){ return !p.userCreated; });
+    mapProjects = mapProjects.filter(function(m){
+      if(!m.user) return true;
+      if(pinEls[m.id]){ pinEls[m.id].remove(); delete pinEls[m.id]; }
+      return false;
+    });
+    list.forEach(function(r){
+      var needs = r.needs || [];
+      projects.push({ id:r.id, userCreated:true, rec:r, name:r.name, dealer:r.dealer, star:false,
+        customer: r.contact + '（业主）', code:r.code, installDate:'待安装', commissionDate:'待调试', warrantyDate:'—',
+        contact:r.contact, phone:r.phone, area:r.area,
+        heatArea: needs.indexOf('地暖采暖') !== -1 ? r.area : 0, coolArea: needs.indexOf('空调制冷') !== -1 ? r.area : 0, deviceIds:[] });
+      var m = { id:'mu-'+r.id, user:true, projectId:r.id, name:r.name, city:r.city, dealer:r.dealer, lon:r.lon, lat:r.lat,
+        devices:0, online:0, area:r.area, status:'new',
+        note: r.status === 'accepted' ? '已受理 · 勘测工单 ' + r.orderId : '业主新建 · 待受理' };
+      mapProjects.push(m);
+      addPin(m);
+      deviceById['svy-'+r.id] = { id:'svy-'+r.id, name:'上门勘测 · '+r.name, type:'勘测', status:'online', temp:0, power:0 };
+      // 已受理的项目在中控台刷新后补回其勘测工单
+      if(r.orderId && !orders.some(function(o){ return o.id === r.orderId; })){
+        orders.unshift({ id:r.orderId, projectId:r.id, deviceId:'svy-'+r.id, type:'上门勘测', tech:r.tech || '王师傅', status:'pending', createdAt:r.acceptedAt, faultText:'业主新建项目，上门勘测（期望'+r.visit+'）' });
+        orderSeq = Math.max(orderSeq, +r.orderId.replace('WO-','') + 1);
+      }
+    });
+    // 业主删除项目后，移除其勘测工单
+    orders = orders.filter(function(o){ return o.deviceId.indexOf('svy-') !== 0 || list.some(function(r){ return 'svy-' + r.id === o.deviceId; }); });
+    dealers.forEach(function(d){ d.projects = d.baseProjects + list.filter(function(r){ return r.dealer === d.id; }).length; });
+    monthlyNew[monthlyNew.length - 1][1] = baseMonthlyNew + list.length;
+    if(selectedProject && !projects.some(function(p){ return p.id === selectedProject; })){ selectedProject = null; }
+    if(mapSelected && !mapProjects.some(function(m){ return m.id === mapSelected; })){ mapSelected = null; }
+    return list;
+  }
+  function upRefresh(){
+    upApply();
+    renderKpis(); renderMapTrend(); renderDealerList(); renderProjectPanel(); renderOrderList(); updateOrderBadge();
+  }
+  window.addEventListener('storage', function(e){
+    if(e.key !== UP_KEY) return;
+    var before = projects.filter(function(p){ return p.userCreated; }).map(function(p){ return p.id; });
+    upRefresh();
+    var added = projects.filter(function(p){ return p.userCreated && before.indexOf(p.id) === -1; });
+    if(added.length) toast('新项目：' + added.map(function(p){ return p.name + '（' + p.rec.city + '）'; }).join('、') + ' 待受理');
+  });
+
+  function userProjectDetailHtml(p, dealer){
+    var r = p.rec, accepted = r.status === 'accepted';
+    var cells = [
+      ['所属网点', dealer ? dealer.name + '（就近分配）' : '—'], ['业主', upEsc(r.contact)], ['联系电话', r.phone],
+      ['项目编号', r.code], ['提交时间', r.createdAt], ['项目状态', accepted ? '已受理 · 待勘测' : '待受理'],
+      ['所在城市', r.province === r.city ? r.city : r.province + ' · ' + r.city], ['房屋类型', r.houseType], ['建筑面积', r.area.toLocaleString() + ' m²'],
+      ['房间数', r.rooms + ' 间'], ['期望上门', r.visit], ['详细地址', upEsc(r.address)]
+    ];
+    return '<div class="panel-head"><div><h2>' + upEsc(r.name) + ' <span class="pill new" style="font-size:11px;vertical-align:2px;">业主新建</span></h2>'
+      + '<div class="desc">业主通过暖枢管家小程序提交 · 暂无接入设备 · 隶属 ' + (dealer ? dealer.name : '—') + '</div></div></div>'
+      + '<div class="info-grid">' + cells.map(function(c){ return '<div class="info-cell"><div class="l">' + c[0] + '</div><div class="v">' + c[1] + '</div></div>'; }).join('') + '</div>'
+      + '<div class="cfg-title">暖通需求</div>'
+      + '<div class="up-needs">' + r.needs.map(function(n){ return '<span>' + n + '</span>'; }).join('') + '</div>'
+      + (r.note ? '<div class="cfg-title">业主备注</div><div class="up-note">' + upEsc(r.note) + '</div>' : '')
+      + '<div class="cfg-title">受理</div>'
+      + (accepted
+          ? '<div class="up-accept">已于 ' + r.acceptedAt + ' 受理，勘测工单 <b class="mono">' + r.orderId + '</b> 已派给 ' + r.tech + '<button class="btn ghost sm" id="upGoOrders">查看工单 →</button></div>'
+          : '<div class="up-accept">业主已提交，等待网点受理。受理后将自动生成上门勘测工单，并同步通知业主。<button class="btn primary sm" id="upAccept">受理并派单勘测</button></div>');
+  }
+  function bindUserProjectDetail(p){
+    var a = document.getElementById('upAccept');
+    if(a) a.addEventListener('click', function(){
+      var list = upLoad(), r = list.filter(function(x){ return x.id === p.id; })[0];
+      if(!r || r.status === 'accepted') { upRefresh(); return; }
+      var id = createOrder(deviceById['svy-'+p.id], p, '上门勘测', '业主新建项目，上门勘测（期望'+r.visit+'）');
+      var o = orders.filter(function(x){ return x.id === id; })[0];
+      var now = new Date(); function pad(n){ return (n < 10 ? '0' : '') + n; }
+      r.status = 'accepted'; r.orderId = id; r.tech = o.tech;
+      r.acceptedAt = pad(now.getMonth()+1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+      o.createdAt = r.acceptedAt;
+      upSave(list);
+      upRefresh();
+    });
+    var g = document.getElementById('upGoOrders');
+    if(g) g.addEventListener('click', function(){
+      activateSection('orders');
+      sectionTabs.forEach(function(t){ t.setAttribute('aria-selected', t.getAttribute('data-section')==='orders'?'true':'false'); });
+      showOrderDetail(p.rec.orderId);
+    });
+  }
+
+  /* ============================================================ */
   /* INIT                                                           */
   /* ============================================================ */
+  upApply();
   renderKpis();
   renderMapTrend();
   renderDealerList(); renderProjectPanel();

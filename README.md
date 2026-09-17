@@ -6,7 +6,7 @@
 
 | 页面 | 说明 | 链接 |
 |---|---|---|
-| 作品集展示页 | 面向面试官 / 简历读者的整体案例介绍，含架构图、设计系统、三端截图 | https://khalilyong221.github.io/nuanshu-hvac-platform/showcase.html |
+| 作品集展示页 | 面向面试官 / 简历读者的整体案例介绍，含架构图、3 分钟体验路线、跨端业务闭环、设计系统与界面截图 | https://khalilyong221.github.io/nuanshu-hvac-platform/showcase.html |
 | 服务商中控台（console.html） | 面向暖通服务商的大屏 SaaS 管理后台：项目分布地图、多站点监控、工单、能耗、告警联动 | https://khalilyong221.github.io/nuanshu-hvac-platform/console.html |
 | 业主端小程序（app.html） | 面向终端业主的移动端小程序风格界面：设备控制、历史数据、用电量分析 | https://khalilyong221.github.io/nuanshu-hvac-platform/app.html |
 | 硬件中控面板（panel.html） | 模拟墙面硬件面板的深色触屏界面：本地控制、传感器数据、用电量分析 | https://khalilyong221.github.io/nuanshu-hvac-platform/panel.html |
@@ -22,10 +22,10 @@
 ├── showcase.html   # 作品集 / 案例展示页
 ├── index.html      # 早期三端合一原型
 ├── fonts/          # 自托管字体（Oswald / IBM Plex，SIL OFL 开源许可）
-└── images/         # showcase.html 使用的产品截图
-    ├── console.png
-    ├── app.png
-    └── panel.png
+└── images/         # showcase.html 使用的界面截图（WebP，由无头 Chrome 按真实页面截取）
+    ├── console.webp / console-monitor.webp
+    ├── app.webp / app-login.webp / app-report.webp / app-smart.webp / app-access.webp
+    └── panel.webp / panel-lock.webp
 ```
 
 ## 设计系统
@@ -66,4 +66,4 @@
 
 ---
 
-由 [Claude](https://claude.com) 辅助设计与实现。
+借助 AI 工具（[Claude](https://claude.com)）独立完成设计与实现。

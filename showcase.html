@@ -1,6 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>暖枢 NUANSHU</title>
+<title>暖枢 NUANSHU · 三端物联网暖通运维平台</title>
+<meta name="description" content="暖枢：服务商中控台、业主端小程序、硬件中控面板三端联动的物联网暖通运维平台作品集，可在线体验。">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNjQgNjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJmYmciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMxZjVhNGYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwZDI2MjAiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iZmZsIiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmZlMmEzIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZDZhOTVmIi8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTUiIGZpbGw9InVybCgjZmJnKSIvPjxjaXJjbGUgY3g9IjMyIiBjeT0iMzMiIHI9IjE3IiBmaWxsPSJub25lIiBzdHJva2U9IiNkNmE5NWYiIHN0cm9rZS13aWR0aD0iMy4yIi8+PGcgZmlsbD0iI2YzZTNiNSIgc3Ryb2tlPSIjMTUzZjM3IiBzdHJva2Utd2lkdGg9IjIuNCI+PGNpcmNsZSBjeD0iMzIiIGN5PSIxNiIgcj0iNC42Ii8+PGNpcmNsZSBjeD0iMTcuMyIgY3k9IjQxLjUiIHI9IjQuNiIvPjxjaXJjbGUgY3g9IjQ2LjciIGN5PSI0MS41IiByPSI0LjYiLz48L2c+PHBhdGggZD0iTTMyIDIzLjVjMy44IDQuMiA2LjIgNy40IDYuMiAxMWE2LjIgNi4yIDAgMCAxLTEyLjQgMGMwLTIuNiAxLjQtNC42IDMuMS02LjYuMyAyIDEuMyAzLjIgMi42IDMuNi0uNi0yLjYtLjMtNSAuNS04eiIgZmlsbD0idXJsKCNmZmwpIi8+PC9zdmc+">
 <link rel="stylesheet" href="fonts/fonts.css">
 <style>
@@ -11,6 +12,7 @@
     --brass: #93641f; --brass-ink: #6e4a17; --brass-soft: #ecdcb8; --brass-soft-ink: #6e4a17;
     --frost: #2c748a; --frost-soft: #d1e7ea;
     --good: #2c7a4b; --good-soft: #d7ead9;
+    --end-c: #1f5fb8; --end-c-soft: #dde8f7;
     --shadow-soft: 0 1px 2px rgba(20,30,22,0.06), 0 6px 18px -8px rgba(20,30,22,0.18);
     --shadow-raised: 0 4px 10px rgba(20,30,22,0.10), 0 20px 48px -14px rgba(20,30,22,0.28);
     --font-display: 'Oswald', 'PingFang SC', 'Microsoft YaHei', sans-serif;
@@ -25,7 +27,7 @@
       --border: #253630; --border-strong: #34473f;
       --brass: #d6a95f; --brass-ink: #f0d9ab; --brass-soft: #3a2e17; --brass-soft-ink: #e8c98a;
       --frost: #7fc2d6; --frost-soft: #163137;
-      --good: #5cc48c; --good-soft: #163728;
+      --good: #5cc48c; --good-soft: #163728; --end-c: #8db8f2; --end-c-soft: #172a45;
       --shadow-soft: 0 1px 2px rgba(0,0,0,0.3), 0 6px 18px -8px rgba(0,0,0,0.5);
       --shadow-raised: 0 4px 10px rgba(0,0,0,0.35), 0 24px 56px -16px rgba(0,0,0,0.6);
     }
@@ -36,7 +38,7 @@
     --border: #253630; --border-strong: #34473f;
     --brass: #d6a95f; --brass-ink: #f0d9ab; --brass-soft: #3a2e17; --brass-soft-ink: #e8c98a;
     --frost: #7fc2d6; --frost-soft: #163137;
-    --good: #5cc48c; --good-soft: #163728;
+    --good: #5cc48c; --good-soft: #163728; --end-c: #8db8f2; --end-c-soft: #172a45;
     --shadow-soft: 0 1px 2px rgba(0,0,0,0.3), 0 6px 18px -8px rgba(0,0,0,0.5);
     --shadow-raised: 0 4px 10px rgba(0,0,0,0.35), 0 24px 56px -16px rgba(0,0,0,0.6);
   }
@@ -151,6 +153,56 @@
   .foot .fl{ font-size:12px; color: var(--ink-faint); line-height:1.7; }
   .foot .fl a{ color: var(--frost); font-weight:600; }
   .foot .byline{ font-size:12px; color: var(--ink-muted); text-align:right; }
+
+  /* ---------------- try-it route ---------------- */
+  .tryit{ margin-top:18px; background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-l); padding: 20px 22px 22px; box-shadow: var(--shadow-soft); }
+  .tryit-head{ display:flex; align-items:baseline; justify-content:space-between; gap:6px 16px; flex-wrap:wrap; margin-bottom:14px; }
+  .tryit-head h3{ font-size:17px; font-weight:600; }
+  .tryit-head span{ font-size:12px; color: var(--ink-faint); }
+  .tryit ol{ margin:0; padding:0; list-style:none; display:grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap:10px; counter-reset: step; }
+  .tryit li{ counter-increment: step; position:relative; background: var(--surface); border:1px solid var(--border); border-radius: var(--radius-m); padding: 12px 14px 12px 44px; font-size:12.5px; line-height:1.65; }
+  .tryit li::before{ content: counter(step); position:absolute; left:13px; top:12px; width:22px; height:22px; border-radius:50%; background: var(--brass-soft); color: var(--brass-ink); font-family: var(--font-mono); font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center; }
+  .tryit li b{ font-weight:600; }
+
+  /* ---------------- flows ---------------- */
+  .block{ padding: 52px 0; border-top:1px solid var(--border); }
+  .block-lede{ font-size:13.5px; line-height:1.8; color: var(--ink-muted); max-width:70ch; margin: -4px 0 22px; }
+  .dsys .block-lede{ margin-bottom:0; }
+  .flows{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:16px; }
+  @media (max-width:760px){ .flows{ grid-template-columns:1fr; } }
+  .flow{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-l); padding: 20px 20px 14px; box-shadow: var(--shadow-soft); }
+  .flow-head{ display:flex; align-items:center; justify-content:space-between; gap:6px 12px; flex-wrap:wrap; margin-bottom:12px; }
+  .flow-head h3{ font-size:17px; font-weight:600; }
+  .flow-ref{ font-size:10.5px; color: var(--ink-muted); border:1px solid var(--border); border-radius:999px; padding:3px 10px; }
+  .flow-steps{ margin:0; padding:0; list-style:none; }
+  .flow-steps li{ display:grid; grid-template-columns: 52px minmax(0,1fr); gap:12px; align-items:start; font-size:12.5px; line-height:1.65; padding: 9px 0; border-top:1px dashed var(--border); }
+  .flow-steps li:first-child{ border-top:none; padding-top:2px; }
+  .end{ display:flex; justify-content:center; font-size:10.5px; font-weight:600; border-radius:6px; padding:2px 0; margin-top:1px; white-space:nowrap; }
+  .end.c{ background: var(--end-c-soft); color: var(--end-c); }
+  .end.a{ background: var(--brass-soft); color: var(--brass-soft-ink); }
+  .end.p{ background: var(--good-soft); color: var(--good); }
+  .end.all{ background: var(--surface-sunken); color: var(--ink-muted); border:1px solid var(--border); }
+
+  /* ---------------- gallery ---------------- */
+  .gallery-phones{ display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:16px; }
+  @media (max-width:860px){ .gallery-phones{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+  .gallery-wide{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:16px; margin-top:16px; }
+  @media (max-width:760px){ .gallery-wide{ grid-template-columns: 1fr; } }
+  .shot{ margin:0; display:flex; flex-direction:column; gap:10px; }
+  .shot-frame{ flex:1; background: linear-gradient(155deg, var(--surface-sunken), var(--surface-inset)); border:1px solid var(--border); border-radius: var(--radius-m); padding:16px; display:flex; align-items:center; justify-content:center; }
+  .shot img{ width:100%; height:auto; }
+  .gallery-phones .shot-frame{ padding:16px 12px; }
+  .gallery-phones .shot img{ max-width:230px; }
+  .shot figcaption{ font-size:12px; line-height:1.55; color: var(--ink-muted); padding: 0 2px; }
+  .shot figcaption b{ display:block; color: var(--ink); font-size:13px; font-weight:600; margin-bottom:2px; }
+
+  /* ---------------- design system extras ---------------- */
+  .sw-label{ font-size:11px; color: var(--ink-faint); letter-spacing:0.4px; margin-bottom:8px; }
+  .swatch-row + .sw-label{ margin-top:18px; }
+  .brand-row{ align-items:center; border-bottom:none; }
+  .brand-row .bi{ width:52px; height:52px; border-radius:14px; overflow:hidden; box-shadow: var(--shadow-soft); flex:none; }
+  .brand-row .bi svg{ width:100%; height:100%; display:block; }
+  .brand-row .bi-desc{ font-size:12.5px; line-height:1.6; color: var(--ink-muted); }
 </style>
 
 <div class="wrap">
@@ -167,14 +219,14 @@
   </div>
 
   <div class="hero">
-    <span class="hero-eyebrow"><span class="dt"></span>作品集 · 独立项目案例</span>
+    <span class="hero-eyebrow"><span class="dt"></span>作品集 · 借助 AI 工具独立完成</span>
     <h1>三端物联网暖通运维平台</h1>
     <div class="tagline">服务商中控台 · 业主端小程序 · 硬件中控面板</div>
-    <p class="lede">暖枢是一套面向暖通（HVAC）行业的物联网运维产品体系。项目以一份行业参考方案的三层架构为起点——面向经销商的管理后台、面向业主的小程序、安装在家中的硬件中控面板——在此基础上重新设计了一套完整的视觉与交互系统，并将三端实现为三个各自独立部署、仅通过云端数据同步互联的产品，而非共用一套界面的多标签页面。</p>
-    <p class="lede">从信息架构、数据可视化规范到深浅色双主题的设计令牌体系，均为独立设计与开发；界面为纯 HTML / CSS / JavaScript 编写，零第三方框架依赖。</p>
+    <p class="lede">暖枢是一套面向暖通（HVAC）行业的物联网运维产品：服务商用中控台管理全国项目、处理告警与工单；业主用小程序控制家里的暖通设备、智能家居与安防；墙面硬件面板让家人在家中就地操作。三端围绕同一户住宅的设备状态协同工作——在任意一端调节窗帘、处理报警或提交预约，另外两端会同步更新。</p>
+    <p class="lede">从业务流程、信息架构、视觉与交互设计到前端实现均借助 AI 工具独立完成。设计中参考了 Trane、Daikin、Resideo、Sensi 等暖通品牌的服务模式（业主授权远程诊断、月度系统健康报告、服务商品牌露出），并结合国内经销商上门服务的场景重新设计。</p>
     <div class="hero-meta">
-      <div class="hm"><span class="hl">角色</span><span class="hv">产品设计 &amp; 前端开发（独立完成）</span></div>
-      <div class="hm"><span class="hl">形式</span><span class="hv">3 个可交互 Demo · 各自独立部署</span></div>
+      <div class="hm"><span class="hl">角色</span><span class="hv">产品设计 &amp; 前端开发（借助 AI 工具独立完成）</span></div>
+      <div class="hm"><span class="hl">形式</span><span class="hv">3 个可交互 Demo · 同一浏览器内实时联动</span></div>
       <div class="hm"><span class="hl">技术</span><span class="hv">HTML · CSS · JavaScript（零依赖）</span></div>
     </div>
   </div>
@@ -184,87 +236,172 @@
     <div class="arch-strip">
       <a class="arch-card" href="https://khalilyong221.github.io/nuanshu-hvac-platform/console.html" target="_blank" rel="noopener">
         <span class="idx">01</span><h3>服务商中控台</h3>
-        <span class="desc">大型经销商级 SaaS 管理后台：经销商网络、项目档案、设备监测、故障预警与服务工单闭环。</span>
+        <span class="desc">经销商级运营驾驶舱：全国项目地图、运行监测、故障与安防预警、服务工单，以及家庭绑定、业主授权与预约处理。</span>
         <span class="go">查看演示 ↗</span>
       </a>
-      <div class="arch-flow"><span class="arrow">⇄</span><small>指令下发<br>状态上报</small></div>
+      <div class="arch-flow"><span class="arrow">⇄</span><small>绑定 · 授权<br>预约 · 派单</small></div>
       <a class="arch-card" href="https://khalilyong221.github.io/nuanshu-hvac-platform/app.html" target="_blank" rel="noopener">
         <span class="idx">02</span><h3>业主端小程序</h3>
-        <span class="desc">面向家庭用户的移动端应用：房间温控、场景联动、历史数据、用电分析与一键求助。</span>
+        <span class="desc">业主的家庭控制中心：多家庭切换、暖通温控、智能家居与安防、月度健康报告、授权服务商与一键预约。</span>
         <span class="go">查看演示 ↗</span>
       </a>
-      <div class="arch-flow"><span class="arrow">⇄</span><small>场景联动<br>数据同步</small></div>
+      <div class="arch-flow"><span class="arrow">⇄</span><small>设备状态<br>实时同步</small></div>
       <a class="arch-card" href="https://khalilyong221.github.io/nuanshu-hvac-platform/panel.html" target="_blank" rel="noopener">
         <span class="idx">03</span><h3>硬件中控面板</h3>
-        <span class="desc">墙面触控终端：与小程序共享同一住宅的实时数据，独立的横屏交互与固定深色屏幕设计。</span>
+        <span class="desc">墙面触控终端：就地温控与场景、安防与家居控制、服务商信息，闲置时进入带天气提醒的锁屏。</span>
         <span class="go">查看演示 ↗</span>
       </a>
+    </div>
+
+    <div class="tryit">
+      <div class="tryit-head"><h3>3 分钟体验路线</h3><span>演示数据只保存在你自己的浏览器里；联动效果建议用电脑体验</span></div>
+      <ol>
+        <li>打开<b>业主端小程序</b>，点登录页底部的「演示项目」进入演示账号</li>
+        <li>在<b>同一个浏览器</b>里再开两个标签页，分别打开<b>硬件中控面板</b>和<b>服务商中控台</b></li>
+        <li>在小程序首页「安防与家居 → 查看全部设备」拖动窗帘或灯光滑动条，看面板和中控台同步变化</li>
+        <li>在小程序「服务」页一键预约上门，再到中控台「待处理项目」里确认并派技师</li>
+        <li>在面板「我的 → 面板设置」点「立即锁屏」，看锁屏的天气与生活提醒</li>
+      </ol>
     </div>
   </div>
 
   <div class="showcase">
     <div class="sc-text">
       <span class="sc-tag">01 · 服务商中控台</span>
-      <h3>为经销商规模设计的运维后台</h3>
-      <p class="sc-desc">面向大型经销商而非单一门店：经销商网络覆盖 6 大区、64 个项目、2,169 台设备，可逐层下钻至具体项目与设备。故障预警可一键发起服务工单，并与工单列表实时联动。</p>
+      <h3>为经销商规模设计的运营驾驶舱</h3>
+      <p class="sc-desc">面向大型经销商而非单一门店：6 大区运营中心、60 余个项目、2,169 台设备。首页是一屏式驾驶舱，地图、网点与项目列表相互联动；监测、预警、工单形成闭环，业主家庭的绑定、授权与预约也在这里统一处理。</p>
       <div class="sc-feats">
-        <div class="sc-feat"><span class="fi">◆</span>全国项目运营大屏：完整省界地图 + 南海诸岛小图，按运行状态着色，大区与项目联动筛选</div>
-        <div class="sc-feat"><span class="fi">◆</span>经销商网络 → 项目档案 → 设备监测三级下钻</div>
-        <div class="sc-feat"><span class="fi">◆</span>多指标遥测曲线（室内 / 室外 / 设定 / 排气 / 冷凝温度）</div>
-        <div class="sc-feat"><span class="fi">◆</span>故障预警一键建单，工单状态实时跟踪</div>
+        <div class="sc-feat"><span class="fi">◆</span>全国项目运营大屏：完整省界地图 + 南海诸岛小图，按运行状态着色；超宽屏自动等比放大</div>
+        <div class="sc-feat"><span class="fi">◆</span>运行监测：设备台账、能耗趋势与多指标遥测曲线，可远程下发指令、生成运维工单</div>
+        <div class="sc-feat"><span class="fi">◆</span>故障与安防预警一键派单，已派单的报警不会重复建单，工单状态实时跟踪</div>
+        <div class="sc-feat"><span class="fi">◆</span>家庭管理：新建家庭并绑定业主手机号、处理增删家庭申请；在业主授权下发起 2 小时远程调节</div>
       </div>
       <a class="sc-cta" href="https://khalilyong221.github.io/nuanshu-hvac-platform/console.html" target="_blank" rel="noopener">查看实时演示<span class="arr">↗</span></a>
     </div>
-    <div class="sc-media wide"><img src="images/console.png" alt="服务商中控台界面截图" loading="lazy"></div>
+    <div class="sc-media wide"><img src="images/console.webp" width="3200" height="2000" alt="服务商中控台首页驾驶舱：基础信息、全国项目运营大屏、经销商网络与项目列表" loading="lazy"></div>
   </div>
 
   <div class="showcase rev">
     <div class="sc-text">
       <span class="sc-tag">02 · 业主端小程序</span>
-      <h3>面向家庭日常使用的控制中心</h3>
-      <p class="sc-desc">五个底部标签覆盖首页温控、场景、历史数据、服务与账户设置；场景可自定义保存，用电分析细化到分时电价与峰谷用电对比，服务求助会实时写入消息记录。</p>
+      <h3>业主的家庭控制中心</h3>
+      <p class="sc-desc">业主用手机号登录后，看到服务商为自己绑定的家庭，可以在多个家庭间切换、修改家庭名称与地址。首页用可折叠分区收纳温控、场景、安防与能耗；数据给不给服务商看、能不能远程调节，由业主自己决定。</p>
       <div class="sc-feats">
-        <div class="sc-feat"><span class="fi">◆</span>房间温控、模式切换与可视化圆环表盘</div>
-        <div class="sc-feat"><span class="fi">◆</span>自定义场景（保存后即刻出现在首页快捷入口）</div>
-        <div class="sc-feat"><span class="fi">◆</span>电表读数、分时电价与峰谷用电曲线</div>
+        <div class="sc-feat"><span class="fi">◆</span>手机号验证码 / 微信登录，演示账号一键进入；增删家庭需提交申请，由服务商处理</div>
+        <div class="sc-feat"><span class="fi">◆</span>智能窗帘与灯光用滑动条无级调节：滑到最左自动关闭，开关一键恢复上次的位置</div>
+        <div class="sc-feat"><span class="fi">◆</span>服务商访问权限三档，远程调节每次临时授权 2 小时，到期自动关闭</div>
+        <div class="sc-feat"><span class="fi">◆</span>月度系统健康报告：评分随设备真实状态变化，问题可直接授权远程处理或预约上门</div>
+        <div class="sc-feat"><span class="fi">◆</span>电表与燃气表分析：分时电价、峰谷用电与居民阶梯气价</div>
       </div>
       <a class="sc-cta" href="https://khalilyong221.github.io/nuanshu-hvac-platform/app.html" target="_blank" rel="noopener">查看实时演示<span class="arr">↗</span></a>
     </div>
-    <div class="sc-media tall"><img src="images/app.png" alt="业主端小程序界面截图" loading="lazy"></div>
+    <div class="sc-media tall"><img src="images/app.webp" width="780" height="1600" alt="业主端小程序首页：家庭栏、室外气象、客厅温控与月度健康报告" loading="lazy"></div>
   </div>
 
   <div class="showcase">
     <div class="sc-text">
       <span class="sc-tag">03 · 硬件中控面板</span>
       <h3>墙面触控终端的物理设备语言</h3>
-      <p class="sc-desc">横屏触控面板，与业主端共享同一套住宅数据。屏幕本身采用固定深色配色，模拟真实设备显示屏不随页面主题切换的物理特性；房间详情还原了刻度式设温、风速滑块与常见故障自助排查流程。</p>
+      <p class="sc-desc">5:4 横屏触控面板，与小程序共享同一户住宅的数据。屏幕固定为深色，模拟真实显示屏不随页面主题切换的物理特性；闲置一段时间后进入锁屏，只显示此刻最需要知道的信息。</p>
       <div class="sc-feats">
-        <div class="sc-feat"><span class="fi">◆</span>楼层 / 房间快捷温控矩阵与季节场景栏</div>
-        <div class="sc-feat"><span class="fi">◆</span>常见问题自助排查 → 人工上门预约完整链路</div>
-        <div class="sc-feat"><span class="fi">◆</span>设备侧用电分析与运维记录</div>
+        <div class="sc-feat"><span class="fi">◆</span>首页、安防、场景、数据、服务、我的六个模块，屏幕尺寸固定</div>
+        <div class="sc-feat"><span class="fi">◆</span>快捷设备、入户门锁、分区灯光与房间温控就地操作，与小程序、中控台实时同步</div>
+        <div class="sc-feat"><span class="fi">◆</span>锁屏：「窗边暖光」插画背景，显示天气与生活提醒（带伞、防晒、口罩、添衣），轻触唤醒；发生安防报警自动亮屏</div>
+        <div class="sc-feat"><span class="fi">◆</span>显示负责该家庭的服务商信息，常见问题自助排查与上门预约</div>
       </div>
       <a class="sc-cta" href="https://khalilyong221.github.io/nuanshu-hvac-platform/panel.html" target="_blank" rel="noopener">查看实时演示<span class="arr">↗</span></a>
     </div>
-    <div class="sc-media wide"><img src="images/panel.png" alt="硬件中控面板界面截图" loading="lazy"></div>
+    <div class="sc-media wide"><img src="images/panel.webp" width="1960" height="1580" alt="硬件中控面板首页：时间天气、室内空气质量、快捷设备、安防与家居、房间温控" loading="lazy"></div>
+  </div>
+
+  <div class="block">
+    <div class="section-kicker"><span class="num">04</span><h2>跨端业务闭环</h2></div>
+    <p class="block-lede">每个功能都不只停留在一端：数据由谁产生、谁来处理、结果回到哪里，是设计三端时最先考虑的问题。</p>
+    <div class="flows">
+      <div class="flow">
+        <div class="flow-head"><h3>家庭绑定与申请</h3></div>
+        <ol class="flow-steps">
+          <li><span class="end c">中控台</span><span>服务商新建家庭、录入设备，并绑定业主手机号</span></li>
+          <li><span class="end a">小程序</span><span>业主登录后在「我的家庭」查看并切换；可以改名称和地址，增删家庭需提交申请</span></li>
+          <li><span class="end c">中控台</span><span>服务商在「待处理项目」里处理申请，结果回传小程序</span></li>
+          <li><span class="end all">三端</span><span>业主修改的家庭名称、地址同步显示在中控台和硬件面板</span></li>
+        </ol>
+      </div>
+      <div class="flow">
+        <div class="flow-head"><h3>业主授权远程服务</h3><span class="flow-ref">参考 Trane · Daikin</span></div>
+        <ol class="flow-steps">
+          <li><span class="end a">小程序</span><span>业主为每个家庭选择授权级别：持续监测 + 远程调节 / 仅监测（默认）/ 不共享数据</span></li>
+          <li><span class="end c">中控台</span><span>发现地暖供水温度超上限，服务商在家庭详情里申请 2 小时远程调节</span></li>
+          <li><span class="end a">小程序</span><span>业主在首页收到提示，选择允许或拒绝；授权到期自动关闭</span></li>
+          <li><span class="end c">中控台</span><span>远程下调供水温度设定并复位告警，工单无需上门即完成，小程序里的健康评分随之提升</span></li>
+        </ol>
+      </div>
+      <div class="flow">
+        <div class="flow-head"><h3>一键预约上门</h3><span class="flow-ref">参考 Resideo Pro-IQ</span></div>
+        <ol class="flow-steps">
+          <li><span class="end a">小程序</span><span>首页和服务页展示负责该家庭的运营中心、负责人与服务时间</span></li>
+          <li><span class="end a">小程序</span><span>选择年度保养 / 故障维修 / 滤网更换，选好日期和时间段后提交</span></li>
+          <li><span class="end c">中控台</span><span>预约实时出现在待处理项目与服务工单中，服务商确认并指派技师</span></li>
+          <li><span class="end a">小程序</span><span>处理结果回传业主端，业主也可以取消预约</span></li>
+        </ol>
+      </div>
+      <div class="flow">
+        <div class="flow-head"><h3>智能家居与安防联动</h3></div>
+        <ol class="flow-steps">
+          <li><span class="end all">三端</span><span>业主在小程序或面板拖动窗帘开合、灯光亮度，三端状态实时同步</span></li>
+          <li><span class="end p">面板</span><span>烟雾或燃气探测器报警时，锁屏自动亮屏回到首页</span></li>
+          <li><span class="end c">中控台</span><span>安防报警排在预警列表最前，可一键派单，已派单的不会重复建单</span></li>
+          <li><span class="end a">小程序</span><span>业主选择「不共享数据」后，中控台看不到智能家居状态与安防报警</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="section-kicker"><span class="num">05</span><h2>界面一览</h2></div>
+    <div class="gallery-phones">
+      <figure class="shot"><div class="shot-frame"><img src="images/app-login.webp" width="780" height="1600" alt="业主端小程序登录页" loading="lazy"></div><figcaption><b>登录</b>手机号验证码 / 微信登录，演示账号一键进入</figcaption></figure>
+      <figure class="shot"><div class="shot-frame"><img src="images/app-report.webp" width="780" height="1600" alt="月度系统健康报告页面" loading="lazy"></div><figcaption><b>月度系统健康报告</b>评分、需要处理的事项与检查明细</figcaption></figure>
+      <figure class="shot"><div class="shot-frame"><img src="images/app-smart.webp" width="780" height="1600" alt="智能窗帘与分区灯光的滑动调节" loading="lazy"></div><figcaption><b>智能窗帘与灯光</b>滑动条无级调节，三端实时同步</figcaption></figure>
+      <figure class="shot"><div class="shot-frame"><img src="images/app-access.webp" width="780" height="1600" alt="服务商访问权限设置页面" loading="lazy"></div><figcaption><b>服务商访问权限</b>三档授权，写明服务商能看到和看不到什么</figcaption></figure>
+    </div>
+    <div class="gallery-wide">
+      <figure class="shot"><div class="shot-frame"><img src="images/panel-lock.webp" width="1960" height="1580" alt="硬件中控面板锁屏：窗边暖光插画、时间、天气与生活提醒" loading="lazy"></div><figcaption><b>硬件面板锁屏</b>「窗边暖光」插画背景，天气与生活提醒，轻触唤醒</figcaption></figure>
+      <figure class="shot"><div class="shot-frame"><img src="images/console-monitor.webp" width="3200" height="2000" alt="服务商中控台运行监测：设备台账、能耗趋势与设备遥测曲线" loading="lazy"></div><figcaption><b>中控台运行监测</b>设备台账、能耗趋势与多指标遥测曲线</figcaption></figure>
+    </div>
   </div>
 
   <div class="dsys">
-    <div class="section-kicker"><span class="num">04</span><h2>设计系统</h2></div>
-    <p class="sc-desc" style="max-width:70ch;">业主端与硬件面板共享同一套设计令牌：深松石绿与黄铜色构成的工业质感配色，搭配 Oswald 数字与 IBM Plex 字族；服务商中控台作为运营大屏，单独采用深海军蓝数据大屏配色。深浅色主题均为独立定义的完整令牌集，而非简单反色。</p>
+    <div class="section-kicker"><span class="num">06</span><h2>设计系统</h2></div>
+    <p class="block-lede">业主端与硬件面板共享同一套设计令牌：深松石绿与黄铜色构成的温暖工业质感，搭配 Oswald 数字与 IBM Plex 字族；服务商中控台作为运营大屏，单独采用深海军蓝数据大屏配色。深浅色主题均为独立定义的完整令牌集，而非简单反色。</p>
     <div class="dsys-grid">
-      <div class="swatch-row">
-        <div class="swatch"><div class="sw-chip" style="background:#16211c"></div><span class="sw-name">ink</span></div>
-        <div class="swatch"><div class="sw-chip" style="background:#93641f"></div><span class="sw-name">brass</span></div>
-        <div class="swatch"><div class="sw-chip" style="background:#2c748a"></div><span class="sw-name">frost</span></div>
-        <div class="swatch"><div class="sw-chip" style="background:#2c7a4b"></div><span class="sw-name">good</span></div>
-        <div class="swatch"><div class="sw-chip" style="background:#a4720a"></div><span class="sw-name">warn</span></div>
-        <div class="swatch"><div class="sw-chip" style="background:#a63a24"></div><span class="sw-name">critical</span></div>
-        <div class="swatch"><div class="sw-chip" style="background:#eef1ec;border:1px solid var(--border)"></div><span class="sw-name">surface</span></div>
+      <div>
+        <div class="sw-label">业主端小程序 / 硬件面板</div>
+        <div class="swatch-row">
+          <div class="swatch"><div class="sw-chip" style="background:#16211c"></div><span class="sw-name">ink</span></div>
+          <div class="swatch"><div class="sw-chip" style="background:#93641f"></div><span class="sw-name">brass</span></div>
+          <div class="swatch"><div class="sw-chip" style="background:#2c748a"></div><span class="sw-name">frost</span></div>
+          <div class="swatch"><div class="sw-chip" style="background:#2c7a4b"></div><span class="sw-name">good</span></div>
+          <div class="swatch"><div class="sw-chip" style="background:#a4720a"></div><span class="sw-name">warn</span></div>
+          <div class="swatch"><div class="sw-chip" style="background:#a63a24"></div><span class="sw-name">critical</span></div>
+          <div class="swatch"><div class="sw-chip" style="background:#eef1ec"></div><span class="sw-name">surface</span></div>
+        </div>
+        <div class="sw-label">服务商中控台</div>
+        <div class="swatch-row">
+          <div class="swatch"><div class="sw-chip" style="background:#050f26"></div><span class="sw-name">surface</span></div>
+          <div class="swatch"><div class="sw-chip" style="background:#3d8bff"></div><span class="sw-name">accent</span></div>
+          <div class="swatch"><div class="sw-chip" style="background:#4cd3ff"></div><span class="sw-name">frost</span></div>
+          <div class="swatch"><div class="sw-chip" style="background:#39d98f"></div><span class="sw-name">good</span></div>
+          <div class="swatch"><div class="sw-chip" style="background:#ffc247"></div><span class="sw-name">warn</span></div>
+          <div class="swatch"><div class="sw-chip" style="background:#ff6a5a"></div><span class="sw-name">critical</span></div>
+          <div class="swatch"><div class="sw-chip" style="background:#e3eeff"></div><span class="sw-name">ink</span></div>
+        </div>
       </div>
       <div class="type-sample">
         <div class="type-row disp"><span class="tl">display</span><span class="tv">Oswald 暖枢</span></div>
         <div class="type-row"><span class="tl">body</span><span class="tv" style="font-size:15px;">IBM Plex Sans 正文文本</span></div>
         <div class="type-row mono"><span class="tl">mono</span><span class="tv">12,456.8 kWh</span></div>
+        <div class="type-row brand-row"><span class="tl">icon</span><span class="bi"><svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><linearGradient id="nsDsbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1f5a4f"/><stop offset="1" stop-color="#0d2620"/></linearGradient><linearGradient id="nsDsfl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe2a3"/><stop offset="1" stop-color="#d6a95f"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="url(#nsDsbg)"/><circle cx="32" cy="33" r="17" fill="none" stroke="#d6a95f" stroke-width="3.2"/><g fill="#f3e3b5" stroke="#153f37" stroke-width="2.4"><circle cx="32" cy="16" r="4.6"/><circle cx="17.3" cy="41.5" r="4.6"/><circle cx="46.7" cy="41.5" r="4.6"/></g><path d="M32 23.5c3.8 4.2 6.2 7.4 6.2 11a6.2 6.2 0 0 1-12.4 0c0-2.6 1.4-4.6 3.1-6.6.3 2 1.3 3.2 2.6 3.6-.6-2.6-.3-5 .5-8z" fill="url(#nsDsfl)"/></svg></span><span class="bi-desc">品牌图标「暖枢环」：黄铜圆环连起三个节点，代表三端；中心一簇暖色火苗，寓意「暖」为核心</span></div>
       </div>
     </div>
   </div>
@@ -272,15 +409,16 @@
   <div class="stackbar">
     <span class="chip">纯 HTML / CSS / JS</span>
     <span class="chip">零第三方框架</span>
-    <span class="chip">响应式布局</span>
+    <span class="chip">localStorage 跨标签页实时同步</span>
+    <span class="chip">响应式 + 大屏自适应</span>
     <span class="chip">深浅色双主题</span>
-    <span class="chip">SVG 数据可视化</span>
-    <span class="chip">三端独立部署</span>
+    <span class="chip">SVG 地图与数据可视化</span>
+    <span class="chip">字体自托管</span>
   </div>
 
   <div class="foot">
-    <div class="fl">三个 Demo 均为可交互原型，建议在桌面浏览器打开体验完整交互。<br>早期合一版原型（单页三标签）：<a href="https://khalilyong221.github.io/nuanshu-hvac-platform/index.html" target="_blank" rel="noopener">查看 →</a></div>
-    <div class="byline">暖枢 NUANSHU · 独立设计与开发项目<br>作品集案例页面</div>
+    <div class="fl">三个 Demo 均为可交互原型，建议在桌面浏览器打开体验完整交互；演示中用浏览器本地存储模拟云端同步，数据不会上传。<br>早期合一版原型（单页三标签）：<a href="https://khalilyong221.github.io/nuanshu-hvac-platform/index.html" target="_blank" rel="noopener">查看 →</a></div>
+    <div class="byline">暖枢 NUANSHU · 借助 AI 工具独立完成<br>作品集案例页面</div>
   </div>
 </div>
 

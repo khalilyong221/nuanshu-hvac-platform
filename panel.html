@@ -355,7 +355,7 @@
   .hl-wx{ display:flex; align-items:center; gap:14px; }
   .hl-wi{ font-size:40px; line-height:1; }
   .hl-wx b{ display:block; font-size:18px; font-weight:600; }
-  .hl-wx span{ display:block; font-size:11.5px; color:#9fb0a7; margin-top:4px; line-height:1.5; }
+  .hl-wx div span{ display:block; font-size:11.5px; color:#9fb0a7; margin-top:4px; line-height:1.5; }
   .hl-tips{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
   .hl-tips li{ display:flex; gap:10px; align-items:flex-start; font-size:13px; line-height:1.45; color:#e4ebe6; }
   .hl-tips li span:first-child{ flex:none; width:22px; text-align:center; }
@@ -1276,13 +1276,13 @@
   /* 锁屏：无操作一段时间后显示，轻触进入首页（无密码）                         */
   /* ============================================================ */
   // 今日天气（演示数据），首页天气卡片与锁屏共用
-  var panelWeather = { icon:'🌦', cond:'多云转小雨', temp:12, lo:9, hi:15, humidity:79, pm25:142, rainProb:70, uv:2 };
+  var panelWeather = { icon:'🌦️', cond:'多云转小雨', temp:12, lo:9, hi:15, humidity:79, pm25:142, rainProb:70, uv:2 };
   function weatherCity(){ var h = panelHome(); return h.city || '上海'; }
   function pm25Label(v){ return v <= 35 ? '优' : v <= 75 ? '良' : v <= 115 ? '轻度污染' : v <= 150 ? '中度污染' : '重度污染'; }
   // 根据天气生成生活提醒：下雨带伞、紫外线强防晒、污染戴口罩、气温低添衣、湿度高除湿
   function weatherTips(w){
     var tips = [];
-    if(w.rainProb >= 50) tips.push(['☂', '今天可能下雨（降水概率 ' + w.rainProb + '%），出门记得带伞']);
+    if(w.rainProb >= 50) tips.push(['☂️', '今天可能下雨（降水概率 ' + w.rainProb + '%），出门记得带伞']);
     if(w.uv >= 6) tips.push(['🧴', '紫外线较强，外出注意防晒']);
     if(w.pm25 > 115) tips.push(['😷', '空气' + pm25Label(w.pm25) + '，外出建议佩戴口罩，回家后开启新风']);
     if(w.lo <= 10) tips.push(['🧥', '早晚最低 ' + w.lo + '℃，出门注意添衣']);

@@ -118,8 +118,6 @@
   .phone-screen{ background: var(--surface-sunken); border-radius: 26px; height: min(720px, calc(100svh - 150px)); min-height: 520px; display:flex; flex-direction:column; overflow:hidden; }
   .screen-body{ flex:1; min-height:0; padding: 14px 14px 10px; overflow-y:auto; overscroll-behavior: contain; scrollbar-width: thin; }
 
-  .proj-switch{ display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-muted); margin-bottom:10px; }
-  .proj-switch select{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-s); padding:5px 8px; font-size:12px; color:var(--ink); }
 
   .weather-card{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:12px 14px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:11.5px; }
   .weather-card .wloc{ color:var(--ink-faint); display:flex; align-items:center; gap:4px; margin-bottom:3px; }
@@ -207,9 +205,67 @@
   .builder-room input[type="number"]{ width:56px; padding:4px 6px; border-radius:6px; border:1px solid var(--border); background:var(--surface-sunken); color:var(--ink); font-family:var(--font-mono); }
   .builder-actions{ display:flex; gap:8px; justify-content:flex-end; }
 
-  /* ---------- 新建项目（添加我的家） ---------- */
-  .proj-new{ margin-left:auto; flex:none; border:1px solid var(--brass); background: var(--brass-soft); color: var(--brass-soft-ink); border-radius:999px; padding:4px 10px; font-size:11.5px; font-family:inherit; font-weight:600; cursor:pointer; }
-  .proj-switch select{ min-width:0; flex:0 1 auto; }
+  /* 按钮 */
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:6px; border:1px solid var(--border-strong); background: var(--surface-raised); color: var(--ink); padding:8px 14px; border-radius: var(--radius-s); font-size:13px; font-weight:600; font-family:inherit; cursor:pointer; }
+  .btn.sm{ padding:6px 12px; font-size:12px; }
+  .btn.primary{ background: var(--brass); border-color: var(--brass); color: var(--surface-raised); }
+  .btn.primary:hover{ filter: brightness(1.06); }
+  .btn.ghost{ background: transparent; color: var(--ink-muted); }
+  .btn:focus-visible{ outline:2px solid var(--frost); outline-offset:2px; }
+
+  /* ---------- 登录 · 家庭切换 · 家庭信息 · 增删家庭申请 ---------- */
+  .lg-wrap .np-field{ border-bottom:none; padding:2px 0; }
+  .phone-screen.logged-out .bottom-nav, .phone-screen.logged-out .help-fab{ display:none; }
+  .lg-wrap{ display:flex; flex-direction:column; gap:10px; padding:18px 6px 10px; }
+  .lg-brand{ display:flex; flex-direction:column; align-items:center; gap:6px; margin:12px 0 10px; text-align:center; }
+  .lg-logo{ width:56px; height:56px; border-radius:16px; display:flex; align-items:center; justify-content:center; background: linear-gradient(135deg, var(--frost), var(--brass)); box-shadow: var(--shadow-raised); }
+  .lg-logo svg{ width:30px; height:30px; }
+  .lg-title{ font-family: var(--font-display); font-size:22px; font-weight:600; letter-spacing:1px; }
+  .lg-sub{ font-size:12px; color: var(--ink-muted); }
+  .lg-code{ display:flex; gap:8px; }
+  .lg-code input{ flex:1; min-width:0; }
+  .lg-code button{ flex:none; border:1px solid var(--brass); background:transparent; color: var(--brass-ink); border-radius: var(--radius-s); padding:0 12px; font-size:12px; font-family:inherit; cursor:pointer; white-space:nowrap; }
+  .lg-code button:disabled{ border-color: var(--border-strong); color: var(--ink-faint); cursor:default; }
+  .lg-agree{ display:flex; align-items:flex-start; gap:7px; font-size:11px; color: var(--ink-muted); line-height:1.5; cursor:pointer; }
+  .lg-agree input{ margin:2px 0 0; accent-color: var(--brass); }
+  .lg-agree a{ color: var(--frost); text-decoration:none; }
+  .lg-btn{ width:100%; padding:12px; font-size:14px; }
+  .lg-or{ display:flex; align-items:center; gap:10px; font-size:10.5px; color: var(--ink-faint); margin-top:8px; }
+  .lg-or::before, .lg-or::after{ content:""; flex:1; height:1px; background: var(--border); }
+  .lg-wechat{ width:100%; display:flex; align-items:center; justify-content:center; gap:8px; border:1px solid #2aae67; background: transparent; color:#2aae67; border-radius:999px; padding:10px; font-size:13px; font-weight:600; font-family:inherit; cursor:pointer; }
+  .lg-wechat svg{ width:18px; height:18px; }
+  .lg-demo{ background:none; border:1px dashed var(--border-strong); border-radius: var(--radius-s); color: var(--ink-muted); font-size:11px; font-family:inherit; padding:8px; cursor:pointer; line-height:1.5; margin-top:6px; }
+  .lg-demo b{ font-family: var(--font-mono); color: var(--ink); }
+  .hm-bar{ width:100%; display:flex; align-items:center; gap:10px; background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:9px 12px; margin-bottom:10px; font-family:inherit; color: var(--ink); cursor:pointer; text-align:left; }
+  .hm-bar .hm-ic{ font-size:18px; flex:none; }
+  .hm-bar .hm-t{ flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
+  .hm-bar .hm-t b{ font-size:13.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .hm-bar .hm-t small{ font-size:10.5px; color: var(--ink-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .hm-bar .hm-count{ flex:none; font-size:11px; color: var(--brass-soft-ink); background: var(--brass-soft); border-radius:999px; padding:3px 9px; font-weight:600; }
+  .hm-list{ display:flex; flex-direction:column; gap:8px; }
+  .hm-item{ display:flex; align-items:center; gap:10px; background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:11px 12px; }
+  .hm-item.current{ border-color: var(--brass); background: color-mix(in srgb, var(--brass-soft) 45%, var(--surface-raised)); }
+  .hm-pick{ flex:1; min-width:0; display:flex; align-items:center; gap:10px; background:none; border:none; padding:0; font-family:inherit; color:inherit; text-align:left; cursor:pointer; }
+  .hm-radio{ width:16px; height:16px; border-radius:50%; border:2px solid var(--border-strong); flex:none; position:relative; }
+  .hm-item.current .hm-radio{ border-color: var(--brass); }
+  .hm-item.current .hm-radio::after{ content:""; position:absolute; inset:2px; border-radius:50%; background: var(--brass); }
+  .hm-info{ min-width:0; display:flex; flex-direction:column; gap:2px; }
+  .hm-info b{ font-size:13px; font-weight:600; }
+  .hm-info span{ font-size:10.5px; color: var(--ink-faint); line-height:1.45; }
+  .hm-edit{ flex:none; border:1px solid var(--border-strong); background: transparent; color: var(--ink-muted); border-radius:999px; padding:4px 10px; font-size:11px; font-family:inherit; cursor:pointer; }
+  .hm-actions{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+  .hm-actions button{ border:1px dashed var(--border-strong); background: transparent; color: var(--ink-muted); border-radius: var(--radius-m); padding:11px 6px; font-size:12px; font-family:inherit; cursor:pointer; }
+  .hm-empty{ text-align:center; padding:26px 16px; background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); margin-bottom:10px; }
+  .hm-empty .ei{ font-size:30px; }
+  .hm-empty b{ display:block; font-size:14px; margin:8px 0 4px; }
+  .hm-empty p{ font-size:11.5px; color: var(--ink-muted); line-height:1.6; margin:0 0 12px; }
+  .req-item{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:10px 12px; margin-bottom:8px; font-size:12px; }
+  .req-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .req-top b{ font-weight:600; }
+  .req-sub{ font-size:10.5px; color: var(--ink-faint); margin-top:3px; line-height:1.5; }
+  .req-res{ font-size:11px; color: var(--ink-muted); margin-top:5px; line-height:1.5; }
+  .tag.crit{ background: var(--critical-soft); color: var(--critical); }
+  .tag.muted{ background: var(--surface-sunken); color: var(--ink-faint); }
   .np-intro{ font-size:11.5px; color: var(--ink-muted); line-height:1.6; margin:-4px 2px 12px; }
   .np-group{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-m); padding:4px 12px; margin-bottom:10px; }
   .np-gt{ font-size:11px; font-weight:600; color: var(--ink-faint); letter-spacing:0.4px; margin:12px 2px 6px; }
@@ -240,22 +296,9 @@
   .np-name{ font-size:16px; font-weight:600; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
   .np-addr{ font-size:11.5px; color: var(--ink-muted); margin-top:4px; line-height:1.5; }
   .np-meta{ font-family: var(--font-mono); font-size:10.5px; color: var(--ink-faint); margin-top:6px; }
-  .np-steps{ list-style:none; margin:0; padding:2px 0 0; }
-  .np-step{ display:grid; grid-template-columns:22px 1fr; gap:10px; position:relative; padding-bottom:14px; }
-  .np-step:last-child{ padding-bottom:0; }
-  .np-step::before{ content:""; position:absolute; left:10px; top:22px; bottom:0; width:2px; background: var(--border); }
-  .np-step:last-child::before{ display:none; }
-  .np-step.done::before{ background: var(--good); }
-  .np-dot{ width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; background: var(--surface-sunken); color: var(--ink-faint); border:1px solid var(--border-strong); }
-  .np-step.done .np-dot{ background: var(--good); border-color: var(--good); color: var(--surface-raised); }
-  .np-step.active .np-dot{ background: var(--brass-soft); border-color: var(--brass); color: var(--brass-soft-ink); }
-  .np-st{ font-size:12.5px; font-weight:600; line-height:22px; }
-  .np-step:not(.done):not(.active) .np-st{ color: var(--ink-faint); font-weight:500; }
-  .np-sd{ font-size:11px; color: var(--ink-muted); line-height:1.5; }
   .np-kv{ display:grid; grid-template-columns: 72px 1fr; gap:6px 10px; font-size:12px; }
   .np-kv dt{ color: var(--ink-faint); }
   .np-kv dd{ margin:0; color: var(--ink); }
-  .np-del{ width:100%; background:none; border:none; color: var(--critical); font-size:11.5px; font-family:inherit; padding:10px; cursor:pointer; }
 
   /* history tab */
   .metric-tabs{ display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
@@ -455,8 +498,6 @@
   /* ============================================================ */
   /* DATA                                                           */
   /* ============================================================ */
-  var projectsList = ['星海国际公寓 · 3栋 2703', '云港商业广场 · 写字楼A座', '悦景办公园区 · 1号楼'];
-  var currentProject = 0;
 
   var rooms = [
     { key:'living', name:'客厅', icon:'🛋', on:true, temp:26.4, humidity:52 },
@@ -808,28 +849,68 @@
   });
 
   /* ============================================================ */
-  /* 新建项目 · 业主端与服务商中控台共享                                   */
-  /* 项目只能由业主在小程序中创建；中控台读取后受理并派单勘测                   */
-  /* 同一浏览器内通过 localStorage（nuanshu-projects-v1）实时同步（演示用）    */
+  /* 账号与家庭绑定 · 业主端、服务商中控台、硬件面板共享                      */
+  /* 家庭由服务商在中控台绑定到业主手机号；业主只能修改家庭名称与地址，        */
+  /* 增加或移除家庭需提交申请，由中控台处理                                  */
+  /* 同一浏览器内通过 localStorage（nuanshu-homes-v1）实时同步（演示用）      */
   /* ============================================================ */
-  var UP_KEY = 'nuanshu-projects-v1';
-  function upLoad(){
-    try{ var raw = localStorage.getItem(UP_KEY); if(raw){ var o = JSON.parse(raw); if(o && o.v === 1 && o.list) return o.list; } }catch(e){}
-    return [];
+  var HM_KEY = 'nuanshu-homes-v1';
+  var SESSION_KEY = 'nuanshu-session-v1';
+  var DEMO_PHONE = '13800002703';
+  try{ localStorage.removeItem('nuanshu-projects-v1'); }catch(e){} // 旧版「业主自建项目」数据已停用
+  function hmDefault(){
+    return { v:1, homes:[
+      { id:'h-xh', code:'HM-20230120-01', name:'我的一号家', province:'上海', city:'上海', lon:121.60, lat:31.20, dealer:'dl-hd',
+        address:'星海国际公寓 3栋 2703', houseType:'公寓', area:168, rooms:4, projectId:'p1', devices:[], bindings:['13800002703'], createdAt:'2023-01-20', updatedAt:null },
+      { id:'h-bj', code:'HM-20251108-02', name:'滨江花园的家', province:'浙江', city:'杭州', lon:120.10, lat:30.30, dealer:'dl-hd',
+        address:'滨江花园 5栋 1202', houseType:'叠墅 / 复式', area:138, rooms:4, projectId:null,
+        devices:[ {id:'bj1',type:'空调主机',room:'全屋'}, {id:'bj2',type:'地暖主机',room:'全屋'}, {id:'bj3',type:'新风机组',room:'全屋'}, {id:'bj4',type:'风机盘管',room:'客厅'}, {id:'bj5',type:'风机盘管',room:'主卧'} ],
+        bindings:['13800002703'], createdAt:'2025-11-08', updatedAt:null },
+      { id:'h-jl', code:'HM-20260315-03', name:'锦里新居', province:'四川', city:'成都', lon:104.02, lat:30.68, dealer:'dl-xn',
+        address:'锦里花园 2栋 801', houseType:'公寓', area:96, rooms:3, projectId:null,
+        devices:[ {id:'jl1',type:'空调主机',room:'客厅'}, {id:'jl2',type:'风机盘管',room:'主卧'}, {id:'jl3',type:'生活热水机',room:'厨房'}, {id:'jl4',type:'除湿机',room:'卫生间'} ],
+        bindings:['13800002703'], createdAt:'2026-03-15', updatedAt:null }
+    ], requests:[] };
   }
-  function upSave(list){
-    try{ localStorage.setItem(UP_KEY, JSON.stringify({ v:1, list:list })); }catch(e){}
+  function hmLoad(){
+    try{ var raw = localStorage.getItem(HM_KEY); if(raw){ var o = JSON.parse(raw); if(o && o.v === 1 && o.homes && o.requests) return o; } }catch(e){}
+    return hmDefault();
   }
-  var userProjects = upLoad();
+  function hmSave(){ try{ localStorage.setItem(HM_KEY, JSON.stringify(HM)); }catch(e){} }
+  var HM = hmLoad();
+
+  function loadSession(){ try{ var s = JSON.parse(localStorage.getItem(SESSION_KEY)); if(s && /^1\d{10}$/.test(s.phone)) return s; }catch(e){} return null; }
+  var session = loadSession();
+  function maskPhone(p){ return p.slice(0,3) + '****' + p.slice(7); }
+  function nowStr(){ var d = new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes()); }
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(ch){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[ch]; }); }
+
+  function myHomes(){ return session ? HM.homes.filter(function(h){ return h.bindings.indexOf(session.phone) !== -1; }) : []; }
+  function myRequests(){ return session ? HM.requests.filter(function(r){ return r.phone === session.phone; }) : []; }
+  var currentHomeId = null;
+  function currentHome(){
+    var list = myHomes(), h = list.filter(function(x){ return x.id === currentHomeId; })[0];
+    if(!h){ h = list[0] || null; currentHomeId = h ? h.id : null; }
+    return h;
+  }
+  // 星海国际公寓 3栋 2703 接入了完整的暖通与智能家居演示数据
+  function isFlagship(h){ return !!h && h.projectId === 'p1'; }
+
   window.addEventListener('storage', function(e){
-    if(e.key !== UP_KEY) return;
-    var prev = userProjects;
-    userProjects = upLoad();
-    if(currentProject >= projectsList.length + userProjects.length) currentProject = 0;
-    var cur = currentProject >= projectsList.length ? userProjects[currentProject - projectsList.length] : null;
-    var old = cur ? prev.filter(function(p){ return p.id === cur.id; })[0] : null;
-    if(cur && old && old.status !== cur.status && cur.status === 'accepted') toast(cur.dealerName + ' 已受理「' + cur.name + '」');
-    if(currentTab === 'home' || currentTab === 'me') render();
+    if(e.key === SESSION_KEY){ session = loadSession(); currentTab = 'home'; homeView = 'list'; selectTab('home'); render(); return; }
+    if(e.key !== HM_KEY) return;
+    var beforeHomes = myHomes().map(function(h){ return h.id; });
+    var beforeReq = {}; myRequests().forEach(function(r){ beforeReq[r.id] = r.status; });
+    HM = hmLoad();
+    if(!session) return;
+    var added = myHomes().filter(function(h){ return beforeHomes.indexOf(h.id) === -1; });
+    var removedCount = beforeHomes.filter(function(id){ return !myHomes().some(function(h){ return h.id === id; }); }).length;
+    var handled = myRequests().filter(function(r){ return beforeReq[r.id] === 'pending' && r.status !== 'pending'; });
+    if(added.length) toast('服务商已为您绑定新家庭：' + added.map(function(h){ return h.name; }).join('、'));
+    else if(removedCount) toast('服务商已移除 ' + removedCount + ' 个家庭');
+    else if(handled.length) toast('您的申请已处理：' + (handled[0].status === 'done' ? '已完成' : '未通过'));
+    if(editHomeId && !myHomes().some(function(h){ return h.id === editHomeId; })){ editHomeId = null; if(homeView === 'homeEdit') homeView = 'homes'; }
+    if(currentTab === 'home' || currentTab === 'me') keepScroll(render);
   });
 
   // 服务网点按省份就近分配（与中控台 6 大区运营中心一致）
@@ -849,172 +930,334 @@
     ['辽宁','沈阳',123.43,41.80,'dl-db'], ['辽宁','大连',121.61,38.91,'dl-db'], ['吉林','长春',125.32,43.82,'dl-db'], ['黑龙江','哈尔滨',126.53,45.80,'dl-db']
   ];
   var provincesList = serviceCities.map(function(c){ return c[0]; }).filter(function(p, i, a){ return a.indexOf(p) === i; });
-  var houseTypes = ['公寓', '别墅', '叠墅 / 复式', '自建房'];
-  var hvacNeeds = ['空调制冷', '地暖采暖', '新风净化', '生活热水', '除湿', '智能安防'];
-  var visitTimes = ['工作日', '周末', '时间不限'];
+  function findCity(province, city){ return serviceCities.filter(function(c){ return c[0] === province && c[1] === city; })[0] || null; }
+  function cityText(h){ return h.province === h.city ? h.city : h.province + ' ' + h.city; }
+  var deviceIcons = { '空调主机':'❄', '风机盘管':'≋', '地暖主机':'♨', '新风机组':'🌬', '生活热水机':'🚿', '除湿机':'💧', '智能门锁':'🔒', '烟雾报警器':'💨', '燃气探测器':'🔥' };
 
-  function projectLabels(){
-    return projectsList.concat(userProjects.map(function(p){ return p.name + ' · ' + p.city; }));
+  function keepScroll(fn){ var b = document.getElementById('screenBody'), y = b.scrollTop; fn(); b.scrollTop = y; }
+  function selectTab(tab){
+    navBtns.forEach(function(x){ x.setAttribute('aria-selected', x.getAttribute('data-tab') === tab ? 'true' : 'false'); });
+    document.getElementById('helpFab').hidden = (tab !== 'service');
   }
-  function currentUserProject(){
-    return currentProject >= projectsList.length ? userProjects[currentProject - projectsList.length] : null;
+  function goHomeView(view){ currentTab = 'home'; homeView = view; selectTab('home'); render(); }
+  function fieldErr(errs, k){ return errs[k] ? '<div class="np-err" role="alert">' + errs[k] + '</div>' : ''; }
+  function fieldCls(errs, k){ return 'np-field' + (errs[k] ? ' invalid' : ''); }
+  function cityFields(prefix, f, errs){
+    var c = findCity(f.province, f.city);
+    return '<div class="' + fieldCls(errs, 'city') + '"><span class="np-l">所在城市<span class="req">*</span></span><div class="np-row2">'
+      + '<select id="' + prefix + 'Province" aria-label="省份"><option value="">省份</option>' + provincesList.map(function(p){ return '<option' + (p === f.province ? ' selected' : '') + '>' + p + '</option>'; }).join('') + '</select>'
+      + '<select id="' + prefix + 'City" aria-label="城市"' + (f.province ? '' : ' disabled') + '><option value="">城市</option>' + serviceCities.filter(function(x){ return x[0] === f.province; }).map(function(x){ return '<option' + (x[1] === f.city ? ' selected' : '') + '>' + x[1] + '</option>'; }).join('') + '</select>'
+      + '</div>' + fieldErr(errs, 'city')
+      + '<div class="np-hint">' + (c ? '服务网点：<b>' + dealerNames[c[4]] + '</b>' : '目前开通 6 大区 33 个城市') + '</div></div>';
   }
+  function bindCityFields(prefix, f, errs){
+    document.getElementById(prefix + 'Province').addEventListener('change', function(e){ f.province = e.target.value; f.city = ''; errs.city = ''; keepScroll(render); });
+    document.getElementById(prefix + 'City').addEventListener('change', function(e){ f.city = e.target.value; errs.city = ''; keepScroll(render); });
+  }
+  function bindInputs(map, f){
+    Object.keys(map).forEach(function(id){ var el = document.getElementById(id); if(el) el.addEventListener('input', function(){ f[map[id]] = el.value; }); });
+  }
+  function focusFirstError(){ var first = document.querySelector('.np-field.invalid'); if(first) first.scrollIntoView({ block:'center' }); }
 
-  var npForm = null;
-  var npErrors = {};
-  function npReset(){
-    npForm = { name:'', province:'', city:'', address:'', houseType:'公寓', area:'', rooms:'3', needs:['空调制冷', '地暖采暖'], contact:'', phone:'', visit:'周末', note:'' };
-    npErrors = {};
+  /* ---------- 登录 ---------- */
+  var lg = { phone:'', code:'', agree:false, errs:{}, countdown:0 };
+  var lgTimer = null;
+  function loginHtml(){
+    var e = lg.errs;
+    return '<div class="lg-wrap">'
+      + '<div class="lg-brand"><div class="lg-logo"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3c2 3-1 4-1 6.5A3 3 0 0 0 14 12.5 5 5 0 1 1 8 8" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'
+      + '<div class="lg-title">暖枢管家</div><div class="lg-sub">登录后查看和控制您名下的家庭</div></div>'
+      + '<div class="' + fieldCls(e, 'phone') + '"><label for="lgPhone">手机号</label><input type="tel" id="lgPhone" maxlength="11" inputmode="numeric" autocomplete="tel" placeholder="请输入 11 位手机号" value="' + esc(lg.phone) + '">' + fieldErr(e, 'phone') + '</div>'
+      + '<div class="' + fieldCls(e, 'code') + '"><label for="lgCode">验证码</label><div class="lg-code"><input type="text" id="lgCode" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="6 位验证码" value="' + esc(lg.code) + '">'
+      + '<button type="button" id="lgSend"' + (lg.countdown ? ' disabled' : '') + '>' + (lg.countdown ? lg.countdown + ' 秒后重发' : '获取验证码') + '</button></div>' + fieldErr(e, 'code') + '</div>'
+      + '<label class="lg-agree"><input type="checkbox" id="lgAgree"' + (lg.agree ? ' checked' : '') + '><span>我已阅读并同意<a href="#" onclick="return false">《用户协议》</a>和<a href="#" onclick="return false">《隐私政策》</a></span></label>' + fieldErr(e, 'agree')
+      + '<button type="button" class="btn primary lg-btn" id="lgSubmit">登录</button>'
+      + '<div class="lg-or">其他登录方式</div>'
+      + '<button type="button" class="lg-wechat" id="lgWechat"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 4C4.9 4 1.5 6.8 1.5 10.3c0 2 1.1 3.8 2.9 5l-.7 2.2 2.6-1.3c.9.3 1.8.4 2.7.4h.4a5.6 5.6 0 0 1-.2-1.5c0-3.4 3.2-6.1 7.2-6.1h.4C16.1 6 12.9 4 9 4Zm-2.6 3.3a1 1 0 1 1 0 2 1 1 0 0 1 0-2Zm5.2 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2Zm4.8 2.9c-3.4 0-6 2.2-6 5s2.6 5 6 5c.7 0 1.4-.1 2-.3l2.1 1.1-.6-1.8c1.4-.9 2.5-2.4 2.5-4 0-2.8-2.7-5-6-5Zm-2 2.6a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8Zm4 0a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8Z"/></svg>微信一键登录</button>'
+      + '<button type="button" class="lg-demo" id="lgDemo">演示账号 <b>138 0000 2703</b>（名下 3 个家庭）· 点击填入<br>验证码点「获取验证码」自动填入</button>'
+      + '</div>';
   }
-  function openNewProject(){
-    npReset();
-    currentTab = 'home'; homeView = 'newProject';
-    navBtns.forEach(function(x){ x.setAttribute('aria-selected', x.getAttribute('data-tab') === 'home' ? 'true' : 'false'); });
-    document.getElementById('helpFab').hidden = true;
+  function bindLogin(){
+    bindInputs({ lgPhone:'phone', lgCode:'code' }, lg);
+    document.getElementById('lgAgree').addEventListener('change', function(e){ lg.agree = e.target.checked; lg.errs.agree = ''; });
+    document.getElementById('lgDemo').addEventListener('click', function(){ lg.phone = DEMO_PHONE; lg.errs = {}; render(); });
+    document.getElementById('lgSend').addEventListener('click', function(){
+      lg.phone = lg.phone.trim();
+      if(!/^1\d{10}$/.test(lg.phone)){ lg.errs = { phone:'请输入正确的 11 位手机号' }; render(); return; }
+      lg.errs = {}; lg.code = '123456'; lg.countdown = 60;
+      toast('演示环境：验证码 123456 已自动填入');
+      clearInterval(lgTimer);
+      lgTimer = setInterval(function(){
+        lg.countdown--;
+        var b = document.getElementById('lgSend');
+        if(b){ b.disabled = lg.countdown > 0; b.textContent = lg.countdown > 0 ? lg.countdown + ' 秒后重发' : '获取验证码'; }
+        if(lg.countdown <= 0) clearInterval(lgTimer);
+      }, 1000);
+      render();
+    });
+    document.getElementById('lgSubmit').addEventListener('click', function(){
+      var e = {};
+      lg.phone = lg.phone.trim(); lg.code = lg.code.trim();
+      if(!/^1\d{10}$/.test(lg.phone)) e.phone = '请输入正确的 11 位手机号';
+      if(!/^\d{6}$/.test(lg.code)) e.code = '请输入 6 位验证码';
+      if(!lg.agree) e.agree = '请先阅读并同意用户协议和隐私政策';
+      lg.errs = e;
+      if(Object.keys(e).length){ render(); return; }
+      doLogin(lg.phone, 'sms');
+    });
+    document.getElementById('lgWechat').addEventListener('click', function(){
+      if(!lg.agree){ lg.errs = { agree:'请先阅读并同意用户协议和隐私政策' }; render(); return; }
+      toast('已通过微信授权，手机号 ' + maskPhone(DEMO_PHONE));
+      doLogin(DEMO_PHONE, 'wechat');
+    });
+  }
+  function doLogin(phone, via){
+    session = { phone:phone, via:via, loginAt:nowStr() };
+    try{ localStorage.setItem(SESSION_KEY, JSON.stringify(session)); }catch(e){}
+    clearInterval(lgTimer);
+    lg = { phone:'', code:'', agree:false, errs:{}, countdown:0 };
+    currentHomeId = null; currentTab = 'home'; homeView = 'list'; selectTab('home');
+    render();
+    var n = myHomes().length;
+    toast(n ? '登录成功，您名下有 ' + n + ' 个家庭' : '登录成功，该账号暂未绑定家庭');
+  }
+  function logout(){
+    if(!window.confirm('退出登录？')) return;
+    session = null;
+    try{ localStorage.removeItem(SESSION_KEY); }catch(e){}
+    currentHomeId = null; currentTab = 'home'; homeView = 'list'; selectTab('home');
     render();
   }
-  function npCity(){
-    return serviceCities.filter(function(c){ return c[0] === npForm.province && c[1] === npForm.city; })[0] || null;
-  }
-  function esc(s){ return String(s).replace(/[&<>"]/g, function(ch){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[ch]; }); }
 
-  function newProjectHtml(){
-    var f = npForm, c = npCity();
-    function err(k){ return npErrors[k] ? '<div class="np-err" role="alert">'+npErrors[k]+'</div>' : ''; }
-    function cls(k){ return 'np-field' + (npErrors[k] ? ' invalid' : ''); }
-    var cityOpts = serviceCities.filter(function(x){ return x[0] === f.province; });
-    return '<div class="rd-head"><button class="backbtn" id="npBack" aria-label="返回">‹</button><div class="rd-title">新建项目 · 添加我的家</div></div>'
-      + '<p class="np-intro">填写房屋信息后提交，暖枢会按所在城市就近分配服务网点，技师将联系您上门勘测、安装调试，完成后即可在小程序中控制家中设备。</p>'
-      + '<div class="np-gt">房屋信息</div><div class="np-group">'
-      + '<div class="'+cls('name')+'"><label for="npName">家庭名称<span class="req">*</span></label><input type="text" id="npName" maxlength="16" placeholder="例如：滨江花园的家" value="'+esc(f.name)+'">'+err('name')+'</div>'
-      + '<div class="'+cls('city')+'"><span class="np-l">所在城市<span class="req">*</span></span><div class="np-row2">'
-      +   '<select id="npProvince" aria-label="省份"><option value="">省份</option>'+provincesList.map(function(p){ return '<option'+(p===f.province?' selected':'')+'>'+p+'</option>'; }).join('')+'</select>'
-      +   '<select id="npCity" aria-label="城市"'+(f.province?'':' disabled')+'><option value="">城市</option>'+cityOpts.map(function(x){ return '<option'+(x[1]===f.city?' selected':'')+'>'+x[1]+'</option>'; }).join('')+'</select>'
-      + '</div>'+err('city')
-      + '<div class="np-hint" id="npDealerHint">'+(c ? '将由 <b>'+dealerNames[c[4]]+'</b> 就近受理' : '目前开通 6 大区 33 个城市，其他城市陆续开通中')+'</div></div>'
-      + '<div class="'+cls('address')+'"><label for="npAddress">详细地址<span class="req">*</span></label><input type="text" id="npAddress" maxlength="40" placeholder="小区 / 楼栋 / 门牌号" value="'+esc(f.address)+'">'+err('address')+'</div>'
-      + '<div class="np-field"><span class="np-l">房屋类型</span><div class="np-chips" role="group" aria-label="房屋类型">'+houseTypes.map(function(t){ return '<button type="button" class="np-chip" data-np-house="'+t+'" aria-pressed="'+(t===f.houseType)+'">'+t+'</button>'; }).join('')+'</div></div>'
-      + '<div class="np-row2">'
-      +   '<div class="'+cls('area')+'"><label for="npArea">建筑面积<span class="req">*</span></label><div class="np-unit"><input type="number" id="npArea" min="20" max="2000" inputmode="numeric" placeholder="120" value="'+esc(f.area)+'"><span>m²</span></div>'+err('area')+'</div>'
-      +   '<div class="'+cls('rooms')+'"><label for="npRooms">房间数</label><div class="np-unit"><input type="number" id="npRooms" min="1" max="20" inputmode="numeric" value="'+esc(f.rooms)+'"><span>间</span></div>'+err('rooms')+'</div>'
-      + '</div></div>'
-      + '<div class="np-gt">暖通需求（可多选）</div><div class="np-group"><div class="np-field"><div class="np-chips" role="group" aria-label="暖通需求">'
-      +   hvacNeeds.map(function(t){ return '<button type="button" class="np-chip" data-np-need="'+t+'" aria-pressed="'+(f.needs.indexOf(t)!==-1)+'">'+t+'</button>'; }).join('')
-      + '</div>'+err('needs')+'</div></div>'
-      + '<div class="np-gt">联系方式</div><div class="np-group">'
-      + '<div class="np-row2">'
-      +   '<div class="'+cls('contact')+'"><label for="npContact">联系人<span class="req">*</span></label><input type="text" id="npContact" maxlength="10" placeholder="张先生" value="'+esc(f.contact)+'">'+err('contact')+'</div>'
-      +   '<div class="'+cls('phone')+'"><label for="npPhone">手机号<span class="req">*</span></label><input type="tel" id="npPhone" maxlength="11" inputmode="numeric" placeholder="11 位手机号" value="'+esc(f.phone)+'">'+err('phone')+'</div>'
-      + '</div>'
-      + '<div class="np-field"><span class="np-l">期望上门时间</span><div class="np-chips" role="group" aria-label="期望上门时间">'+visitTimes.map(function(t){ return '<button type="button" class="np-chip" data-np-visit="'+t+'" aria-pressed="'+(t===f.visit)+'">'+t+'</button>'; }).join('')+'</div></div>'
-      + '<div class="np-field"><label for="npNote">备注</label><textarea id="npNote" maxlength="80" placeholder="例如：老人房需要地暖，工作日白天家中有人">'+esc(f.note)+'</textarea></div>'
-      + '</div>'
-      + '<div class="np-actions"><button type="button" class="btn ghost" id="npCancel">取消</button><button type="button" class="btn primary" id="npSubmit">提交项目</button></div>'
-      + '<div class="np-hint" style="text-align:center;margin-bottom:6px;">手机号仅用于技师预约上门，提交后脱敏显示</div>';
+  /* ---------- 首页顶部家庭栏 · 我的家庭 ---------- */
+  function homeBarHtml(h){
+    return '<button type="button" class="hm-bar" id="hmBar" aria-label="切换家庭"><span class="hm-ic">🏠</span>'
+      + '<span class="hm-t"><b>' + esc(h.name) + '</b><small>' + cityText(h) + ' · ' + esc(h.address) + '</small></span>'
+      + '<span class="hm-count">我的家庭 ' + myHomes().length + ' ▾</span></button>';
   }
-  function bindNewProject(){
-    function val(id, key){ var el = document.getElementById(id); el.addEventListener('input', function(){ npForm[key] = el.value; }); }
-    val('npName','name'); val('npAddress','address'); val('npArea','area'); val('npRooms','rooms'); val('npContact','contact'); val('npPhone','phone'); val('npNote','note');
-    function back(){ homeView = 'list'; render(); }
-    document.getElementById('npBack').addEventListener('click', back);
-    document.getElementById('npCancel').addEventListener('click', back);
-    document.getElementById('npProvince').addEventListener('change', function(e){ npForm.province = e.target.value; npForm.city = ''; npErrors.city = ''; keepScroll(render); });
-    document.getElementById('npCity').addEventListener('change', function(e){ npForm.city = e.target.value; npErrors.city = ''; keepScroll(render); });
-    document.querySelectorAll('[data-np-house]').forEach(function(b){ b.addEventListener('click', function(){ npForm.houseType = b.getAttribute('data-np-house'); keepScroll(render); }); });
-    document.querySelectorAll('[data-np-visit]').forEach(function(b){ b.addEventListener('click', function(){ npForm.visit = b.getAttribute('data-np-visit'); keepScroll(render); }); });
-    document.querySelectorAll('[data-np-need]').forEach(function(b){
+  var reqStatus = { pending:['处理中','warn'], done:['已完成','good'], rejected:['未通过','crit'] };
+  function requestsHtml(){
+    var list = myRequests().slice().reverse();
+    if(!list.length) return '';
+    return '<div class="section-label">我的申请</div>' + list.map(function(r){
+      var st = reqStatus[r.status];
+      var title = r.kind === 'add' ? '申请添加家庭' : '申请移除「' + esc(r.homeName) + '」';
+      var sub = r.kind === 'add' ? cityText(r) + ' · ' + esc(r.address) : '原因：' + r.reason + (r.note ? ' · ' + esc(r.note) : '');
+      return '<div class="req-item"><div class="req-top"><b>' + title + '</b><span class="tag ' + st[1] + '">' + st[0] + '</span></div>'
+        + '<div class="req-sub">' + sub + '<br>提交于 ' + r.createdAt + '</div>'
+        + (r.result ? '<div class="req-res">' + esc(r.result) + '</div>' : '')
+        + '</div>';
+    }).join('');
+  }
+  function homesHtml(){
+    var list = myHomes(), cur = currentHome();
+    return '<div class="rd-head"><button class="backbtn" id="hmBack" aria-label="返回">‹</button><div class="rd-title">我的家庭（' + list.length + '）</div></div>'
+      + '<p class="np-intro">以下家庭由暖枢服务商为您的账号 ' + maskPhone(session.phone) + ' 绑定。您可以修改家庭名称和地址；如需增加或移除家庭，请提交申请，服务商核实后在后台处理。</p>'
+      + (list.length ? '<div class="hm-list">' + list.map(function(h){
+          var n = isFlagship(h) ? '12 台暖通设备 · 17 个智能家居设备' : h.devices.length + ' 台设备';
+          return '<div class="hm-item' + (cur && h.id === cur.id ? ' current' : '') + '">'
+            + '<button type="button" class="hm-pick" data-hm-pick="' + h.id + '"><span class="hm-radio"></span><span class="hm-info"><b>' + esc(h.name) + '</b><span>' + cityText(h) + ' · ' + esc(h.address) + '<br>' + n + '</span></span></button>'
+            + '<button type="button" class="hm-edit" data-hm-edit="' + h.id + '">编辑</button></div>';
+        }).join('') + '</div>' : '<div class="hm-empty"><div class="ei">🏠</div><b>暂未绑定家庭</b><p>家庭需由服务商上门安装后为您绑定</p></div>')
+      + '<div class="hm-actions"><button type="button" id="hmReqAdd">＋ 申请添加家庭</button><button type="button" id="hmReqRemove"' + (list.length ? '' : ' disabled') + '>申请移除家庭</button></div>'
+      + requestsHtml();
+  }
+  function bindHomes(){
+    document.getElementById('hmBack').addEventListener('click', function(){ homeView = 'list'; render(); });
+    document.querySelectorAll('[data-hm-pick]').forEach(function(b){
       b.addEventListener('click', function(){
-        var t = b.getAttribute('data-np-need'), i = npForm.needs.indexOf(t);
-        if(i === -1) npForm.needs.push(t); else npForm.needs.splice(i, 1);
-        keepScroll(render);
+        currentHomeId = b.getAttribute('data-hm-pick'); homeView = 'list'; render();
+        toast('已切换至「' + currentHome().name + '」');
       });
     });
-    document.getElementById('npSubmit').addEventListener('click', submitNewProject);
+    document.querySelectorAll('[data-hm-edit]').forEach(function(b){ b.addEventListener('click', function(){ openHomeEdit(b.getAttribute('data-hm-edit')); }); });
+    document.getElementById('hmReqAdd').addEventListener('click', openReqAdd);
+    var rm = document.getElementById('hmReqRemove'); if(rm) rm.addEventListener('click', openReqRemove);
   }
-  function keepScroll(fn){ var b = document.getElementById('screenBody'), y = b.scrollTop; fn(); b.scrollTop = y; }
-
-  function submitNewProject(){
-    var f = npForm, e = {};
-    f.name = f.name.trim(); f.address = f.address.trim(); f.contact = f.contact.trim(); f.phone = f.phone.trim(); f.note = f.note.trim();
-    if(!f.name) e.name = '请填写家庭名称';
-    if(!npCity()) e.city = '请选择省份和城市';
-    if(f.address.length < 4) e.address = '请填写小区、楼栋和门牌号';
-    var area = +f.area;
-    if(!f.area || !(area >= 20 && area <= 2000)) e.area = '请填写 20–2000 之间的面积';
-    var rooms = +f.rooms;
-    if(!(rooms >= 1 && rooms <= 20 && Math.round(rooms) === rooms)) e.rooms = '1–20 间';
-    if(!f.needs.length) e.needs = '至少选择一项暖通需求';
-    if(!f.contact) e.contact = '请填写联系人';
-    if(!/^1\d{10}$/.test(f.phone)) e.phone = '请填写 11 位手机号';
-    npErrors = e;
-    if(Object.keys(e).length){
-      render();
-      var first = document.querySelector('.np-field.invalid');
-      if(first) first.scrollIntoView({ block:'center' });
-      return;
-    }
-    var c = npCity(), now = new Date();
-    function pad(n){ return (n < 10 ? '0' : '') + n; }
-    var ymd = now.getFullYear() + pad(now.getMonth()+1) + pad(now.getDate());
-    var rec = {
-      id: 'u' + now.getTime().toString(36),
-      name: f.name, province: c[0], city: c[1], lon: c[2], lat: c[3], dealer: c[4], dealerName: dealerNames[c[4]],
-      address: f.address, houseType: f.houseType, area: area, rooms: rooms, needs: f.needs.slice(),
-      contact: f.contact, phone: f.phone.slice(0,3) + '****' + f.phone.slice(7),
-      visit: f.visit, note: f.note,
-      code: 'PRJ-' + ymd + '-U' + (userProjects.length + 1),
-      createdAt: now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()),
-      status: 'pending', orderId: null, acceptedAt: null
-    };
-    userProjects = upLoad().concat([rec]);
-    upSave(userProjects);
-    currentProject = projectsList.length + userProjects.length - 1;
-    homeView = 'list';
-    render();
-    toast('项目已提交，' + rec.dealerName + ' 将尽快受理');
+  function noHomeHtml(){
+    return '<div class="hm-empty"><div class="ei">🏠</div><b>该账号暂未绑定家庭</b>'
+      + '<p>账号 ' + maskPhone(session.phone) + ' 名下还没有家庭。家庭由暖枢服务商上门安装设备后为您绑定，您也可以先提交申请。</p>'
+      + '<button type="button" class="btn primary" id="hmReqAdd">＋ 申请添加家庭</button></div>'
+      + requestsHtml();
   }
 
-  function userProjectHomeHtml(p){
-    var accepted = p.status === 'accepted';
-    var steps = [
-      { t:'提交项目', d:p.createdAt + ' · 已同步至服务商', s:'done' },
-      { t:accepted ? '服务商已受理' : '等待服务商受理', d:accepted ? p.dealerName + ' · 勘测工单 ' + p.orderId : p.dealerName + ' 将在 1 个工作日内受理', s:accepted ? 'done' : 'active' },
-      { t:'上门勘测', d:accepted ? '技师' + (p.tech ? ' ' + p.tech : '') + ' 将致电 ' + p.phone + ' 预约（期望' + p.visit + '）' : '受理后技师电话预约上门时间', s:accepted ? 'active' : '' },
-      { t:'方案确认与安装调试', d:'按勘测结果出具暖通方案，确认后安排安装', s:'' },
-      { t:'设备接入暖枢', d:'调试完成后即可在首页控制家中设备', s:'' }
-    ];
-    return '<div class="np-card">'
-      + '<div class="np-name">🏠 ' + esc(p.name) + ' <span class="tag ' + (accepted ? 'good' : 'warn') + '">' + (accepted ? '已受理' : '待受理') + '</span></div>'
-      + '<div class="np-addr">' + p.province + (p.province === p.city ? '' : ' ' + p.city) + ' · ' + esc(p.address) + '</div>'
-      + '<div class="np-meta">' + p.code + '</div></div>'
-      + '<div class="section-label">安装进度</div>'
-      + '<div class="np-card"><ol class="np-steps">' + steps.map(function(s, i){
-          return '<li class="np-step ' + s.s + '"><span class="np-dot">' + (s.s === 'done' ? '✓' : (i + 1)) + '</span><div><div class="np-st">' + s.t + '</div><div class="np-sd">' + s.d + '</div></div></li>';
-        }).join('') + '</ol></div>'
-      + '<div class="section-label">项目信息</div>'
-      + '<div class="np-card"><dl class="np-kv">'
-      + '<dt>房屋</dt><dd>' + p.houseType + ' · ' + p.area + ' m² · ' + p.rooms + ' 间</dd>'
-      + '<dt>暖通需求</dt><dd>' + p.needs.join('、') + '</dd>'
-      + '<dt>联系人</dt><dd>' + esc(p.contact) + ' · ' + p.phone + '</dd>'
-      + '<dt>服务网点</dt><dd>' + p.dealerName + '</dd>'
-      + (p.note ? '<dt>备注</dt><dd>' + esc(p.note) + '</dd>' : '')
-      + '</dl></div>'
-      + '<button type="button" class="np-del" id="npDelete">删除该项目</button>';
+  /* ---------- 修改家庭名称与地址（业主可改） ---------- */
+  var editHomeId = null, ef = null, efErrs = {};
+  function openHomeEdit(id){
+    var h = HM.homes.filter(function(x){ return x.id === id; })[0];
+    editHomeId = id; efErrs = {};
+    ef = { name:h.name, province:h.province, city:h.city, address:h.address };
+    goHomeView('homeEdit');
+  }
+  function homeEditHtml(){
+    var h = HM.homes.filter(function(x){ return x.id === editHomeId; })[0];
+    return '<div class="rd-head"><button class="backbtn" id="efBack" aria-label="返回">‹</button><div class="rd-title">编辑家庭信息</div></div>'
+      + '<div class="np-group">'
+      + '<div class="' + fieldCls(efErrs, 'name') + '"><label for="efName">家庭名称<span class="req">*</span></label><input type="text" id="efName" maxlength="16" value="' + esc(ef.name) + '">' + fieldErr(efErrs, 'name') + '</div>'
+      + cityFields('ef', ef, efErrs)
+      + '<div class="' + fieldCls(efErrs, 'address') + '"><label for="efAddress">详细地址<span class="req">*</span></label><input type="text" id="efAddress" maxlength="40" placeholder="小区 / 楼栋 / 门牌号" value="' + esc(ef.address) + '">' + fieldErr(efErrs, 'address') + '</div>'
+      + '</div>'
+      + '<div class="np-card"><dl class="np-kv"><dt>家庭编号</dt><dd class="mono">' + h.code + '</dd><dt>房屋</dt><dd>' + h.houseType + ' · ' + h.area + ' m² · ' + h.rooms + ' 间</dd><dt>设备</dt><dd>' + (isFlagship(h) ? '12 台暖通设备 · 17 个智能家居设备' : h.devices.length + ' 台') + '</dd></dl>'
+      + '<div class="np-hint" style="margin-top:8px;">房屋与设备信息由服务商维护，如需调整请联系客服。</div></div>'
+      + '<div class="np-actions"><button type="button" class="btn ghost" id="efCancel">取消</button><button type="button" class="btn primary" id="efSave">保存</button></div>';
+  }
+  function bindHomeEdit(){
+    bindInputs({ efName:'name', efAddress:'address' }, ef);
+    bindCityFields('ef', ef, efErrs);
+    function back(){ editHomeId = null; homeView = 'homes'; render(); }
+    document.getElementById('efBack').addEventListener('click', back);
+    document.getElementById('efCancel').addEventListener('click', back);
+    document.getElementById('efSave').addEventListener('click', function(){
+      var e = {};
+      ef.name = ef.name.trim(); ef.address = ef.address.trim();
+      if(!ef.name) e.name = '请填写家庭名称';
+      var c = findCity(ef.province, ef.city);
+      if(!c) e.city = '请选择省份和城市';
+      if(ef.address.length < 4) e.address = '请填写小区、楼栋和门牌号';
+      efErrs = e;
+      if(Object.keys(e).length){ render(); focusFirstError(); return; }
+      HM = hmLoad();
+      var h = HM.homes.filter(function(x){ return x.id === editHomeId; })[0];
+      if(!h){ back(); return; }
+      var moved = h.province !== c[0] || h.city !== c[1];
+      h.name = ef.name; h.address = ef.address;
+      if(moved){ h.province = c[0]; h.city = c[1]; h.lon = c[2]; h.lat = c[3]; h.dealer = c[4]; }
+      h.updatedAt = nowStr();
+      hmSave();
+      editHomeId = null; homeView = 'homes'; render();
+      toast('已保存，服务商端同步更新' + (moved ? '，服务网点：' + dealerNames[c[4]] : ''));
+    });
+  }
+
+  /* ---------- 申请添加 / 移除家庭（由服务商在中控台处理） ---------- */
+  var ra = null, raErrs = {};
+  function openReqAdd(){ ra = { province:'', city:'', address:'', contact:'', note:'' }; raErrs = {}; goHomeView('reqAdd'); }
+  function reqAddHtml(){
+    return '<div class="rd-head"><button class="backbtn" id="raBack" aria-label="返回">‹</button><div class="rd-title">申请添加家庭</div></div>'
+      + '<p class="np-intro">提交后，服务商会联系您确认房屋情况，安装并调试设备后为您的账号绑定该家庭。</p>'
+      + '<div class="np-group">'
+      + cityFields('ra', ra, raErrs)
+      + '<div class="' + fieldCls(raErrs, 'address') + '"><label for="raAddress">详细地址<span class="req">*</span></label><input type="text" id="raAddress" maxlength="40" placeholder="小区 / 楼栋 / 门牌号" value="' + esc(ra.address) + '">' + fieldErr(raErrs, 'address') + '</div>'
+      + '<div class="' + fieldCls(raErrs, 'contact') + '"><label for="raContact">联系人<span class="req">*</span></label><input type="text" id="raContact" maxlength="10" placeholder="例如：张先生" value="' + esc(ra.contact) + '">' + fieldErr(raErrs, 'contact') + '</div>'
+      + '<div class="np-field"><span class="np-l">联系手机</span><div class="np-hint">' + maskPhone(session.phone) + '（当前登录账号，绑定后用此账号查看）</div></div>'
+      + '<div class="np-field"><label for="raNote">备注</label><textarea id="raNote" maxlength="80" placeholder="例如：新房已交付，想装地暖和新风">' + esc(ra.note) + '</textarea></div>'
+      + '</div>'
+      + '<div class="np-actions"><button type="button" class="btn ghost" id="raCancel">取消</button><button type="button" class="btn primary" id="raSubmit">提交申请</button></div>';
+  }
+  function bindReqAdd(){
+    bindInputs({ raAddress:'address', raContact:'contact', raNote:'note' }, ra);
+    bindCityFields('ra', ra, raErrs);
+    function back(){ homeView = myHomes().length ? 'homes' : 'list'; render(); }
+    document.getElementById('raBack').addEventListener('click', back);
+    document.getElementById('raCancel').addEventListener('click', back);
+    document.getElementById('raSubmit').addEventListener('click', function(){
+      var e = {};
+      ra.address = ra.address.trim(); ra.contact = ra.contact.trim(); ra.note = ra.note.trim();
+      if(!findCity(ra.province, ra.city)) e.city = '请选择省份和城市';
+      if(ra.address.length < 4) e.address = '请填写小区、楼栋和门牌号';
+      if(!ra.contact) e.contact = '请填写联系人';
+      raErrs = e;
+      if(Object.keys(e).length){ render(); focusFirstError(); return; }
+      HM = hmLoad();
+      HM.requests.push({ id:'r' + Date.now().toString(36), phone:session.phone, kind:'add', province:ra.province, city:ra.city,
+        address:ra.address, contact:ra.contact, note:ra.note, status:'pending', createdAt:nowStr(), handledAt:null, result:'' });
+      hmSave();
+      back();
+      toast('申请已提交，服务商会尽快与您联系');
+    });
+  }
+  var rr = null, rrErrs = {};
+  var removeReasons = ['房屋已出售', '租约到期', '不再使用', '其他'];
+  function openReqRemove(){ rr = { homeId:(currentHome() || {}).id || '', reason:'', note:'' }; rrErrs = {}; goHomeView('reqRemove'); }
+  function reqRemoveHtml(){
+    return '<div class="rd-head"><button class="backbtn" id="rrBack" aria-label="返回">‹</button><div class="rd-title">申请移除家庭</div></div>'
+      + '<p class="np-intro">移除后该家庭将从您的账号解绑，设备和数据由服务商保留。服务商核实后在后台处理。</p>'
+      + '<div class="np-group">'
+      + '<div class="' + fieldCls(rrErrs, 'homeId') + '"><span class="np-l">选择家庭<span class="req">*</span></span><div class="np-chips" role="group" aria-label="选择家庭">'
+      + myHomes().map(function(h){ return '<button type="button" class="np-chip" data-rr-home="' + h.id + '" aria-pressed="' + (h.id === rr.homeId) + '">' + esc(h.name) + '</button>'; }).join('')
+      + '</div>' + fieldErr(rrErrs, 'homeId') + '</div>'
+      + '<div class="' + fieldCls(rrErrs, 'reason') + '"><span class="np-l">移除原因<span class="req">*</span></span><div class="np-chips" role="group" aria-label="移除原因">'
+      + removeReasons.map(function(t){ return '<button type="button" class="np-chip" data-rr-reason="' + t + '" aria-pressed="' + (t === rr.reason) + '">' + t + '</button>'; }).join('')
+      + '</div>' + fieldErr(rrErrs, 'reason') + '</div>'
+      + '<div class="np-field"><label for="rrNote">补充说明</label><textarea id="rrNote" maxlength="80" placeholder="选填">' + esc(rr.note) + '</textarea></div>'
+      + '</div>'
+      + '<div class="np-actions"><button type="button" class="btn ghost" id="rrCancel">取消</button><button type="button" class="btn primary" id="rrSubmit">提交申请</button></div>';
+  }
+  function bindReqRemove(){
+    bindInputs({ rrNote:'note' }, rr);
+    function back(){ homeView = 'homes'; render(); }
+    document.getElementById('rrBack').addEventListener('click', back);
+    document.getElementById('rrCancel').addEventListener('click', back);
+    document.querySelectorAll('[data-rr-home]').forEach(function(b){ b.addEventListener('click', function(){ rr.homeId = b.getAttribute('data-rr-home'); rrErrs.homeId = ''; keepScroll(render); }); });
+    document.querySelectorAll('[data-rr-reason]').forEach(function(b){ b.addEventListener('click', function(){ rr.reason = b.getAttribute('data-rr-reason'); rrErrs.reason = ''; keepScroll(render); }); });
+    document.getElementById('rrSubmit').addEventListener('click', function(){
+      var e = {}, h = myHomes().filter(function(x){ return x.id === rr.homeId; })[0];
+      rr.note = rr.note.trim();
+      if(!h) e.homeId = '请选择要移除的家庭';
+      else if(myRequests().some(function(r){ return r.kind === 'remove' && r.homeId === h.id && r.status === 'pending'; })) e.homeId = '该家庭已有处理中的移除申请';
+      if(!rr.reason) e.reason = '请选择移除原因';
+      rrErrs = e;
+      if(Object.keys(e).length){ render(); focusFirstError(); return; }
+      HM = hmLoad();
+      HM.requests.push({ id:'r' + Date.now().toString(36), phone:session.phone, kind:'remove', homeId:h.id, homeName:h.name,
+        province:h.province, city:h.city, address:h.address, reason:rr.reason, note:rr.note, status:'pending', createdAt:nowStr(), handledAt:null, result:'' });
+      hmSave();
+      back();
+      toast('申请已提交，服务商核实后处理');
+    });
+  }
+
+  /* ---------- 非演示样板家庭：设备列表 ---------- */
+  var devOn = {};
+  function simpleHomeHtml(h){
+    return '<div class="np-card"><div class="np-name">' + esc(h.name) + '</div>'
+      + '<div class="np-addr">' + cityText(h) + ' · ' + esc(h.address) + '</div>'
+      + '<div class="np-meta">' + h.code + ' · ' + dealerNames[h.dealer] + '</div></div>'
+      + '<div class="section-label">已接入设备 <span class="mono" style="font-weight:400;color:var(--ink-faint);">' + h.devices.length + ' 台</span></div>'
+      + (h.devices.length ? '<div class="room-list">' + h.devices.map(function(d){
+          var on = devOn[d.id] !== false;
+          return '<div class="room-card' + (on ? '' : ' off') + '"><span class="ri">' + (deviceIcons[d.type] || '•') + '</span>'
+            + '<span class="rt"><span class="rn">' + d.type + '</span><div class="rv">' + esc(d.room) + ' · ' + (on ? '运行中' : '已关闭') + '</div></span>'
+            + '<span class="switch" role="switch" tabindex="0" aria-label="' + d.type + '开关" aria-checked="' + on + '" data-dev="' + d.id + '"></span></div>';
+        }).join('') + '</div>' : '<div class="hm-empty"><p>服务商尚未为该家庭录入设备</p></div>')
+      + '<div class="np-hint" style="margin:10px 4px;">新增或更换设备由服务商上门安装后在后台录入。</div>';
+  }
+  function bindSimpleHome(){
+    document.querySelectorAll('[data-dev]').forEach(function(sw){
+      function toggle(){ var id = sw.getAttribute('data-dev'); devOn[id] = devOn[id] === false; keepScroll(render); }
+      sw.addEventListener('click', toggle);
+      sw.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); } });
+    });
+  }
+  function notFlagshipNote(tabName){
+    var h = currentHome();
+    return '<div class="hm-empty"><div class="ei">📋</div><b>「' + esc(h.name) + '」暂无' + tabName + '</b>'
+      + '<p>演示中只有「星海国际公寓 3栋 2703」接入了完整的' + tabName + '数据，可在首页顶部切换家庭查看。</p></div>';
   }
 
   var lastViewKey = '';
   function render(){
     var body = document.getElementById('screenBody');
     // 切换到不同页面时回到顶部；同一页面因数据同步重绘时保留滚动位置
-    var viewKey = currentTab + '|' + homeView;
+    var screen = document.querySelector('.phone-screen');
+    // 未登录时只显示登录页，隐藏底部导航
+    screen.classList.toggle('logged-out', !session);
+    var viewKey = session ? currentTab + '|' + homeView + '|' + currentHomeId : 'login';
     if(viewKey !== lastViewKey){ body.scrollTop = 0; lastViewKey = viewKey; }
+    if(!session){ body.innerHTML = loginHtml(); bindLogin(); return; }
+    var home = currentHome();
     if(currentTab==='home'){
-      if(homeView==='smart'){ body.innerHTML = smartHtml(); bindSmart(); }
-      else if(homeView==='newProject'){ body.innerHTML = newProjectHtml(); bindNewProject(); }
+      if(homeView==='homes'){ body.innerHTML = homesHtml(); bindHomes(); }
+      else if(homeView==='homeEdit' && editHomeId){ body.innerHTML = homeEditHtml(); bindHomeEdit(); }
+      else if(homeView==='reqAdd' && ra){ body.innerHTML = reqAddHtml(); bindReqAdd(); }
+      else if(homeView==='reqRemove' && rr){ body.innerHTML = reqRemoveHtml(); bindReqRemove(); }
+      else if(!home){ homeView = 'list'; body.innerHTML = noHomeHtml(); var b = document.getElementById('hmReqAdd'); if(b) b.addEventListener('click', openReqAdd); }
+      else if(!isFlagship(home)){ homeView = 'list'; body.innerHTML = homeBarHtml(home) + simpleHomeHtml(home); bindHomeBar(); bindSimpleHome(); }
+      else if(homeView==='smart'){ body.innerHTML = smartHtml(); bindSmart(); }
       else { body.innerHTML = homeView==='list' ? homeListHtml() : roomDetailHtml(homeView); bindHome(); }
     }
-    else if(currentTab==='scenes'){ body.innerHTML = scenesHtml(); bindScenes(); }
-    else if(currentTab==='history'){ body.innerHTML = historyHtml(); bindHistory(); }
+    else if(currentTab==='scenes'){ if(home && !isFlagship(home)){ body.innerHTML = notFlagshipNote('场景'); } else { body.innerHTML = scenesHtml(); bindScenes(); } }
+    else if(currentTab==='history'){ if(home && !isFlagship(home)){ body.innerHTML = notFlagshipNote('历史数据'); } else { body.innerHTML = historyHtml(); bindHistory(); } }
     else if(currentTab==='service'){ body.innerHTML = serviceHtml(); bindService(); }
     else if(currentTab==='me'){ body.innerHTML = meHtml(); bindMe(); }
   }
@@ -1022,17 +1265,15 @@
   /* ============================================================ */
   /* HOME                                                           */
   /* ============================================================ */
-  function projSwitchHtml(){
-    return '<div class="proj-switch">📍 <select id="projSelect" aria-label="切换项目">'+projectLabels().map(function(p,i){ return '<option value="'+i+'" '+(i===currentProject?'selected':'')+'>'+esc(p)+'</option>'; }).join('')+'</select>'
-      + '<button type="button" class="proj-new" id="projNew">＋ 新建项目</button></div>';
+  function bindHomeBar(){
+    var bar = document.getElementById('hmBar');
+    if(bar && !bar.dataset.bound){ bar.dataset.bound = '1'; bar.addEventListener('click', function(){ homeView = 'homes'; render(); }); }
   }
   function homeListHtml(){
-    var up = currentUserProject();
-    if(up) return projSwitchHtml() + userProjectHomeHtml(up);
-    var proj = projectsList[currentProject];
-    var loc = proj.split(' · ')[0];
+    var home = currentHome();
+    var loc = home.city;
     var room = rooms[0];
-    return shAlarmBanner() + projSwitchHtml()
+    return homeBarHtml(home) + shAlarmBanner()
       + '<div class="weather-card"><div><div class="wloc">室外气象 · '+loc+'</div>'
       + '<div class="wvals"><span><b>12</b>℃</span><span>湿度 79%</span><span class="tag warn">PM2.5 142 中度污染</span></div></div></div>'
       + '<div class="home-hero">'
@@ -1081,26 +1322,7 @@
 
   function bindHome(){
     bindFolds();
-    var sel = document.getElementById('projSelect');
-    if(sel && !sel.dataset.bound){
-      sel.dataset.bound = '1';
-      sel.addEventListener('change', function(e){ currentProject = +e.target.value; render(); toast('已切换至 '+projectLabels()[currentProject]); });
-    }
-    var pn = document.getElementById('projNew');
-    if(pn && !pn.dataset.bound){ pn.dataset.bound = '1'; pn.addEventListener('click', openNewProject); }
-    var del = document.getElementById('npDelete');
-    if(del && !del.dataset.bound){
-      del.dataset.bound = '1';
-      del.addEventListener('click', function(){
-        var p = currentUserProject();
-        if(!p || !window.confirm('删除「' + p.name + '」？服务商中控台中的该项目也会一并移除。')) return;
-        userProjects = upLoad().filter(function(x){ return x.id !== p.id; });
-        upSave(userProjects);
-        currentProject = 0;
-        render();
-        toast('已删除项目「' + p.name + '」');
-      });
-    }
+    bindHomeBar();
 
     var modeRowEl = document.getElementById('modeRow');
     if(modeRowEl){
@@ -1443,15 +1665,19 @@
   /* ME TAB                                                         */
   /* ============================================================ */
   function meHtml(){
-    return '<div class="profile-card"><div class="profile-avatar"></div><div><div class="profile-name">业主 · 张先生</div><div class="profile-sub">'+esc(projectLabels()[currentProject])+'</div></div></div>'
-      + '<button type="button" class="settings-row" id="meNewProject" style="width:100%;font-family:inherit;color:inherit;cursor:pointer;"><span>＋ 新建项目 · 添加我的家</span><span class="rl">'+(userProjects.length ? '已添加 '+userProjects.length+' 个 ›' : '›')+'</span></button>'
+    var home = currentHome(), pending = myRequests().filter(function(r){ return r.status === 'pending'; }).length;
+    var rowBtn = ' style="width:100%;font-family:inherit;color:inherit;cursor:pointer;"';
+    return '<div class="profile-card"><div class="profile-avatar"></div><div><div class="profile-name">业主 · ' + maskPhone(session.phone) + '</div>'
+      + '<div class="profile-sub">' + (session.via === 'wechat' ? '微信登录' : '手机号登录') + (home ? ' · 当前家庭：' + esc(home.name) : ' · 暂未绑定家庭') + '</div></div></div>'
+      + '<button type="button" class="settings-row" id="meHomes"' + rowBtn + '><span>我的家庭</span><span class="rl">' + myHomes().length + ' 个' + (pending ? ' · ' + pending + ' 个申请处理中' : '') + ' ›</span></button>'
       + '<div class="settings-row"><span>消息通知</span><span class="switch" role="switch" aria-checked="true" id="notifSwitch"></span></div>'
       + '<div class="settings-row"><span>账户与安全</span><span class="rl">›</span></div>'
-      + '<div class="settings-row"><span>房屋与设备管理</span><span class="rl">›</span></div>'
-      + '<div class="settings-row"><span>关于暖枢</span><span class="rl">v2.4.1</span></div>';
+      + '<div class="settings-row"><span>关于暖枢</span><span class="rl">v2.4.1</span></div>'
+      + '<button type="button" class="settings-row" id="meLogout"' + rowBtn + '><span style="color:var(--critical);">退出登录</span><span class="rl"></span></button>';
   }
   function bindMe(){
-    document.getElementById('meNewProject').addEventListener('click', openNewProject);
+    document.getElementById('meHomes').addEventListener('click', function(){ goHomeView(myHomes().length ? 'homes' : 'list'); });
+    document.getElementById('meLogout').addEventListener('click', logout);
     var sw = document.getElementById('notifSwitch');
     if(sw) sw.addEventListener('click', function(){ var on = sw.getAttribute('aria-checked')!=='true'; sw.setAttribute('aria-checked', on); });
   }

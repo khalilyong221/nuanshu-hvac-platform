@@ -584,7 +584,7 @@
     }).join('');
 
     return ''+
-    '<div class="hp-topbar"><div><div class="home-name">我的一号家</div><div class="home-sub">星海国际公寓 · 3栋 2703</div></div>'+
+    '<div class="hp-topbar"><div><div class="home-name">'+hmEsc(panelHome().name)+'</div><div class="home-sub">'+hmEsc(panelHome().address)+'</div></div>'+
       '<div class="hp-bell">🔔<span class="bd"></span></div></div>'+
     hpAlarmStrip()+
 
@@ -937,6 +937,15 @@
   /* 智能家居与安防 · 三端共享状态                                        */
   /* 同一浏览器内打开的三端页面通过 localStorage 实时同步（演示用）            */
   /* ============================================================ */
+  /* 本面板安装在「星海国际公寓 3栋 2703」；家庭名称与地址来自账号与家庭绑定共享数据（nuanshu-homes-v1），业主可在小程序中修改 */
+  var HM_KEY = 'nuanshu-homes-v1';
+  function panelHome(){
+    try{ var o = JSON.parse(localStorage.getItem(HM_KEY)); var h = o && o.homes && o.homes.filter(function(x){ return x.id === 'h-xh'; })[0]; if(h) return h; }catch(e){}
+    return { name:'我的一号家', address:'星海国际公寓 3栋 2703' };
+  }
+  function hmEsc(s){ return String(s).replace(/[&<>"]/g, function(ch){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[ch]; }); }
+  window.addEventListener('storage', function(e){ if(e.key === HM_KEY) render(); });
+
   var SH_KEY = 'nuanshu-smarthome-v1';
   function shDefault(){
     return {
@@ -1077,7 +1086,7 @@
     var evts = SH.events.slice(0, 6).map(function(e){
       return '<div class="hs-evt '+e.lvl+'"><span class="et">'+e.t+'</span><span class="eb"><b>'+e.dev+'</b> '+e.act+'</span><span class="es">'+e.src+'</span></div>';
     }).join('');
-    return '<div class="hp-topbar"><div><div class="home-name">安防与家居</div><div class="home-sub">星海国际公寓 · 3栋 2703 · '+shSummary().total+' 个智能设备</div></div>'
+    return '<div class="hp-topbar"><div><div class="home-name">安防与家居</div><div class="home-sub">'+hmEsc(panelHome().address)+' · '+shSummary().total+' 个智能设备</div></div>'
       + '<button type="button" class="hs-mini" id="hsReset">恢复演示状态</button></div>'
       + hpAlarmStrip()
       + '<div class="hs-grid">'

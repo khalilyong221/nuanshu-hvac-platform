@@ -21,6 +21,7 @@
 ├── panel.html      # 硬件中控面板（深色触屏风格）
 ├── showcase.html   # 作品集 / 案例展示页
 ├── index.html      # 早期三端合一原型
+├── fonts/          # 自托管字体（Oswald / IBM Plex，SIL OFL 开源许可）
 └── images/         # showcase.html 使用的产品截图
     ├── console.png
     ├── app.png
@@ -31,7 +32,7 @@
 
 业主端小程序与硬件中控面板共用同一套设计 token（通过 CSS 自定义属性实现明暗双主题）；服务商中控台作为运营大屏，单独使用一套深蓝配色：
 
-- 字体：Oswald（展示型标题）+ IBM Plex Sans（正文）+ IBM Plex Mono（数据 / 代码感元素）
+- 字体：Oswald（展示型标题）+ IBM Plex Sans（正文）+ IBM Plex Mono（数据 / 代码感元素）。字体文件随项目放在 `fonts/` 目录、与页面同源加载（只保留英文与数字子集，中文使用系统字体），不依赖 Google Fonts，国内网络下也能快速打开
 - 业主端 / 硬件面板：暖米色底、黄铜色（brass）强调，`:root` 定义浅色，`prefers-color-scheme: dark` 与 `[data-theme="dark"]` 覆盖深色
 - 服务商中控台：深蓝数据大屏——深海军蓝底色，叠加顶部蓝色光晕与细网格，亮蓝强调；`[data-theme="light"]` 提供淡蓝浅色版
 - 语义色：good / warn / critical（状态色），图表分类色 `--cat1` ~ `--cat5`
@@ -61,7 +62,7 @@
 
 ## 技术说明
 
-纯原生 HTML / CSS / JavaScript 实现，未使用任何前端框架或打包工具，便于直接阅读源码了解实现细节。每个页面自带完整的设计 token、组件样式与交互逻辑。
+纯原生 HTML / CSS / JavaScript 实现，未使用任何前端框架、打包工具或第三方 CDN，便于直接阅读源码了解实现细节。每个页面自带完整的设计 token、组件样式与交互逻辑。
 
 ---
 

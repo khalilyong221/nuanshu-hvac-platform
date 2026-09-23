@@ -6,11 +6,13 @@
 
 | 页面 | 说明 | 链接 |
 |---|---|---|
-| 作品集展示页 | 面向面试官 / 简历读者的整体案例介绍，含架构图、3 分钟体验路线、跨端业务闭环、设计系统与界面截图 | https://khalilyong221.github.io/nuanshu-hvac-platform/showcase.html |
-| 服务商中控台（console.html） | 面向暖通服务商的大屏 SaaS 管理后台：项目分布地图、多站点监控、工单、能耗、告警联动 | https://khalilyong221.github.io/nuanshu-hvac-platform/console.html |
-| 业主端小程序（app.html） | 面向终端业主的移动端小程序风格界面：设备控制、历史数据、用电量分析 | https://khalilyong221.github.io/nuanshu-hvac-platform/app.html |
-| 硬件中控面板（panel.html） | 模拟墙面硬件面板的深色触屏界面：本地控制、传感器数据、用电量分析 | https://khalilyong221.github.io/nuanshu-hvac-platform/panel.html |
-| 最初的三端合一原型（index.html） | 项目早期版本，三端整合在一个页面内，作为设计演进的起点保留 | https://khalilyong221.github.io/nuanshu-hvac-platform/index.html |
+| 作品集展示页 | 面向面试官 / 简历读者的整体案例介绍，含架构图、3 分钟体验路线、跨端业务闭环、设计系统与界面截图 | https://khalilzheng.cn/nuanshu-hvac-platform/showcase.html |
+| 服务商中控台（console.html） | 面向暖通服务商的大屏 SaaS 管理后台：项目分布地图、多站点监控、工单、能耗、告警联动 | https://khalilzheng.cn/nuanshu-hvac-platform/console.html |
+| 业主端小程序（app.html） | 面向终端业主的移动端小程序风格界面：设备控制、历史数据、用电量分析 | https://khalilzheng.cn/nuanshu-hvac-platform/app.html |
+| 硬件中控面板（panel.html） | 模拟墙面硬件面板的深色触屏界面：本地控制、传感器数据、用电量分析 | https://khalilzheng.cn/nuanshu-hvac-platform/panel.html |
+| 最初的三端合一原型（legacy.html） | 项目早期版本，三端整合在一个页面内，作为设计演进的起点保留 | https://khalilzheng.cn/nuanshu-hvac-platform/legacy.html |
+
+> 仓库首页 `/` 会自动跳转到作品集展示页，因此任何指向仓库根目录的链接都能落到最新内容。
 
 ## 项目结构
 
@@ -20,7 +22,8 @@
 ├── app.html        # 业主端小程序（移动端）
 ├── panel.html      # 硬件中控面板（深色触屏风格）
 ├── showcase.html   # 作品集 / 案例展示页
-├── index.html      # 早期三端合一原型
+├── index.html      # 目录首页：自动跳转到 showcase.html
+├── legacy.html     # 早期三端合一原型（设计演进起点）
 ├── fonts/          # 自托管字体（Oswald / IBM Plex，SIL OFL 开源许可）
 └── images/         # showcase.html 使用的界面截图（WebP，由无头 Chrome 按真实页面截取）
     ├── console.webp / console-monitor.webp

@@ -17,15 +17,19 @@
   'use strict';
 
   // 接口地址，三种情况：
-  //   ① 页面里显式指定了 window.NS_API_BASE → 用它（以后 API 上了公网就写这里）
-  //   ② 本地起 api.py 托管本页（同源）        → 用 location.origin
+  //   ① 页面里显式指定了 window.NS_API_BASE → 用它（API 上了公网就写这里）
+  //   ② 本地起 api.py 托管本页（同源）        → 用 location.origin   ← **唯一实测能通的**
   //   ③ 线上页面（khalilzheng.cn）            → 试本机 127.0.0.1:8790
   //
-  // ③ 为什么敢这么写：
-  //   - 站主本机跑着 api.py 时 → 线上页面也能看到真实数据（这正是"本地验证"要的）
-  //   - 普通访客的本机没有这个服务 → 请求失败 → **静默回落**，页面上不留任何痕迹
-  //   - 浏览器把 http://127.0.0.1 视为可信来源，所以 HTTPS 页面请求它不会被拦；
-  //     跨源也由 api.py 的 Access-Control-Allow-Origin: * 放行
+  // ⚠️ ③ 实测**走不通**，别指望它：
+  //   Chrome 会直接拦掉「HTTPS 页面 → HTTP 本机」的请求，**请求根本发不出去**。
+  //   证据：服务端日志里一条记录都没有（只看到手动 curl 的那几条）。
+  //   试过加 Access-Control-Allow-Private-Network: true + OPTIONS 预检 —— 仍然被拦，
+  //   说明卡在浏览器策略层，不是 CORS。
+  //
+  //   → 所以：**想让线上页面出真数据，只能把 API 部署到公网（HTTPS）。**
+  //     本地要看真数据，就打开 http://127.0.0.1:8790/console.html（同源，没问题）。
+  //     这条保留在代码里只是为了万一将来浏览器策略放宽，失败时是静默的、无任何副作用。
   var LOCAL_API = 'http://127.0.0.1:8790';
   var isLocal = (location.hostname === '127.0.0.1' || location.hostname === 'localhost');
   var API = window.NS_API_BASE || (isLocal ? location.origin : LOCAL_API);

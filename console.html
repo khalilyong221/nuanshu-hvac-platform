@@ -160,6 +160,17 @@
   .section-tab[aria-selected="true"]::after{ background: var(--brass); }
   .section-tab .badge{ background: var(--critical-soft); color: var(--critical); font-size:10.5px; font-weight:600; border-radius:999px; padding:1px 6px; }
 
+  /* 外部入口：跳到别的页面（不是本页分区）。故意不复用 .section-tab ——
+     那个 class 被 JS 全量选择并绑了切换逻辑，复用会执行 activateSection(null) 把分区全隐藏。 */
+  .ext-link{ border:none; background:transparent; color:var(--ink-faint); font-size:13.5px; font-weight:500;
+    padding:10px 4px; cursor:pointer; position:relative; display:flex; align-items:center; gap:7px;
+    margin-right:18px; text-decoration:none; }
+  .ext-link .n{ font-family:var(--font-mono); font-size:10.5px; color:var(--ink-faint);
+    border:1px solid var(--border-strong); border-radius:5px; padding:1px 5px; }
+  .ext-link:hover{ color:var(--ink); }
+  .ext-link:hover .n{ background:var(--brass); border-color:var(--brass); color:var(--surface-raised); }
+  .nameplate .ext-link{ margin-right:0; padding:7px 14px; border-radius:999px; font-size:13px; }
+
   .panel{ background: var(--surface-raised); border:1px solid var(--border); border-radius: var(--radius-l); box-shadow: var(--shadow-soft); }
   .panel-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding: 16px 18px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
   .panel-head h2{ font-size:15.5px; font-weight:600; margin:0; letter-spacing:0.2px; }
@@ -626,6 +637,7 @@
         <button class="section-tab" role="tab" data-section="monitor" aria-selected="false"><span class="n">02</span>运行监测</button>
         <button class="section-tab" role="tab" data-section="faults" aria-selected="false"><span class="n">03</span>故障预警</button>
         <button class="section-tab" role="tab" data-section="orders" aria-selected="false"><span class="n">04</span>服务工单 <span class="badge" id="orderBadge" hidden></span></button>
+        <a class="ext-link" href="pipeline.html" title="数据链路报告：采集 → 清洗 → 归一化 → 聚合（跳到另一个页面）"><span class="n">05</span>数据链路 ↗</a>
       </div>
     </div>
     <div class="nameplate-right">

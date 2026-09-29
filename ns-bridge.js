@@ -16,10 +16,19 @@
 (function () {
   'use strict';
 
-  // 接口地址。
-  //   本地：api.py 同时托管页面和接口 → 同源，直接用它
-  //   以后把 API 部署到公网：在页面里先设 window.NS_API_BASE = 'https://…' 即可
-  var API = window.NS_API_BASE || location.origin;
+  // 接口地址，三种情况：
+  //   ① 页面里显式指定了 window.NS_API_BASE → 用它（以后 API 上了公网就写这里）
+  //   ② 本地起 api.py 托管本页（同源）        → 用 location.origin
+  //   ③ 线上页面（khalilzheng.cn）            → 试本机 127.0.0.1:8790
+  //
+  // ③ 为什么敢这么写：
+  //   - 站主本机跑着 api.py 时 → 线上页面也能看到真实数据（这正是"本地验证"要的）
+  //   - 普通访客的本机没有这个服务 → 请求失败 → **静默回落**，页面上不留任何痕迹
+  //   - 浏览器把 http://127.0.0.1 视为可信来源，所以 HTTPS 页面请求它不会被拦；
+  //     跨源也由 api.py 的 Access-Control-Allow-Origin: * 放行
+  var LOCAL_API = 'http://127.0.0.1:8790';
+  var isLocal = (location.hostname === '127.0.0.1' || location.hostname === 'localhost');
+  var API = window.NS_API_BASE || (isLocal ? location.origin : LOCAL_API);
   var TAG = '[ns-bridge]';
 
   window.__NS_STATUS = { api: API, ok: false, source: 'built-in demo data' };

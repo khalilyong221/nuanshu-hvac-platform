@@ -1213,7 +1213,9 @@
   document.getElementById('deviceSearch').addEventListener('input', function(e){ searchTerm = e.target.value; renderDeviceList(); });
 
   function renderEnergyChart(){
-    var data = [4.2,3.8,3.5,3.3,3.6,4.5,6.8,8.9,9.6,9.1,8.7,9.3,9.8,9.2,8.8,9.0,9.6,10.4,11.2,10.6,9.1,7.4,5.9,4.8];
+    /* ns-bridge 挂点①：接口有数据就用接口的，否则用内置演示数据 */
+    var NS_E = window.__NS_ENERGY;
+    var data = (NS_E && NS_E.length === 24) ? NS_E : [4.2,3.8,3.5,3.3,3.6,4.5,6.8,8.9,9.6,9.1,8.7,9.3,9.8,9.2,8.8,9.0,9.6,10.4,11.2,10.6,9.1,7.4,5.9,4.8];
     var svg = document.getElementById('energyChart');
     var W=560,H=170,padL=8,padR=8,padT=10,padB=24,innerW=W-padL-padR,innerH=H-padT-padB;
     var max=Math.max.apply(null,data), min=0, stepX=innerW/(data.length-1);
@@ -2440,7 +2442,9 @@
   renderMapTrend();
   renderDealerList(); renderProjectPanel();
   renderDeviceList(); renderEnergyChart();
+  window.__NS_rerender = renderEnergyChart;   /* ns-bridge 挂点② */
   renderFaultTrend(); renderFaultList(); renderWatchAlerts();
   renderOrderList();
 })();
 </script>
+<script src="ns-bridge.js"></script>

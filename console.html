@@ -899,6 +899,32 @@
   };
   var deviceById = {}; devices.forEach(function(d){ deviceById[d.id] = d; });
 
+  /* 项目设备的「在线 / 异常 / 离线」统计 —— 全仓唯一口径。
+     项目详情（renderProjectPanel）与地图卡（mapProjects）都从这里取数，
+     避免两处各算一套，出现「地图写 128 台、点进去只有 12 台」这种自相矛盾。 */
+  function projectDeviceStats(p){
+    var st = { total:p.deviceIds.length, online:0, warn:0, offline:0 };
+    p.deviceIds.forEach(function(id){
+      var d = deviceById[id];
+      if(!d) return;
+      st[d.status] = (st[d.status] || 0) + 1;
+    });
+    return st;
+  }
+  /* m1（星海国际公寓）是 mapProjects 里唯一挂了 projectId 的卡：
+     它的设备数与在线率必须由 projects[].deviceIds 派生，不能手写。
+     设备状态变化后（如远程处理 d3 / x7）需再调一次。 */
+  function syncXinghaiDevices(){
+    mapProjects.forEach(function(m){
+      if(!m.projectId) return;
+      var p = projects.filter(function(x){ return x.id === m.projectId; })[0];
+      if(!p) return;
+      var st = projectDeviceStats(p);
+      m.devices = st.total;
+      m.online = st.total ? st.online / st.total : 0;
+    });
+  }
+
   var projects = [
     { id:'p1', name:'星海国际公寓', dealer:'dl-hd', star:true, customer:'星海物业管理有限公司', code:'PRJ-20230114-07',
       installDate:'2023-01-14', commissionDate:'2023-01-20', warrantyDate:'2027-01-14', contact:'张经理', phone:'138****2210',
@@ -912,7 +938,9 @@
   ];
 
   var faults = [
-    { id:'f1', projectId:'p1', deviceId:'d3', sev:'critical', text:'供水温度超上限 (31.2℃ > 30℃)', time:'3 分钟前', hasOrder:false },
+    /* f1 已对应工单 WO-2233（p1 / d3 / pending，见下方 orders）→ hasOrder 必须为 true，
+       否则按钮会渲染成可点的「发起服务」，点一次就多建一张重复工单。 */
+    { id:'f1', projectId:'p1', deviceId:'d3', sev:'critical', text:'供水温度超上限 (31.2℃ > 30℃)', time:'3 分钟前', hasOrder:true },
     { id:'f2', projectId:'p3', deviceId:'d8', sev:'warn', text:'滤网压差偏高，建议检修', time:'22 分钟前', hasOrder:false },
     { id:'f3', projectId:'p2', deviceId:'d6', sev:'critical', text:'设备离线，最后心跳 47 分钟前', time:'47 分钟前', hasOrder:true },
     { id:'f4', projectId:'p2', deviceId:'d4', sev:'warn', text:'夜间能耗环比上升 18%', time:'1 小时前', hasOrder:false },
@@ -1055,15 +1083,14 @@
 
       var typeCount = {}, typeOrder = [];
       p.deviceIds.forEach(function(id){ var t = deviceById[id].type; if(!typeCount[t]){ typeCount[t] = 0; typeOrder.push(t); } typeCount[t]++; });
-      var sc = { online:0, warn:0, offline:0 };
-      p.deviceIds.forEach(function(id){ sc[deviceById[id].status]++; });
+      var sc = projectDeviceStats(p);   // 与地图卡同一口径，见 projectDeviceStats()
       var configTable = '<div class="cfg-title">项目配置</div><div class="cfg-table"><div class="cfg-row cfg-head"><span>设备类型</span><span>品牌</span><span>型号</span><span>额定功率 / 说明</span><span>数量</span></div>'
         + typeOrder.map(function(t){ var sp = deviceSpec[t] || ['—','—'];
             return '<div class="cfg-row"><span>'+t+'</span><span>暖枢</span><span class="mono">'+sp[0]+'</span><span class="mono">'+sp[1]+'</span><span class="mono">'+typeCount[t]+'</span></div>'; }).join('')
         + (p.focus ? shTypeRows.map(function(r){ return '<div class="cfg-row"><span>'+r[0]+'</span><span>暖枢</span><span class="mono">'+r[1]+'</span><span class="cfg-note">'+r[2]+'</span><span class="mono">'+r[3]()+'</span></div>'; }).join('') : '')
         + '</div>';
       var badge = p.focus ? ' <span class="pill warn" style="font-size:11px;vertical-align:2px;">重点项目</span>' : '';
-      body.innerHTML = '<div class="panel-head"><div><h2>'+p.name+(p.star?' <span style="color:var(--brass);font-size:12px;">★ 星标客户</span>':'')+badge+'</h2><div class="desc">'+p.deviceIds.length+' 台暖通设备'+(p.focus ? ' · '+shSummary().total+' 个智能家居设备' : '')+' · 在线 '+sc.online+' · 异常 '+sc.warn+' · 离线 '+sc.offline+' · 隶属 '+(dealer?dealer.name:'—')+'</div></div></div>'
+      body.innerHTML = '<div class="panel-head"><div><h2>'+p.name+(p.star?' <span style="color:var(--brass);font-size:12px;">★ 星标客户</span>':'')+badge+'</h2><div class="desc">'+sc.total.toLocaleString()+' 台暖通设备 · 在线率 '+(sc.total ? Math.round(sc.online / sc.total * 100) : 0)+'%'+(p.focus ? ' · '+shSummary().total+' 个智能家居设备' : '')+' · 在线 '+sc.online+' · 异常 '+sc.warn+' · 离线 '+sc.offline+' · 隶属 '+(dealer?dealer.name:'—')+'</div></div></div>'
         + '<div class="info-grid">'+infoCells.map(function(c){ return '<div class="info-cell"><div class="l">'+c[0]+'</div><div class="v">'+c[1]+'</div></div>'; }).join('')+'</div>'
         + unitBindingsHtml(p.id)
         + configTable
@@ -1473,6 +1500,9 @@
     { id:'m15', name:'浑南妇儿医院', city:'沈阳·浑南', dealer:'dl-db', lon:123.46, lat:41.73, devices:92,  online:0.90, area:27000, status:'good' },
     { id:'m16', name:'冰城会展中心', city:'哈尔滨·松北', dealer:'dl-db', lon:126.53, lat:45.80, devices:58,  online:0.84, area:24600, status:'warn', note:'2 台地暖主机回水温度偏低' }
   ];
+  /* 唯一挂 projectId 的 m1：设备数 128 → 12、在线率 0.94 → 9/12，全部来自 p1.deviceIds。
+     其余 15 张卡没有明细项目，保持各自的概数。 */
+  syncXinghaiDevices();
   var mapStatusMeta = {
     good:{ label:'运行正常', icon:'✓', pill:'good' },
     warn:{ label:'有预警', icon:'!', pill:'warn' },
@@ -2182,6 +2212,8 @@
     var m = mapProjects.filter(function(x){ return x.id === 'm1'; })[0];
     m.status = fs.some(function(f){ return f.sev === 'critical'; }) ? 'critical' : (fs.length ? 'warn' : 'good');
     m.note = fs.length ? fs[0].text : '运行正常';
+    // 远程处理会把 d3 / x7 的 status 从 warn 改成 online → 设备统计要跟着重算
+    syncXinghaiDevices();
   }
   // 远程可处理的事项：星海国际公寓按当前故障给出，其他家庭提供通用检查
   function remoteActionsFor(h){

@@ -84,9 +84,20 @@
   .dot{ width:7px; height:7px; border-radius:50%; background:var(--good); flex:none; }
   .dot.pulse{ animation: pulse 2.2s ease-in-out infinite; }
   @keyframes pulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.35; } }
-  .theme-toggle{ display:flex; align-items:center; gap:6px; background: var(--surface-raised); border:1px solid var(--border); border-radius:999px; padding:5px; box-shadow: var(--shadow-soft); }
-  .theme-toggle button{ border:none; background:transparent; color:var(--ink-muted); width:30px; height:30px; border-radius:999px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px; }
+  /* 主题切换：图标 + 文字。☀ / ☾ / ◐ 三个符号单摆出来没人猜得到含义（尤其 ◐），故每段都配文字。
+     悬停另有 title 说明；窄屏收成纯图标，见下方 820 断点 */
+  .theme-toggle{ display:flex; align-items:center; gap:4px; background: var(--surface-raised); border:1px solid var(--border); border-radius:999px; padding:4px; box-shadow: var(--shadow-soft); }
+  .theme-toggle button{ border:none; background:transparent; color:var(--ink-muted); height:30px; padding:0 11px; border-radius:999px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px; font-size:12.5px; line-height:1; white-space:nowrap; }
+  .theme-toggle button .tt-ico{ font-size:14px; line-height:1; }
+  .theme-toggle button:hover{ color: var(--ink); }
   .theme-toggle button.active{ background: var(--brass-soft); color: var(--brass-ink); }
+  @media (max-width:820px){
+    /* 窄屏：隐藏文字只留图标，并把间距 / 内边距还原成原图标版的数值
+       （断点必须放 820 而不是 680 —— 实测 681~800px 时文字版会把页签栏挤换行，768 平板正好在里面） */
+    .theme-toggle{ gap:6px; padding:5px; }
+    .theme-toggle button .tt-txt{ display:none; }
+    .theme-toggle button{ padding:0; width:30px; }
+  }
 
   .arch-nav{ margin: 18px 0 26px; display:flex; align-items:stretch; gap:10px; flex-wrap: wrap; background: var(--surface-inset); border:1px solid var(--border); border-radius: var(--radius-l); padding:10px; box-shadow: inset 0 1px 4px rgba(0,0,0,0.08); }
   .arch-node{ flex:1 1 190px; min-width:170px; border:1px solid transparent; border-radius: var(--radius-m); padding:12px 14px; display:flex; align-items:center; gap:11px; text-decoration:none; color: var(--ink-muted); }
@@ -417,9 +428,9 @@
     <div class="nameplate-right">
       <div class="status-chip"><span class="dot pulse"></span> RS-485 / Wi-Fi 已连接</div>
       <div class="theme-toggle" role="group" aria-label="主题切换">
-        <button type="button" data-theme-btn="light" aria-label="浅色主题">☀</button>
-        <button type="button" data-theme-btn="dark" aria-label="深色主题">☾</button>
-        <button type="button" data-theme-btn="system" aria-label="跟随系统" class="active">◐</button>
+        <button type="button" data-theme-btn="light" aria-label="浅色主题" title="浅色主题 · 始终使用浅色外观"><span class="tt-ico" aria-hidden="true">☀</span><span class="tt-txt">浅色</span></button>
+        <button type="button" data-theme-btn="dark" aria-label="深色主题" title="深色主题 · 始终使用深色外观"><span class="tt-ico" aria-hidden="true">☾</span><span class="tt-txt">深色</span></button>
+        <button type="button" data-theme-btn="system" aria-label="跟随系统" title="跟随系统 · 随操作系统的浅色 / 深色设置自动切换（当前系统为深色时，效果与「深色」相同）" class="active"><span class="tt-ico" aria-hidden="true">◐</span><span class="tt-txt">跟随系统</span></button>
       </div>
     </div>
   </div>

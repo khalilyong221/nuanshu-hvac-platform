@@ -18,6 +18,7 @@
 
 ```
 .
+├── README.md       # 本文件
 ├── console.html    # 服务商中控台（大屏 / PC 端）
 ├── app.html        # 业主端小程序（移动端）
 ├── panel.html      # 硬件中控面板（深色触屏风格）
@@ -25,23 +26,26 @@
 ├── index.html      # 目录首页：自动跳转到 showcase.html
 ├── legacy.html     # 早期三端合一原型（设计演进起点）
 ├── fonts/          # 自托管字体（Oswald / IBM Plex，SIL OFL 开源许可）
-└── images/         # showcase.html 使用的界面截图（WebP，由无头 Chrome 按真实页面截取）
+└── images/         # showcase.html 使用的界面截图（WebP，由无头 Chrome 按真实页面截取）与素材
     ├── console.webp / console-monitor.webp
     ├── app.webp / app-login.webp / app-report.webp / app-smart.webp / app-access.webp
-    └── panel.webp / panel-lock.webp
+    ├── panel.webp / panel-lock.webp
+    └── qr-showcase.png          # 作品集页的二维码，指向线上 showcase.html
 ```
 
 ## 设计系统
 
-业主端小程序与硬件中控面板共用同一套设计 token（通过 CSS 自定义属性实现明暗双主题）；服务商中控台作为运营大屏，单独使用一套深蓝配色：
+业主端小程序与硬件中控面板共用同一套设计 token（通过 CSS 自定义属性实现明暗双主题；硬件面板的设备屏幕是例外，见下）；服务商中控台作为运营大屏，单独使用一套深蓝配色：
 
 - 字体：Oswald（展示型标题）+ IBM Plex Sans（正文）+ IBM Plex Mono（数据 / 代码感元素）。字体文件随项目放在 `fonts/` 目录、与页面同源加载（只保留英文与数字子集，中文使用系统字体），不依赖 Google Fonts，国内网络下也能快速打开
 - 业主端 / 硬件面板：暖米色底、黄铜色（brass）强调，`:root` 定义浅色，`prefers-color-scheme: dark` 与 `[data-theme="dark"]` 覆盖深色
+- **硬件面板的设备屏幕恒为深色**：`panel.html` 呈现的是一台墙面触控终端本身，屏幕内的配色是这台设备的固定外观（贴近真实硬件），不随页面主题变化；主题只作用于页面外围的页签栏、状态胶囊与页脚。业主端小程序的机身与屏幕则完全跟随主题
+- 硬件面板屏幕按市面主流的 10.1 英寸墙面中控屏物理规格 **1280×800（16:10）** 呈现，切换不同标签页时比例保持不变，内容在屏幕内独立滚动
 - 服务商中控台：深蓝数据大屏——深海军蓝底色，叠加顶部蓝色光晕与细网格，亮蓝强调；`[data-theme="light"]` 提供淡蓝浅色版
 - 语义色：good / warn / critical（状态色），图表分类色 `--cat1` ~ `--cat5`
 - 地图：省界与南海诸岛数据来自阿里云 DataV.GeoAtlas，主图右下角附南海诸岛小图；地图为示意用途
 - 品牌图标「温控环」：核心创意「温暖中枢，一核控全屋」——深绿圆角底上一圈温控旋钮，暖色弧线像温度刻度，旋钮中间是一座亮着暖光的房子；纯 SVG 平面绘制，缩到 16 像素仍可辨认，同时用作页面 favicon
-- 页面右上角均提供主题手动切换
+- 页面右上角均提供主题手动切换（浅色 / 深色 / 跟随系统三档），作用于页面外围的明暗，不影响硬件面板的设备屏幕渲染
 
 ## 核心功能
 

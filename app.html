@@ -564,14 +564,17 @@
   /* DATA                                                           */
   /* ============================================================ */
 
+  /* ⚠️ 这 4 个房间与 panel.html 的 rooms 是「同一户、同一时刻」的两处副本，数值必须一致。
+     权威源 = panel.html（它有完整 8 个房间 / 3 个楼层 / 模式与风速）。
+     当前没有共享数据层，属手工同步 —— 改这里请同步改 panel.html 的对应房间。 */
   var rooms = [
-    { key:'living', name:'客厅', icon:'🛋', on:true, temp:26.4, humidity:52 },
-    { key:'master', name:'主卧', icon:'🛏', on:true, temp:24.8, humidity:55 },
-    { key:'kids',   name:'儿童房', icon:'🧸', on:false, temp:25.2, humidity:50 },
-    { key:'study',  name:'书房', icon:'📚', on:true, temp:25.0, humidity:53 }
+    { key:'living', name:'客厅', icon:'🛋', on:true,  temp:24.8, humidity:62 },
+    { key:'master', name:'主卧', icon:'🛏', on:true,  temp:24.9, humidity:56 },
+    { key:'kids',   name:'儿童房', icon:'🧸', on:true,  temp:25.3, humidity:58 },
+    { key:'study',  name:'书房', icon:'📚', on:false, temp:22.0, humidity:50 }
   ];
-  var roomTarget = { living:26, master:24, kids:25, study:25 };
-  var roomMode = { living:'cool', master:'cool', kids:'cool', study:'cool' };
+  var roomTarget = { living:25.5, master:25.1, kids:25.5, study:23.8 };
+  var roomMode = { living:'heat', master:'heat', kids:'heat', study:'heat' };
 
   var modes = [
     { key:'cool', label:'制冷', icon:'❄' },
@@ -580,10 +583,18 @@
     { key:'dry',  label:'除湿', icon:'⬦' }
   ];
 
+  /* ⚠️ scenes[].rooms 的目标温度与 panel.html 的 scenes 同源（同一户、同一时刻），
+     只保留本页 4 个房间里 panel 同名房间也有目标的那些：
+       回家 = 把房间拉回各自设定值（panel 客厅 25.5 / 老人房 25.5）→ 取本页 roomTarget
+       睡眠 = 主卧 23 · 儿童房 24（panel 原值）
+       节能 = 客厅 27 · 主卧 26（panel 原值，未变）
+       观影 / 烹饪 = 本页自有（panel 打的是影视厅 / 厨房，本页无这两个房间）
+     ⛔ 「离家」两边语义不同：panel 是「全屋降到 18℃ 低温待机」，本页是「关闭全部设备」
+        （靠 rooms:[] 触发，见 runScene）。属已知差异，不在本轮改动范围。 */
   var scenes = [
-    { key:'home',  label:'回家', icon:'🏠', built:true,  rooms:[['living',26],['master',24]] },
+    { key:'home',  label:'回家', icon:'🏠', built:true,  rooms:[['living',25.5],['master',25.1]] },
     { key:'away',  label:'离家', icon:'🚪', built:true,  rooms:[] },
-    { key:'sleep', label:'睡眠', icon:'🌙', built:true,  rooms:[['master',23]] },
+    { key:'sleep', label:'睡眠', icon:'🌙', built:true,  rooms:[['master',23],['kids',24]] },
     { key:'eco',   label:'节能', icon:'🍃', built:true,  rooms:[['living',27],['master',26]] },
     { key:'movie', label:'观影', icon:'🎬', built:true,  rooms:[['living',25]] },
     { key:'cook',  label:'烹饪', icon:'🍳', built:true,  rooms:[['living',26]] }
